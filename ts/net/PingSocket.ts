@@ -102,6 +102,7 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
       let id = view.getUint32(4, true);
       if (this.pings.has(id)) {
         this.queue.enqueue(performance.now() - this.pings.get(id));
+        this.emit("ping");
       }
     }
   }
