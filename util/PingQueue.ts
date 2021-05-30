@@ -11,6 +11,7 @@ export class PingQueue {
 
   enqueue(ping: number) {
     this.arr[this.ind++] = ping;
+
     if (this.ind >= this.capacity) {
       this.ind -= this.capacity;
     }
@@ -21,6 +22,15 @@ export class PingQueue {
       return NaN;
     }
     
-    return this.arr.reduce((acc, val) => acc + val) / this.arr.length;
+
+    let coll = 0;
+    
+    // prioritize newer data over older
+    return this.arr.reduce((acc, val, ind) => {
+      let wgt = Math.pow((this.capacity - (ind - this.ind)) % this.capacity, 0.8);
+      let res = acc + (val * wgt);
+      coll += wgt;
+      return res
+    }) / coll;
   }
 }
