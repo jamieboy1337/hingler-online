@@ -46,6 +46,9 @@ export interface SocketLike {
   addEventListener(type: 'open', callback: (event: {}) => void) : void;
   removeEventListener(type: 'open', callback: (event: {}) => void) : void;
 
+  // generic event listener
+  addEventListener(type: string, callback: (...args: any) => void) : void;
+
   send(data: string | ArrayBufferLike) : void;
   close(code?: number, reason?: string): void;
 }

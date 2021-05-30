@@ -7,6 +7,7 @@ export class ClientSocket extends SafeEventEmitter implements SocketLike {
   reconnect: boolean;
   url: string;
 
+  // TODO: PingSocket wrapper obscures disconnect/reconnect events.
   constructor(url: string) {
     super();
     this.socket = new WebSocket(url);
