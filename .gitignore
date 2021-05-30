@@ -2,3 +2,5 @@ package-lock.json
 node_modules/
 ts-out/
 client/js/
+server/js/
+test/js/

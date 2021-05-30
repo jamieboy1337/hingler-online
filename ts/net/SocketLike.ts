@@ -11,12 +11,14 @@ export enum ReadyState {
  * Simple wrapper for sockets (for now)
  */
 export interface SocketLike {
+  readyState: ReadyState;
+
   addEventListener(type: 'message', callback: (event: {
-    data: ArrayBuffer
+    data: any;
   }) => void) : void;
 
   removeEventListener(type: 'message', callback: (event: {
-    data: ArrayBuffer
+    data: any;
   }) => void) : void;
 
   addEventListener(type: 'close', callback: (event: {
@@ -46,6 +48,4 @@ export interface SocketLike {
 
   send(data: string | ArrayBufferLike) : void;
   close(code?: number, reason?: string): void;
-
-  get readyState();
 }

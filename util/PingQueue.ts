@@ -17,6 +17,10 @@ export class PingQueue {
   }
 
   getAverage() : number {
+    if (this.arr.length === 0) {
+      return NaN;
+    }
+    
     return this.arr.reduce((acc, val) => acc + val) / this.arr.length;
   }
 }

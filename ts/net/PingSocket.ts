@@ -2,6 +2,10 @@ import { PingQueue } from "../../util/PingQueue";
 import { SafeEventEmitter } from "../../util/SafeEventEmitter";
 import { ReadyState, SocketLike } from "./SocketLike";
 
+if (typeof performance === "undefined") {
+  var performance = require("perf_hooks").performance;
+}
+
 enum PacketType {
   PAYLOAD = 0,
   PING = 1
@@ -26,7 +30,7 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
     this.socket.addEventListener("error", this.error_.bind(this));
     this.queue = new PingQueue(32);
     this.pings = new Map();
-    this.idLast = 0;
+    this.idLast = 1;
   }
 
   addEventListener(type: string, callback: (...args: any) => void) {
@@ -76,27 +80,35 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
       return;
     }
 
-    let arr = new Uint8Array(message);
+    let dst = new ArrayBuffer(message.byteLength + 8);
+    new Uint8Array(dst).set(new Uint8Array(message), 8);
 
-    let bufCopy = new ArrayBuffer(message.byteLength + 8);
-    let res = Buffer.from(bufCopy);
-    res.set(arr, 8);
-    
-    let view = new DataView(bufCopy);
+    let view = new DataView(dst);
     view.setUint32(0, PacketType.PAYLOAD, true);
     view.setUint32(4, this.idLast, true);
     this.pings.set(this.idLast++, performance.now());
-    this.socket.send(bufCopy);
+    this.socket.send(dst);
   }
 
-  private handleMessage_(e: { data: ArrayBuffer }) {
-    let data : ArrayBuffer = e.data;
-    let view = new DataView(data);
+  private handleMessage_(e: { data: any }) {
+    let data = e.data;
+    let arr : ArrayBuffer;
+    if (data.constructor === ArrayBuffer) {
+      arr = data as ArrayBuffer;
+    } else if ((typeof Buffer !== "undefined") && data.constructor === Buffer) {
+      // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/12101012
+      arr = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    } else {
+      console.error("Unhandled data type received: " + typeof data);
+      return;
+    }
+
+    let view = new DataView(arr);
     let type = view.getUint32(0, true) as PacketType;
     if (type === PacketType.PAYLOAD) {
       let serverId = view.getUint32(4, true);
       this.pong_(serverId);
-      let payload = PingSocket.stripMetaData_(data);
+      let payload = PingSocket.stripMetaData_(arr);
       this.emit("message", { data: payload });
     } else { // type === PacketType.PING
       let id = view.getUint32(4, true);

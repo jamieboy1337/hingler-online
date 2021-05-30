@@ -78,6 +78,7 @@ export class ClientSocket extends SafeEventEmitter implements SocketLike {
   }
 
   private error_(e: Event) {
+    console.error("Something horrible happened");
     console.error(e);
     this.emit("error", e);
   }

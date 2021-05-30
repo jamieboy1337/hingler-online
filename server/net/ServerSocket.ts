@@ -1,11 +1,17 @@
 import { ReadyState, SocketLike } from "../../ts/net/SocketLike";
 import * as ws from "ws";
+import { SafeEventEmitter } from "../../util/SafeEventEmitter";
 
-export class ServerSocket implements SocketLike {
+export class ServerSocket extends SafeEventEmitter implements SocketLike {
   socket: ws;
 
   constructor(socket: ws) {
+    super();
     this.socket = socket;
+    this.socket.addEventListener("open", this.open_.bind(this));
+    this.socket.addEventListener("close", this.close_.bind(this));
+    this.socket.addEventListener("message", this.message_.bind(this));
+    this.socket.addEventListener("error", this.error_.bind(this));
   }
 
   get readyState() : ReadyState {
@@ -22,11 +28,11 @@ export class ServerSocket implements SocketLike {
   }
 
   addEventListener(type: string, callback: (event: any) => void) {
-    this.socket.on(type, callback);
+    this.on(type, callback);
   }
 
   removeEventListener(type: string, callback: (event: any) => void) {
-    this.socket.on(type, callback);
+    this.remove(type, callback);
   }
 
   send(data: string | ArrayBuffer) {
@@ -35,5 +41,21 @@ export class ServerSocket implements SocketLike {
 
   close(code?: number, reason?: string) {
     this.socket.close(code, reason);
+  }
+
+  private open_(e: any) {
+    this.emit("open", e);
+  }
+
+  private close_(e: any) {
+    this.emit("close", e);
+  }
+
+  private message_(e: {data: ws.Data}) {
+    this.emit("message", e);
+  }
+
+  private error_(e: any) {
+    this.emit("error", e);
   }
 }
