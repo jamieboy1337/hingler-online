@@ -30,7 +30,7 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
     this.socket.addEventListener("error", this.error_.bind(this));
     this.socket.addEventListener("disconnect", this.disconnect_.bind(this));
     this.socket.addEventListener("reconnect", this.reconnect_.bind(this));
-    this.queue = new PingQueue(32);
+    this.queue = new PingQueue(64);
     this.pings = new Map();
     this.idLast = 1;
   }
