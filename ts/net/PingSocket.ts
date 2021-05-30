@@ -11,6 +11,10 @@ enum PacketType {
   PING = 1
 }
 
+/**
+ * A socket wrapper which additionally tracks its own delay to and from network.
+ * Supports some simple socket operations.
+ */
 export class PingSocket extends SafeEventEmitter implements SocketLike {
   private socket: SocketLike;
   private queue: PingQueue;
