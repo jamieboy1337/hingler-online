@@ -1,5 +1,5 @@
 import { perf } from "../../../../ts/performance";
-import { GameContext } from "../Context";
+import { GameContext } from "../GameContext";
 
 /**
  * INTERNAL ONLY.

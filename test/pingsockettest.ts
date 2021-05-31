@@ -71,8 +71,6 @@ describe("PingSocket", function() {
     await prom;
     clearTimeout(g);
     expect(test.getPing()).to.not.be.NaN;
-    console.log(test.getPing());
-    console.log(c.getPing());
   });
 
   it("Should handle closure properly", async function() {
@@ -120,7 +118,6 @@ describe("PingSocket", function() {
   });
 
   after(function() {
-    console.log("hello:)");
     server.close();
     wss.close();
   });

@@ -5,6 +5,7 @@
  */
 
 import { IDGenerator } from "../../../ts/util/IDGenerator";
+import { GameContext } from "../engine/GameContext";
 import { ObjectType } from "./ObjectType";
 
 const gen = new IDGenerator();
@@ -12,9 +13,12 @@ const gen = new IDGenerator();
 export abstract class Object {
   private id: number;
   private created: boolean;
+  private context: GameContext;
+
   readonly type: ObjectType;
 
-  constructor() {
+  constructor(ctx: GameContext) {
+    this.context = ctx;
     this.id = gen.getNewID();
     this.created = false;
     this.type = ObjectType.OBJECT;
@@ -25,8 +29,12 @@ export abstract class Object {
     gen.registerNewID(id);
   }
 
-  getId(id: number) {
+  getId() {
     return this.id;
+  }
+
+  getContext() {
+    return this.context;
   }
 
   protected updateFunc() {
