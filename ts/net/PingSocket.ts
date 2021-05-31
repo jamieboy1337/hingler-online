@@ -1,10 +1,7 @@
-import { PingQueue } from "../../util/PingQueue";
-import { SafeEventEmitter } from "../../util/SafeEventEmitter";
+import { PingQueue } from "../util/PingQueue";
+import { SafeEventEmitter } from "../util/SafeEventEmitter";
+import { perf } from "../performance";
 import { ReadyState, SocketLike } from "./SocketLike";
-
-if (typeof performance === "undefined") {
-  var performance = require("perf_hooks").performance;
-}
 
 enum PacketType {
   PAYLOAD = 0,
@@ -100,7 +97,7 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
     let view = new DataView(dst);
     view.setUint32(0, PacketType.PAYLOAD, true);
     view.setUint32(4, this.idLast, true);
-    this.pings.set(this.idLast++, performance.now());
+    this.pings.set(this.idLast++, perf.now());
     this.socket.send(dst);
   }
 
@@ -127,7 +124,7 @@ export class PingSocket extends SafeEventEmitter implements SocketLike {
     } else { // type === PacketType.PING
       let id = view.getUint32(4, true);
       if (this.pings.has(id)) {
-        this.queue.enqueue(performance.now() - this.pings.get(id));
+        this.queue.enqueue(perf.now() - this.pings.get(id));
         this.emit("ping");
       }
     }

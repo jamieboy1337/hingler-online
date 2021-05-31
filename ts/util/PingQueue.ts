@@ -27,10 +27,10 @@ export class PingQueue {
     
     // prioritize newer data over older
     return this.arr.reduce((acc, val, ind) => {
-      let wgt = Math.pow((this.capacity - (ind - this.ind)) % this.capacity, 0.8);
+      let wgt = Math.pow(0.8, (this.capacity - (ind - (this.ind - 1))) % this.capacity);
       let res = acc + (val * wgt);
       coll += wgt;
-      return res
-    }) / coll;
+      return res;
+    }, 0) / coll;
   }
 }

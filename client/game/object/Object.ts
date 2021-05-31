@@ -4,7 +4,7 @@
  * which are called throughout the object's lifecycle.
  */
 
-import { IDGenerator } from "../../../util/IDGenerator";
+import { IDGenerator } from "../../../ts/util/IDGenerator";
 import { ObjectType } from "./ObjectType";
 
 const gen = new IDGenerator();

@@ -5,7 +5,7 @@ import { ClientSocket } from "../client/net/ClientSocket";
 import { ServerSocket } from "../server/net/ServerSocket";
 import { PingSocket } from "../ts/net/PingSocket";
 import { ReadyState } from "../ts/net/SocketLike";
-import { ArrayBufferToString, StringToArrayBuffer } from "../util/StringToArrayBuffer";
+import { ArrayBufferToString, StringToArrayBuffer } from "../ts/util/StringToArrayBuffer";
 
 
 let conn: Promise<PingSocket>;
