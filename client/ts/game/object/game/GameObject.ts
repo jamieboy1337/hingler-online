@@ -1,12 +1,13 @@
 import { GameContext } from "../../engine/GameContext";
-import { Object } from "../Object";
+import { EngineObject } from "../EngineObject";
 
 import { mat4, vec3, quat } from "gl-matrix";
+import { RenderContext } from "../../render/RenderContext";
 
 /**
  * Game object rendered to a lovely 3d world.
  */
-export class GameObject extends Object {
+export abstract class GameObject extends EngineObject {
   private children: Set<GameObject>;
   private parent: GameObject;
 
@@ -35,6 +36,12 @@ export class GameObject extends Object {
     quat.identity(this.rotation);
     this.dirty = false;
   }
+
+  /**
+   * Function which draws this component onto the screen.
+   * Should be called once whenever this object is drawn.
+   */
+  abstract renderMaterial(rc: RenderContext) : void;
 
   getChildren() : Array<GameObject> {
     let res = [] as GameObject[];
@@ -156,6 +163,7 @@ export class GameObject extends Object {
 
   private setRotationEulerNum_(x: number, y: number, z: number) {
     quat.fromEuler(this.rotation, x, y, z);
+    
     this.dirty = true;
   }
 
@@ -189,11 +197,12 @@ export class GameObject extends Object {
    * @param z - z coordinate, if valid. 
    */
   setPosition(x: number | vec3, y?: number, z?: number) {
-    if (x.constructor === vec3.constructor) {
+  if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
+    this.setPositionNum_(x, y, z);
+  // this is the best i can do i think
+  } else if (x instanceof Float32Array) {
       this.setPositionNum_(x[0], x[1], x[2]);
-    } else if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
-      this.setPositionNum_(x, y, z);
-    } else {
+  } else {
       console.warn("Parameters to `setPosition` cannot be interpreted.")
     }
   }
@@ -224,7 +233,7 @@ export class GameObject extends Object {
     }
 
 
-    if (parent) {
+    if (this.parent) {
       return mat4.mul(mat4.create(), this.parent.getTransformationMatrix(), this.transform_cache);
     }
 

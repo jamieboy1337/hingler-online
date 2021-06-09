@@ -1,5 +1,5 @@
-import { ReadyState, SocketLike } from "../../ts/net/SocketLike";
-import { SafeEventEmitter } from "../../ts/util/SafeEventEmitter";
+import { ReadyState, SocketLike } from "../../../ts/net/SocketLike";
+import { SafeEventEmitter } from "../../../ts/util/SafeEventEmitter";
 
 export class ClientSocket extends SafeEventEmitter implements SocketLike {
   socket: WebSocket;

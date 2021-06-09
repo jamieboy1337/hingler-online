@@ -1,5 +1,5 @@
 export enum ObjectType {
-  OBJECT,
+  ENGINEOBJECT,
   GAMEOBJECT,
   UIOBJECT
 }

@@ -1,8 +1,7 @@
 import { expect } from "chai";
 import * as express from "express";
 import * as ws from "ws";
-import { ClientSocket } from "../client/net/ClientSocket";
-import { ServerSocket } from "../server/net/ServerSocket";
+import { ServerSocket } from "../server/ts/net/ServerSocket";
 import { PingSocket } from "../ts/net/PingSocket";
 import { ReadyState } from "../ts/net/SocketLike";
 import { ArrayBufferToString, StringToArrayBuffer } from "../ts/util/StringToArrayBuffer";
@@ -17,7 +16,6 @@ const port = process.env.PORT || 8080;
 
 const wss = new ws.Server({ noServer: true });
 wss.on("connection", (socket, req) => {
-  console.log("conn");
 
   // resolves conn once the connection is opened
   resolve(new PingSocket(new ServerSocket(socket)));

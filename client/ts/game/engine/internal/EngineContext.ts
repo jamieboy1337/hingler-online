@@ -1,4 +1,4 @@
-import { perf } from "../../../../ts/performance";
+import { perf } from "../../../../../ts/performance";
 import { GameContext } from "../GameContext";
 
 /**

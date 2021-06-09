@@ -4,13 +4,13 @@
  * which are called throughout the object's lifecycle.
  */
 
-import { IDGenerator } from "../../../ts/util/IDGenerator";
+import { IDGenerator } from "../../../../ts/util/IDGenerator";
 import { GameContext } from "../engine/GameContext";
 import { ObjectType } from "./ObjectType";
 
 const gen = new IDGenerator();
 
-export abstract class Object {
+export abstract class EngineObject {
   private id: number;
   private created: boolean;
   private context: GameContext;
@@ -21,7 +21,7 @@ export abstract class Object {
     this.context = ctx;
     this.id = gen.getNewID();
     this.created = false;
-    this.type = ObjectType.OBJECT;
+    this.type = ObjectType.ENGINEOBJECT;
   }
 
   setId(id: number) {
@@ -37,7 +37,7 @@ export abstract class Object {
     return this.context;
   }
 
-  protected updateFunc() {
+  private updateFunc() {
     if (!this.created) {
       this.create();
       this.created = true;
@@ -53,12 +53,12 @@ export abstract class Object {
   /**
    * Returns a list of all children of this Object.
    */
-  abstract getChildren() : Array<Object>;
+  abstract getChildren() : Array<EngineObject>;
 
   /**
    * Returns the child of this Object with the specified ID, or null if the child does not exist.
    */
-  abstract getChild(id: number) : Object;
+  abstract getChild(id: number) : EngineObject;
 
   /**
    * Create routine implemented by clients.
