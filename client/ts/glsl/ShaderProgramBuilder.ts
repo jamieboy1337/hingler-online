@@ -3,6 +3,8 @@
 // i already wrote this in cpp :)
 
 import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
+import { ShaderFileLoaderWeb } from "./loaders/ShaderFileLoaderWeb";
+import { ShaderFileParser } from "./ShaderFileParser";
 
 /**
  * Builds shaders from files.
@@ -10,57 +12,94 @@ import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
  */
 export class ShaderProgramBuilder {
   private gl: WebGLRenderingContext;
-  private shaderVert: WebGLShader;
-  private shaderFrag: WebGLShader;
+  private vertPromise: Promise<WebGLShader>;
+  private fragPromise: Promise<WebGLShader>;
   private fileLoader: ShaderFileLoader;
+  private fileParser: ShaderFileParser;
 
   constructor(gl: WebGLRenderingContext, loader?: ShaderFileLoader) {
     this.gl = gl;
-    this.shaderVert = null;
-    this.shaderFrag = null;
+    this.vertPromise = null;
+    this.fragPromise = null;
 
     if (!loader) {
-      
+      this.fileLoader = loader;
+    } else {
+      this.fileLoader = new ShaderFileLoaderWeb();
     }
+
+    this.fileParser = new ShaderFileParser(this.fileLoader);
+
   }
 
+  /**
+   * Builder function which specifies a vertex shader.
+   * @param vertexPath - the path to the desired vertex shader.
+   * @returns the builder instance.
+   */
   withVertexShader(vertexPath: string) {
     // cue an async method which will build the shader
-  }
-
-  private async createShaderFromFile_(shaderPath: string, shaderType: number) {
     const gl = this.gl;
-    let shader = gl.createShader(shaderType);
-    let contents = await this.getFileContents_(shaderPath);
-
+    this.vertPromise = this.createShaderFromFile_(vertexPath, gl.VERTEX_SHADER);
+    return this;
   }
 
-  private async getFileContents_(shaderPath: string) : Promise<string> {
-    const includeHeader = "#include "
-    const includeExtract = /\s*#include\s+<\"(.*)\">.*/g
+  /**
+   * Builder which specifies a fragment shader.
+   * @param fragmentPath - the path to the desired fragment shader.
+   * @returns the builder instance.
+   */
+  withFragmentShader(fragmentPath: string) {
+    const gl = this.gl;
+    this.fragPromise = this.createShaderFromFile_(fragmentPath, gl.FRAGMENT_SHADER);
+    return this;
+  }
 
-    let shaderResponse = await fetch(shaderPath);
-    let folder = shaderPath.substring(0, shaderPath.lastIndexOf("/\\") + 1);
-  
-    let text = await shaderResponse.text();
-    let lines = text.split("\n");
-    let output = [];
-    
-    for (let line of lines) {
-      if (line.indexOf(includeHeader) !== -1) {
-        let match = includeExtract.exec(line);
-        if (match) {
-          console.log(match[1]);
-          let relativePath = folder + match;
-          console.log(relativePath);
-          output.push(this.getFileContents_(relativePath));
-          continue;
-        }
-      }
-
-      output.push(line);
+  /**
+   * Builds the shader.
+   * @returns a promise which rejects if either shader is missing or invalid, or if a link error occurs, and resolves to the compiled program.
+   */
+  async build() : Promise<WebGLProgram> {
+    // since our shaders are async: we ought to come up with a way to return this :(
+    // in usage: if the built shader is not ready yet, then perform a no-op when drawing.
+    if (this.vertPromise !== null || this.fragPromise !== null) {
+      let err = `Missing ${this.vertPromise === null ? "vertex " : ""}${this.vertPromise === null && this.fragPromise === null ? "and " : ""}${this.fragPromise === null ? "fragment " : ""}shader!`;
+      console.error(err);
+      throw err;
     }
 
-    return output.join("\n");
+    // errors from compilation will throw here
+    let vertShader = await this.vertPromise;
+    let fragShader = await this.fragPromise;
+
+    const gl = this.gl;
+    let prog = gl.createProgram();
+    gl.attachShader(prog, vertShader);
+    gl.attachShader(prog, fragShader);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      let info = gl.getProgramInfoLog(prog);
+      console.error(info);
+      throw Error(info);
+    }
+
+    return prog;
+  }
+
+  private async createShaderFromFile_(shaderPath: string, shaderType: number) : Promise<WebGLShader> {
+    const gl = this.gl;
+    let shader = gl.createShader(shaderType);
+    let contents = await this.fileParser.parseShaderFile(shaderPath);
+
+    gl.shaderSource(shader, contents);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      let log = gl.getShaderInfoLog(shader);
+      console.error(log);
+      gl.deleteShader(shader);
+      throw Error(log);
+    }
+
+    return shader;
   }
 }

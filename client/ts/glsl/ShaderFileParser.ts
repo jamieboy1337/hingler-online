@@ -1,8 +1,9 @@
 import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
+import { EOL } from "os"
 
 export class ShaderFileParser {
-  loader: ShaderFileLoader;
-  pathRecord: Set<string>;
+  private loader: ShaderFileLoader;
+  private pathRecord: Set<string>;
 
   constructor(loader: ShaderFileLoader) {
     this.loader = loader;
@@ -14,6 +15,7 @@ export class ShaderFileParser {
   }
 
   private async parseShaderFile_(path: string) {
+    console.log(path);
     if (this.pathRecord.has(path)) {
       console.error("Circular reference detected on " + path + " -- terminating...");
       return "";
@@ -21,21 +23,19 @@ export class ShaderFileParser {
 
     this.pathRecord.add(path);
     const includeHeader = "#include "
-    const includeExtract = /\s*#include\s+<\"(.*)\">.*/g
+    const includeExtract = /\s*#include\s+<?(.*)>.*/g
     let contents = await this.loader.open(path);
-    let folder = path.substring(0, path.lastIndexOf("/\\") + 1);
+    let folder = path.substring(0, Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
-    let lines = contents.split("\n");
+    let lines = contents.split(EOL);
     let output = [];
     
     for (let line of lines) {
       if (line.indexOf(includeHeader) !== -1) {
         let match = includeExtract.exec(line);
         if (match) {
-          console.log(match[1]);
-          let relativePath = folder + match;
-          console.log(relativePath);
-          output.push(this.parseShaderFile(relativePath));
+          let relativePath = folder + match[1];
+          output.push(await this.parseShaderFile(relativePath));
           continue;
         }
       }
@@ -43,6 +43,6 @@ export class ShaderFileParser {
       output.push(line);
     }
 
-    return output.join("\n");
+    return output.join(EOL);
   }
 }
