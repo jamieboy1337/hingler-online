@@ -1,4 +1,4 @@
-import { ShaderFileLoader } from "./ShaderFileLoader";
+import { ShaderFileLoader } from "../client/ts/glsl/loaders/ShaderFileLoader";
 import * as fs from "fs";
 
 export class ShaderFileLoaderNode implements ShaderFileLoader {

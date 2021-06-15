@@ -4,5 +4,9 @@
     "outDir": "ts-out",
     "module": "CommonJS",
     "target": "ES2015"
-  }
+  },
+
+  "exclude": [
+    "../*/cypress/**/*"
+  ]
 }

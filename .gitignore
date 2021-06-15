@@ -4,3 +4,7 @@ ts-out/
 client/js/
 server/js/
 test/js/
+cypress/videos/
+cypress/support/
+cypress/screenshots/
+cypress/reports/

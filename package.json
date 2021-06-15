@@ -8,7 +8,9 @@
     "build-debug": "rm -rf ./client/js && rm -rf ./ts-out && tsc && npx webpack",
     "tsc-only": "rm -rf ./ts-out && rm -rf ./client/js && tsc && npx webpack",
     "test": "mocha ts-out/test/*",
-    "start": "node ./ts-out/server/index.js"
+    "start": "node ./ts-out/server/index.js",
+    "test:cypress": "start-server-and-test start http://localhost:8080 cypress",
+    "cypress": "cypress run"
   },
   "repository": {
     "type": "git",
@@ -32,7 +34,9 @@
     "@types/mocha": "^8.2.2",
     "@types/ws": "^7.4.4",
     "chai": "^4.3.4",
+    "cypress": "^7.5.0",
     "mocha": "^8.4.0",
+    "start-server-and-test": "^1.12.5",
     "ts-loader": "^9.2.2",
     "typescript": "^4.2.4",
     "webpack": "^5.37.1",

@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ShaderFileLoaderNode } from "../client/ts/glsl/loaders/ShaderFileLoaderNode";
+import { ShaderFileLoaderNode } from "../server/ShaderFileLoaderNode";
 import { ShaderFileParser } from "../client/ts/glsl/ShaderFileParser";
 
 describe("ShaderFileParser", function() {
