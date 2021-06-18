@@ -9,11 +9,6 @@ export function StringToArrayBuffer(s: string) {
 }
 
 export function ArrayBufferToString(arr: ArrayBuffer) {
-  let c = new Uint16Array(arr.byteLength / 2);
-  let view = new DataView(arr);
-  for (let i = 0; i < arr.byteLength; i += 2) {
-    c[i / 2] = view.getUint16(i, true);
-  }
-
-  return String.fromCharCode(...c);
+  let dec = new TextDecoder("utf-8");
+  return dec.decode(arr);
 }

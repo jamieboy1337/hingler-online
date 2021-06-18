@@ -23,5 +23,30 @@ module.exports = [{
     filename: "[name].js",
     path: path.resolve(__dirname, "client/js")
   }
+},
+
+{
+  entry: {
+    simpletest: "./test/browser/simpletest"
+  },
+
+  mode: "development",
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader"
+      }
+    ]
+  },
+
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
+
+  output: {
+    filename: "[name].js",
+    path: path.resolve(__dirname, "test/browser/js")
+  }
 }
 ]
