@@ -1,4 +1,4 @@
-import { ArrayBufferToString } from "../../../../ts/util/StringToArrayBuffer";
+import { ArrayBufferToString } from "../../../../../../ts/util/StringToArrayBuffer";
 import { FileLike } from "../FileLike";
 
 export class FileLikeWeb implements FileLike {
