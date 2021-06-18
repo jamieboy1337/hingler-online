@@ -1,11 +1,13 @@
 import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
-import { EOL } from "os"
+import { FileLoader } from "../game/engine/loaders/FileLoader";
+
+const eol = /\r?\n/;
 
 export class ShaderFileParser {
-  private loader: ShaderFileLoader;
+  private loader: FileLoader;
   private pathRecord: Set<string>;
 
-  constructor(loader: ShaderFileLoader) {
+  constructor(loader: FileLoader) {
     this.loader = loader;
   }
 
@@ -27,7 +29,7 @@ export class ShaderFileParser {
     let contents = await this.loader.open(path);
     let folder = path.substring(0, Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
-    let lines = contents.split(EOL);
+    let lines = contents.asString().split(eol);
     let output = [];
     
     for (let line of lines) {
@@ -43,6 +45,6 @@ export class ShaderFileParser {
       output.push(line);
     }
 
-    return output.join(EOL);
+    return output.join("\n");
   }
 }

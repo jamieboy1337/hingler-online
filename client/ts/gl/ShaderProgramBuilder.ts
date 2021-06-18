@@ -2,6 +2,7 @@
 // support include syntax path relative
 // i already wrote this in cpp :)
 
+import { GameContext } from "../game/engine/GameContext";
 import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
 import { ShaderFileLoaderWeb } from "./loaders/ShaderFileLoaderWeb";
 import { ShaderFileParser } from "./ShaderFileParser";
@@ -11,24 +12,18 @@ import { ShaderFileParser } from "./ShaderFileParser";
  * Also supports non-standard include syntax for incorporating shader code from other files.
  */
 export class ShaderProgramBuilder {
-  private gl: WebGLRenderingContext;
   private vertPromise: Promise<WebGLShader>;
   private fragPromise: Promise<WebGLShader>;
-  private fileLoader: ShaderFileLoader;
   private fileParser: ShaderFileParser;
+  private ctx: GameContext;
 
-  constructor(gl: WebGLRenderingContext, loader?: ShaderFileLoader) {
-    this.gl = gl;
+  constructor(ctx: GameContext) {
     this.vertPromise = null;
     this.fragPromise = null;
 
-    if (!loader) {
-      this.fileLoader = loader;
-    } else {
-      this.fileLoader = new ShaderFileLoaderWeb();
-    }
+    this.ctx = ctx;
 
-    this.fileParser = new ShaderFileParser(this.fileLoader);
+    this.fileParser = new ShaderFileParser(this.ctx.getFileLoader());
 
   }
 
@@ -39,7 +34,7 @@ export class ShaderProgramBuilder {
    */
   withVertexShader(vertexPath: string) {
     // cue an async method which will build the shader
-    const gl = this.gl;
+    const gl = this.ctx.getGLContext();
     this.vertPromise = this.createShaderFromFile_(vertexPath, gl.VERTEX_SHADER);
     return this;
   }
@@ -50,7 +45,7 @@ export class ShaderProgramBuilder {
    * @returns the builder instance.
    */
   withFragmentShader(fragmentPath: string) {
-    const gl = this.gl;
+    const gl = this.ctx.getGLContext();
     this.fragPromise = this.createShaderFromFile_(fragmentPath, gl.FRAGMENT_SHADER);
     return this;
   }
@@ -72,7 +67,7 @@ export class ShaderProgramBuilder {
     let vertShader = await this.vertPromise;
     let fragShader = await this.fragPromise;
 
-    const gl = this.gl;
+    const gl = this.ctx.getGLContext();
     let prog = gl.createProgram();
     gl.attachShader(prog, vertShader);
     gl.attachShader(prog, fragShader);
@@ -87,7 +82,7 @@ export class ShaderProgramBuilder {
   }
 
   private async createShaderFromFile_(shaderPath: string, shaderType: number) : Promise<WebGLShader> {
-    const gl = this.gl;
+    const gl = this.ctx.getGLContext();
     let shader = gl.createShader(shaderType);
     let contents = await this.fileParser.parseShaderFile(shaderPath);
 
