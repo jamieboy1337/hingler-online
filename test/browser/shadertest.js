@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ShaderFileParser } from "../../client/ts/gl/ShaderFileParser";
+import { ShaderFileParser } from "../../client/ts/gl/internal/ShaderFileParser";
 import { FileLoader } from "../../client/ts/game/engine/loaders/FileLoader";
 
 describe("ShaderFileParser", function() {

@@ -1,5 +1,5 @@
 import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
-import { FileLoader } from "../game/engine/loaders/FileLoader";
+import { FileLoader } from "../../game/engine/loaders/FileLoader";
 
 const eol = /\r?\n/;
 

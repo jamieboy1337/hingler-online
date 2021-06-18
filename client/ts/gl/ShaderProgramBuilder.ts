@@ -3,9 +3,9 @@
 // i already wrote this in cpp :)
 
 import { GameContext } from "../game/engine/GameContext";
-import { ShaderFileLoader } from "./loaders/ShaderFileLoader";
-import { ShaderFileLoaderWeb } from "./loaders/ShaderFileLoaderWeb";
-import { ShaderFileParser } from "./ShaderFileParser";
+import { ShaderFileLoader } from "./internal/loaders/ShaderFileLoader";
+import { ShaderFileLoaderWeb } from "./internal/loaders/ShaderFileLoaderWeb";
+import { ShaderFileParser } from "./internal/ShaderFileParser";
 
 /**
  * Builds shaders from files.
