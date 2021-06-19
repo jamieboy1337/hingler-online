@@ -7,7 +7,7 @@
     "build": "npm run clean && rm -rf ./client/js && rm -rf ./ts-out && tsc && npx webpack && cp node_modules/mocha/mocha.js test/browser/js/mocha.js && cp node_modules/chai/chai.js test/browser/js/chai.js && cp node_modules/mocha/mocha.css test/browser/mocha.css && cp node_modules/mocha/mocha.js.map test/browser/js/mocha.js.map",
     "build-debug": "rm -rf ./client/js && rm -rf ./ts-out && tsc && npx webpack",
     "tsc-only": "rm -rf ./ts-out && rm -rf ./client/js && tsc && npx webpack",
-    "test": "mocha ts-out/test/*",
+    "test": "mocha ts-out/test/* && npm run test:cypress",
     "start": "node ./ts-out/server/index.js",
     "start-server-test": "node ./ts-out/server/index.js ./test",
     "test:cypress": "start-server-and-test start-server-test http://localhost:8080 cypress",

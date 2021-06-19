@@ -31,8 +31,23 @@ describe("Object", function() {
   });
 });
 
+function getLocalTransform(obj: GameObject) {
+  let pos = obj.getPosition();
+  let rot = obj.getRotation();
+  let sca = obj.getScale();
+
+  let res = mat4.create();
+  mat4.translate(res, res, pos);
+  let rotMat = mat4.create();
+  mat4.fromQuat(rotMat, rot);
+  mat4.mul(res, res, rotMat);
+  mat4.scale(res, res, sca);
+
+  return res;
+}
+
 describe("GameObject", function() {
-  it("Should handle transformations properly", function() {
+  it("Should handle local transformations properly", function() {
     let obj = new stubGameObject(null);
     const ROT = Math.PI / 4;
     obj.setRotationEuler(ROT, ROT, ROT);
@@ -107,6 +122,34 @@ describe("GameObject", function() {
     comp = obj.getTransformationMatrix();
     for (let i = 0; i < 16; i++) {
       expect(comp[i]).is.approximately(temp[i], 0.0001, "Matrices are not equal!");
+    }
+  })
+
+  it("Should handle transformations for components in a hierarchy", function() {
+    let parent = new stubGameObject(null);
+    let child = new stubGameObject(null);
+
+    parent.setRotationEuler(1, 2, 3);
+    parent.setScale(1, 2, 3);
+    
+    child.setPosition(2, 4, 6);
+    child.setRotationEuler(4, 5, 6);
+
+    let rotationTrue = mat4.create();
+
+    let parentLocal = getLocalTransform(parent);
+    let childLocal = getLocalTransform(child);
+
+    let truth = mat4.create();
+
+    mat4.mul(truth, parentLocal, childLocal);
+
+    parent.addChild(child);
+
+    let actual = child.getTransformationMatrix();
+
+    for (let i = 0; i < 16; i++) {
+      expect(actual[i]).is.approximately(truth[i], 0.0001, "Matrices are not equal!");
     }
   })
 })

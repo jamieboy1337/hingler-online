@@ -92,6 +92,7 @@ export abstract class GameObject extends EngineObject {
     if (res !== null) {
       this.children.delete(res);
       res.parent = null;
+      res.invalidateTransformCache_();
       return res;
     }
 
@@ -101,6 +102,7 @@ export abstract class GameObject extends EngineObject {
     if (res) {
       res.parent.removeChild(res.getId());
       res.parent = null;
+      res.invalidateTransformCache_();
       return res;
     }
   }
@@ -120,6 +122,7 @@ export abstract class GameObject extends EngineObject {
         elem.parent.removeChild(elem.getId());
       }
 
+      elem.invalidateTransformCache_();
       elem.parent = this;
       this.children.add(elem);
       return true;
@@ -163,8 +166,8 @@ export abstract class GameObject extends EngineObject {
 
   private setRotationEulerNum_(x: number, y: number, z: number) {
     quat.fromEuler(this.rotation, x, y, z);
-    
-    this.dirty = true;
+
+    this.invalidateTransformCache_();
   }
 
   /**
@@ -187,7 +190,8 @@ export abstract class GameObject extends EngineObject {
     this.scale[0] = x;
     this.scale[1] = y;
     this.scale[2] = z;
-    this.dirty = true;
+
+    this.invalidateTransformCache_();
   }
 
   /**
@@ -211,7 +215,15 @@ export abstract class GameObject extends EngineObject {
     this.position[0] = x;
     this.position[1] = y;
     this.position[2] = z;
+
+    this.invalidateTransformCache_();
+  }
+
+  private invalidateTransformCache_() {
     this.dirty = true;
+    for (let child of this.children) {
+      child.invalidateTransformCache_();
+    }
   }
 
   /**
@@ -228,13 +240,13 @@ export abstract class GameObject extends EngineObject {
       res = mat4.translate(res, res, this.position);
       res = mat4.mul(res, res, rot);
       res = mat4.scale(res, res, this.scale);
+      
+      if (this.parent !== null) {
+        mat4.mul(res, this.parent.getTransformationMatrix(), res);
+      }
+
       this.transform_cache = res;
       this.dirty = false;
-    }
-
-
-    if (this.parent) {
-      return mat4.mul(mat4.create(), this.parent.getTransformationMatrix(), this.transform_cache);
     }
 
     return mat4.copy(mat4.create(), this.transform_cache);

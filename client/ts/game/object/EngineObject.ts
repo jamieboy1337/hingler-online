@@ -14,7 +14,6 @@ export abstract class EngineObject {
   private id: number;
   private created: boolean;
   private context: GameContext;
-
   readonly type: ObjectType;
 
   constructor(ctx: GameContext) {
