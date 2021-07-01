@@ -9,8 +9,8 @@
     "tsc-only": "rm -rf ./ts-out && rm -rf ./client/js && tsc && npx webpack",
     "test": "mocha ts-out/test/* && npm run test:cypress",
     "start": "node ./ts-out/server/index.js",
-    "start-server-test": "node ./ts-out/server/index.js ./test",
-    "test:cypress": "start-server-and-test start-server-test http://localhost:8080 cypress",
+    "start-test-server": "node ./ts-out/server/index.js ./test",
+    "test:cypress": "start-server-and-test start-test-server http://localhost:8080 cypress",
     "cypress": "cypress run",
     "clean": "rm -rf test/browser/js && rm -rf client/js"
   },
