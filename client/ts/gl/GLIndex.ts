@@ -13,6 +13,8 @@ export interface GLIndex {
    */
   getIndex(offset: number): number;
 
+  [Symbol.iterator]() : Iterator<number>;
+
   /**
    *  Draws all presently bound attributes with the indices specified in this index.
    */
