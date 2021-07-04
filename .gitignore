@@ -12,3 +12,5 @@ cypress/videos/
 cypress/support/
 cypress/screenshots/
 cypress/reports/
+
+.nyc_output
