@@ -1,6 +1,6 @@
 export interface Accessor {
   bufferView: number,
-  byteOffset: number,
+  byteOffset?: number,
   componentType: number,
   count: number,
   min: Array<number>,
@@ -11,7 +11,7 @@ export interface Accessor {
 export interface BufferView {
   buffer: number,
   byteLength: number,
-  byteOffset: number,
+  byteOffset?: number,
   byteStride?: number
 };
 

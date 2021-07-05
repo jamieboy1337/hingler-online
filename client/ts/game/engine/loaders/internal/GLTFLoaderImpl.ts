@@ -131,7 +131,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
 
   // returns null if the accessor is falsy (undefined, null, etc)
   private createAttributeFromJSON(data: GLTFJson, buffers: Array<GLBuffer>, accessor: number) {
-    if (!accessor) {
+    if (accessor === undefined) {
       return null;
     }
 

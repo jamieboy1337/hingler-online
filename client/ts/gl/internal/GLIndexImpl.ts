@@ -46,7 +46,7 @@ export class GLIndexImpl implements GLIndex {
       console.warn("access type mismatch. ignoring :)");
     }
 
-    this.offset = accessor.byteOffset + view.byteOffset;
+    this.offset = (accessor.byteOffset !== undefined ? accessor.byteOffset : 0) + (view.byteOffset !== undefined ? view.byteOffset : 0);
     this.count = accessor.count;
 
     // TODO: these are reused, come up with a way to abstract them a bit better
