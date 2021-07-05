@@ -29,7 +29,8 @@ module.exports = [{
   entry: {
     simpletest: "./test/browser/simpletest",
     shadertest: "./test/browser/shadertest",
-    buffertest: "./test/browser/buffertest"
+    buffertest: "./test/browser/buffertest",
+    modeltest: "./test/browser/modeltest"
   },
 
   mode: "development",

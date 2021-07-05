@@ -29,9 +29,18 @@ export interface Node {
 }
 
 export interface Primitive {
-  attributes: any,
   indices: number,
-  material: number
+  material: number,
+  attributes: {
+    POSITION: number,
+    NORMAL?: number,
+    TANGENT?: number,
+    TEXCOORD_0?: number,
+    TEXCOORD_1?: number,
+    COLOR_0?: number,
+    JOINTS_0?: number,
+    WEIGHTS_0?: number
+  }
 }
 
 export interface Mesh {
