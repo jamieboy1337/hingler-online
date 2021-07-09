@@ -3,8 +3,6 @@
 // i already wrote this in cpp :)
 
 import { GameContext } from "../game/engine/GameContext";
-import { ShaderFileLoader } from "./internal/loaders/ShaderFileLoader";
-import { ShaderFileLoaderWeb } from "./internal/loaders/ShaderFileLoaderWeb";
 import { ShaderFileParser } from "./internal/ShaderFileParser";
 
 /**
