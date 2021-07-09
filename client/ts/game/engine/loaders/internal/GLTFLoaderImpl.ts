@@ -89,8 +89,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
       const instances : Array<ModelInstance> = [];
       
       for (let prim of mesh.primitives) {
-        
-        // note: in WebGL, indices require their own buffer.
+        // tba: come up with a more efficient method to avoid redundant attributes
         const inst = {} as ModelInstance;
         inst.positions      = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.POSITION);
         inst.normals        = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.NORMAL);
@@ -106,8 +105,8 @@ export class GLTFLoaderImpl implements GLTFLoader {
           inst.weights = [weight];
         }
 
-        // ind
         {
+          // indices
           let indexAccessor = jsonParsed.accessors[prim.indices];
           let indexView = jsonParsed.bufferViews[indexAccessor.bufferView];
           let buffer = buffers[indexView.buffer];
@@ -117,10 +116,6 @@ export class GLTFLoaderImpl implements GLTFLoader {
 
         instances.push(inst);
       }
-      // associate accessors and views with data
-      // bundle into an instance
-      // add to array (per instance)
-      // create the resultant model
 
       let model = new ModelImpl(instances);
       models.push(model);
