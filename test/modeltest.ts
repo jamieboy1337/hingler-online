@@ -266,5 +266,34 @@ describe("ModelImpl", function() {
       expect(minIndex % 3).to.equal(0);
       expect(maxIndex - minIndex).to.equal(2);
     }
-  })
+  });
+
+  it("Correctly handles unbound attributes", function() {
+    let len = 60;
+    let pos = new AttributeStub(len, 4, 4);
+    let norm = new AttributeStub(len, 3, 2);
+    let tex = new AttributeStub(len, 2, 2);
+    let ind = new IndexStub(len);
+
+    let instance : ModelInstance = {
+      positions: pos,
+      normals: norm,
+      texcoords: tex,
+      indices: ind
+    };
+
+    let model = new ModelImpl([instance]);
+
+    model.bindAttribute(AttributeType.POSITION, 1);
+    model.bindAttribute(AttributeType.NORMAL, 2);
+    // ignore texcoords
+    model.draw();
+
+    expect(ind.drawn).to.be.true;
+    expect(pos.boundAttribute).to.be.equal(1);
+    expect(norm.boundAttribute).to.be.equal(2);
+    // predicted behavior would be that it's unbound
+    
+    expect(tex.boundAttribute).to.be.equal(-1);
+  });
 })
