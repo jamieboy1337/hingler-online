@@ -55,7 +55,7 @@ export class ShaderProgramBuilder {
   async build() : Promise<WebGLProgram> {
     // since our shaders are async: we ought to come up with a way to return this :(
     // in usage: if the built shader is not ready yet, then perform a no-op when drawing.
-    if (this.vertPromise !== null || this.fragPromise !== null) {
+    if (this.vertPromise === null || this.fragPromise === null) {
       let err = `Missing ${this.vertPromise === null ? "vertex " : ""}${this.vertPromise === null && this.fragPromise === null ? "and " : ""}${this.fragPromise === null ? "fragment " : ""}shader!`;
       console.error(err);
       throw err;

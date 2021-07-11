@@ -23,6 +23,11 @@ class BufferStub implements GLBuffer {
     this.elems = 0;
   }
 
+  // unused
+  copy() {
+    return null;
+  }
+
   bindToVertexAttribute(location: number, components: number, type: number, normalize: boolean, stride: number, offset: number) : void {
     // probably record where we bound it and then work with it
     if (this.elems === 2) {

@@ -95,6 +95,8 @@ export class GLAttributeImpl implements GLAttribute {
     }
 
     this.count = accessor.count;
+
+    console.log("start point: " + this.offset + ", elems: " + this.count + ", stride: " + this.stride + ", width: " + this.componentByteSize);
   }
 
   pointToAttribute(location: number) {

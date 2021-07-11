@@ -51,4 +51,9 @@ export interface GLBuffer {
    * @param mode - draw mode. defaults to GL_TRIANGLES.
    */
   drawElements(offset: number, count: number, dataType: DataType, mode?: DrawMode) : void;
+
+  /**
+   * Creates a fresh, unbound GLBuffer from the current one.
+   */
+  copy() : GLBuffer;
 }

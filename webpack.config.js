@@ -1,6 +1,13 @@
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = [{
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /perf_hooks/
+    })
+  ],
+  
   entry: {
     client: "./client/index.ts",
   },
@@ -26,7 +33,14 @@ module.exports = [{
 },
 
 {
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /perf_hooks/
+    })
+  ],
+
   entry: {
+    drawtest: "./test/browser/drawtest",
     simpletest: "./test/browser/simpletest",
     shadertest: "./test/browser/shadertest",
     buffertest: "./test/browser/buffertest",

@@ -7,23 +7,26 @@ class IndexIterator implements Iterator<number> {
   indexWidth: number;
   offset: number;
   count: number;
+  index: number;
 
-  constructor(accessFunc: (offset: number, littleEndian?: boolean) => number, indexWidth: number, count: number) {
+  constructor(accessFunc: (offset: number, littleEndian?: boolean) => number, indexWidth: number, count: number, offset: number) {
     this.accessFunc = accessFunc;
     this.indexWidth = indexWidth;
-    this.offset = 0;
+    this.offset = offset;
     this.count = count;
+    this.index = 0;
   }
 
   next() {
-    if (this.offset === this.count) {
+    if (this.index >= this.count) {
       return {done: true, value: null};
     }
 
     let ind = this.accessFunc(this.offset, true);
     this.offset += this.indexWidth;
+    this.index++;
     return {
-      done: (this.count === this.offset),
+      done: (this.count === this.index),
       value: ind
     };
   }
@@ -86,6 +89,8 @@ export class GLIndexImpl implements GLIndex {
         this.accessFunc = this.buffer.getFloat32.bind(buffer);
         break;
     }
+
+    console.log("start point: " + this.offset + ", elems: " + this.count + ", width: " + this.byteSize);
   }
 
   getIndex(offset: number) {
@@ -94,12 +99,11 @@ export class GLIndexImpl implements GLIndex {
   }
 
   [Symbol.iterator]() : Iterator<number> {
-    return new IndexIterator(this.accessFunc, this.byteSize, this.count);
+    return new IndexIterator(this.accessFunc, this.byteSize, this.count, this.offset);
   }
 
   draw() {
-    // because of how we have to encode indices: each instance should correspond with
-    // a single GLIndex. 
+    // somewhere this index is going oob
     this.buffer.drawElements(this.offset, this.count, this.type, DrawMode.TRIANGLES);
   }
 }

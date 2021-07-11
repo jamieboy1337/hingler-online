@@ -17,6 +17,7 @@ export class GLBufferImpl implements GLBuffer {
   // it's just a safeguard for me, so that we have a bit more info instead of just crashing out
   constructor(gl: WebGLRenderingContext, buffer: ArrayBuffer, dataMode?: number) {
     this.buf = buffer;
+    console.log("byte length of buffer: " + buffer.byteLength);
     this.glBuf = gl.createBuffer();
     this.view = new DataView(this.buf);
     this.target = BufferTarget.UNBOUND;
@@ -55,6 +56,7 @@ export class GLBufferImpl implements GLBuffer {
       throw Error(err);
     }
 
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glBuf);
     this.gl.vertexAttribPointer(location, components, type, normalize, stride, offset);
   }
 
@@ -126,6 +128,7 @@ export class GLBufferImpl implements GLBuffer {
   }
 
   getUint16(offset: number, littleEndian?: boolean) {
+    console.log("offset: " + offset);
     return this.view.getUint16(offset, littleEndian);
   }
 
@@ -141,7 +144,9 @@ export class GLBufferImpl implements GLBuffer {
     return this.view.getFloat32(offset, littleEndian);
   }
   
-
+  copy() : GLBuffer {
+    return new GLBufferImpl(this.gl, this.buf, this.dataMode);
+  }
 }
 
 // NOTE: Our GLBuffer should handle all commands pertaining to GL state. No other model-related

@@ -15,6 +15,7 @@ export class EngineContext implements GameContext {
     this.lastDelta = 0;
     this.lastTimePoint = perf.now();
     this.loader = new FileLoader();
+    this.glContext = gl;
   }
 
   getDelta() {

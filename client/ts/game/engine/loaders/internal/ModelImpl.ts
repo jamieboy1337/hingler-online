@@ -100,11 +100,11 @@ export class ModelImpl implements Model {
   
   constructor(instances: Array<ModelInstance>) {
     this.instances = instances;
-    this.posLocation = 0;
-    this.normLocation = 0;
-    this.texLocation = 0;
-    this.jointLocation = [];
-    this.weightLocation = [];
+    this.posLocation = -1;
+    this.normLocation = -1;
+    this.texLocation = -1;
+    this.jointLocation = null;
+    this.weightLocation = null;
   }
 
   [Symbol.iterator]() : Iterator<Triangle> {
@@ -135,17 +135,17 @@ export class ModelImpl implements Model {
 
   draw() {
     for (let inst of this.instances) {
-      if (this.posLocation) {
+      if (this.posLocation >= 0) {
         inst.positions.pointToAttribute(this.posLocation);
       } else {
         console.warn("position not bound :)");
       }
 
-      if (inst.normals && this.normLocation) {
+      if (inst.normals && this.normLocation >= 0) {
         inst.normals.pointToAttribute(this.normLocation);
       }
 
-      if (inst.texcoords && this.texLocation) {
+      if (inst.texcoords && this.texLocation >= 0) {
         inst.texcoords.pointToAttribute(this.texLocation);
       }
 
@@ -156,7 +156,7 @@ export class ModelImpl implements Model {
       for (let i = 0; inst.weights && this.weightLocation && i < this.weightLocation.length && i < inst.weights.length; i++) {
         inst.weights[i].pointToAttribute(this.weightLocation[i]);
       }
-
+      
       inst.indices.draw();
     }
   }

@@ -33,6 +33,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
       case "glb":
         return this.loadGLB(file);
       default:
+        console.error("Cannot currently handle file " + path);
         return null;
     }
   }
@@ -110,8 +111,14 @@ export class GLTFLoaderImpl implements GLTFLoader {
           let indexAccessor = jsonParsed.accessors[prim.indices];
           let indexView = jsonParsed.bufferViews[indexAccessor.bufferView];
           let buffer = buffers[indexView.buffer];
+          // copy buffer to indexBuffer
+          // we reuse the arrbuf object, so there's no needless duplication of data
+          // we just give it a fresh start as an element array
+          console.log(indexAccessor);
+          console.log(indexView);
+          let indexBuffer = buffer.copy();
 
-          inst.indices = new GLIndexImpl(buffer, indexAccessor, indexView);
+          inst.indices = new GLIndexImpl(indexBuffer, indexAccessor, indexView);
         }
 
         instances.push(inst);
@@ -143,6 +150,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
     while (offset < len) {
       let chunkLen = view.getUint32(offset, true);
       offset += 4;
+      console.log(chunkLen);
 
       let chunkType = view.getUint32(offset, true);
       offset += 4;
@@ -152,7 +160,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
         throw Error(err);
       }
 
-      buffers.push(new GLBufferImpl(this.gl, buffer.slice(offset, chunkLen)))
+      buffers.push(new GLBufferImpl(this.gl, buffer.slice(offset, chunkLen + offset)))
       offset += chunkLen;
     }
 
