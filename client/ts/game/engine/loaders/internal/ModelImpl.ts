@@ -158,6 +158,27 @@ export class ModelImpl implements Model {
       }
       
       inst.indices.draw();
+
+      inst.positions.disableAttribute();
+      if (inst.normals) {
+        inst.normals.disableAttribute();
+      }
+
+      if (inst.texcoords) {
+        inst.texcoords.disableAttribute();
+      }
+
+      if (inst.joints) {
+        for (let joint of inst.joints) {
+          joint.disableAttribute();
+        }
+      }
+
+      if (inst.weights) {
+        for (let weight of inst.weights) {
+          weight.disableAttribute();
+        }
+      }
     }
   }
 }

@@ -32,6 +32,7 @@ export interface GLBuffer {
    * @param offset where to start reading from.
    */
   bindToVertexAttribute(location: number, components: number, type: number, normalize: boolean, stride: number, offset: number) : void;
+  disableVertexAttribute(location: number) : void;
 
   // DATAVIEW WRAPPERS
   getInt8(offset: number) : number;

@@ -43,7 +43,6 @@ module.exports = [{
     drawtest: "./test/browser/drawtest",
     simpletest: "./test/browser/simpletest",
     shadertest: "./test/browser/shadertest",
-    buffertest: "./test/browser/buffertest",
     modeltest: "./test/browser/modeltest"
   },
 

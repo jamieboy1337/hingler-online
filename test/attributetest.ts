@@ -48,6 +48,10 @@ class BufferStub implements GLBuffer {
     this.attribs.set(location, rec);
   }
 
+  disableVertexAttribute(location: number) {
+    // nop
+  }
+
   drawElements(offset: number, count: number, dataType: DataType, mode?: DrawMode) : void {
     if (this.elems === 1) {
       throw Error("!!!");

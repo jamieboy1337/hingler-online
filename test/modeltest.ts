@@ -53,6 +53,7 @@ class AttributeStub implements GLAttribute {
   comps: number;
   componentByteSize: number;
   boundAttribute: number;
+  lastBound: number;
   private offset: number;
   private start: number;
   constructor(length: number, components: number, byteSize: number, start?: number) {
@@ -60,6 +61,7 @@ class AttributeStub implements GLAttribute {
     this.length = length;
     this.comps = components;
     this.boundAttribute = -1;
+    this.lastBound = -1;
     this.componentByteSize = byteSize;
     if (start) {
       this.start = start;
@@ -71,6 +73,11 @@ class AttributeStub implements GLAttribute {
 
   pointToAttribute(location: number) {
     this.boundAttribute = location;
+    this.lastBound = location;
+  }
+
+  disableAttribute() {
+    this.boundAttribute = -1;
   }
 
   [Symbol.iterator]() : Iterator<Float32Array> {
@@ -138,9 +145,12 @@ describe("ModelImpl", function() {
     model.draw();
 
     expect(ind.drawn).to.be.true;
-    expect(pos.boundAttribute).to.be.equal(1);
-    expect(norm.boundAttribute).to.be.equal(2);
-    expect(tex.boundAttribute).to.be.equal(3);
+    expect(pos.lastBound).to.be.equal(1);
+    expect(norm.lastBound).to.be.equal(2);
+    expect(tex.lastBound).to.be.equal(3);
+    expect(pos.boundAttribute).to.be.equal(-1);
+    expect(norm.boundAttribute).to.be.equal(-1);
+    expect(tex.boundAttribute).to.be.equal(-1);
   });
 
   it("Iterates correctly over single instances", function() {
@@ -288,12 +298,15 @@ describe("ModelImpl", function() {
     model.bindAttribute(AttributeType.NORMAL, 2);
     // ignore texcoords
     model.draw();
-
+    
     expect(ind.drawn).to.be.true;
-    expect(pos.boundAttribute).to.be.equal(1);
-    expect(norm.boundAttribute).to.be.equal(2);
+    expect(pos.lastBound).to.be.equal(1);
+    expect(norm.lastBound).to.be.equal(2);
+    expect(tex.lastBound).to.be.equal(-1);
+    expect(pos.boundAttribute).to.be.equal(-1);
+    expect(norm.boundAttribute).to.be.equal(-1);
+
     // predicted behavior would be that it's unbound
     
-    expect(tex.boundAttribute).to.be.equal(-1);
   });
 })

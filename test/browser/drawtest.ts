@@ -59,16 +59,15 @@ function anim() {
   let modelmat = mat4.create();
   mat4.identity(modelmat);
   mat4.translate(modelmat, modelmat, [0, 0, -5])
-  mat4.rotate(modelmat, modelmat, i / 256, [0, 1, 0]);
+  mat4.rotate(modelmat, modelmat, i / 256, [0, .7070, .7070]);
   // grab 3x3 of model tx, inverse transform for normal matrix
   let normmat = mat3.create();
   mat3.fromMat4(normmat, modelmat);
-  mat3.transpose(normmat, normmat);
   mat3.invert(normmat, normmat);
+  mat3.transpose(normmat, normmat);
   // create a dummy camera matrix
   let cam = mat4.create();
   mat4.identity(cam);
-  mat4.rotate(cam, cam, i / 256, [0, 0, 1]);
   mat4.translate(cam, cam, [0, 0, 0]);
   i++;
   mat4.invert(cam, cam);
@@ -81,8 +80,8 @@ function anim() {
   let posloc = gl.getAttribLocation(prog, "position");
   let normloc = gl.getAttribLocation(prog, "normal");
   
-  gl.enableVertexAttribArray(posloc);
-  gl.enableVertexAttribArray(normloc);
+  // gl.enableVertexAttribArray(posloc);
+  // gl.enableVertexAttribArray(normloc);
 
   model.bindAttribute(AttributeType.POSITION, posloc);
   model.bindAttribute(AttributeType.NORMAL, normloc);

@@ -2,6 +2,10 @@ import { BufferTarget, DataType, DrawMode, GLBuffer } from "./GLBuffer";
 
 /**
  * Represents a GL ArrayBuffer.
+ * TODO: this is implementing two things in one place.
+ *       create a different implementation specifically for element arrays?
+ * 
+ *       I won't worry about it for now because this class is internal only
  */
 export class GLBufferImpl implements GLBuffer {
   buf: ArrayBuffer;
@@ -17,7 +21,6 @@ export class GLBufferImpl implements GLBuffer {
   // it's just a safeguard for me, so that we have a bit more info instead of just crashing out
   constructor(gl: WebGLRenderingContext, buffer: ArrayBuffer, dataMode?: number) {
     this.buf = buffer;
-    console.log("byte length of buffer: " + buffer.byteLength);
     this.glBuf = gl.createBuffer();
     this.view = new DataView(this.buf);
     this.target = BufferTarget.UNBOUND;
@@ -58,6 +61,11 @@ export class GLBufferImpl implements GLBuffer {
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glBuf);
     this.gl.vertexAttribPointer(location, components, type, normalize, stride, offset);
+    this.gl.enableVertexAttribArray(location);
+  }
+
+  disableVertexAttribute(location: number) {
+    this.gl.disableVertexAttribArray(location);
   }
 
   drawElements(offset: number, count: number, dataType: DataType, mode?: DrawMode) {
@@ -128,7 +136,6 @@ export class GLBufferImpl implements GLBuffer {
   }
 
   getUint16(offset: number, littleEndian?: boolean) {
-    console.log("offset: " + offset);
     return this.view.getUint16(offset, littleEndian);
   }
 

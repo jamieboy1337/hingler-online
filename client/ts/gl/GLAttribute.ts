@@ -13,6 +13,11 @@ export interface GLAttribute {
    */
   pointToAttribute(location: number) : void;
 
+  /**
+   * Disables the attribute.
+   */
+  disableAttribute() : void;
+
   [Symbol.iterator]() : Iterator<Float32Array>;
 
   /**

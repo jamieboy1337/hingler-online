@@ -32,6 +32,8 @@ export class GLAttributeImpl implements GLAttribute {
   readonly stride: number;
   readonly count: number;
 
+  private location: number;
+
   readonly componentByteSize: number;
 
   private accessFunc: (offset: number, littleEndian?: boolean) => number;
@@ -95,12 +97,20 @@ export class GLAttributeImpl implements GLAttribute {
     }
 
     this.count = accessor.count;
+    this.location = -1;
 
-    console.log("start point: " + this.offset + ", elems: " + this.count + ", stride: " + this.stride + ", width: " + this.componentByteSize);
   }
 
   pointToAttribute(location: number) {
+    this.location = location;
     this.buffer.bindToVertexAttribute(location, this.comps, this.type, false, this.stride, this.offset);
+  }
+
+  disableAttribute() {
+    if (this.location >= 0) {
+      this.buffer.disableVertexAttribute(this.location);
+      this.location = -1;
+    }
   }
 
   // probably just return number instead of float32array?

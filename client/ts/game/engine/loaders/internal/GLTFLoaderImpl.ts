@@ -114,8 +114,6 @@ export class GLTFLoaderImpl implements GLTFLoader {
           // copy buffer to indexBuffer
           // we reuse the arrbuf object, so there's no needless duplication of data
           // we just give it a fresh start as an element array
-          console.log(indexAccessor);
-          console.log(indexView);
           let indexBuffer = buffer.copy();
 
           inst.indices = new GLIndexImpl(indexBuffer, indexAccessor, indexView);
@@ -150,7 +148,6 @@ export class GLTFLoaderImpl implements GLTFLoader {
     while (offset < len) {
       let chunkLen = view.getUint32(offset, true);
       offset += 4;
-      console.log(chunkLen);
 
       let chunkType = view.getUint32(offset, true);
       offset += 4;
