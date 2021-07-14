@@ -35,4 +35,10 @@ export class EngineContext implements GameContext {
   getGLContext() {
     return this.glContext;
   }
+
+  getScreenDims() {
+    // testing: https://docs.cypress.io/api/commands/viewport#Syntax
+    let dims : [number, number] = [window.innerWidth, window.innerHeight];
+    return dims;
+  }
 }

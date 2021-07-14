@@ -18,4 +18,9 @@ export interface GameContext {
    * @returns the present GL rendering context.
    */
   getGLContext() : WebGLRenderingContext;
+
+  /**
+   * @returns the XY size of the window, in pixels
+   */
+  getScreenDims() : [number, number];
 }
