@@ -7,7 +7,7 @@ import { RenderContext } from "../../render/RenderContext";
 /**
  * Game object rendered to a lovely 3d world.
  */
-export abstract class GameObject extends EngineObject {
+export class GameObject extends EngineObject {
   private children: Set<GameObject>;
   private parent: GameObject;
 
@@ -41,7 +41,9 @@ export abstract class GameObject extends EngineObject {
    * Function which draws this component onto the screen.
    * Should be called once whenever this object is drawn.
    */
-  abstract renderMaterial(rc: RenderContext) : void;
+  renderMaterial(rc: RenderContext) {
+    // currently a noop
+  }
 
   getChildren() : Array<GameObject> {
     let res = [] as GameObject[];
@@ -157,10 +159,12 @@ export abstract class GameObject extends EngineObject {
    * @param z - if valid: z rotation.
    */
   setRotationEuler(x: number | vec3, y?: number, z?: number) {
-    if (x.constructor === vec3.constructor) {
+    if (x instanceof Float32Array && x.length >= 3) {
       this.setRotationEulerNum_(x[0], x[1], x[2]);
     } else if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
       this.setRotationEulerNum_(x, y, z);
+    } else {
+      console.warn("Parameters to `setRotationEuler` cannot be interpreted.");
     }
   }
 
@@ -177,7 +181,7 @@ export abstract class GameObject extends EngineObject {
    * @param z - if valid: z scale.
    */
   setScale(x: number | vec3, y?: number, z?: number) {
-    if (x.constructor === vec3.constructor) {
+    if (x instanceof Float32Array && x.length >= 3) {
       this.setScaleNum_(x[0], x[1], x[2]);
     } else if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
       this.setScaleNum_(x, y, z);
@@ -204,7 +208,7 @@ export abstract class GameObject extends EngineObject {
   if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
     this.setPositionNum_(x, y, z);
   // this is the best i can do i think
-  } else if (x instanceof Float32Array) {
+  } else if (x instanceof Float32Array && x.length >= 3) {
       this.setPositionNum_(x[0], x[1], x[2]);
   } else {
       console.warn("Parameters to `setPosition` cannot be interpreted.")
@@ -215,14 +219,17 @@ export abstract class GameObject extends EngineObject {
     this.position[0] = x;
     this.position[1] = y;
     this.position[2] = z;
-
     this.invalidateTransformCache_();
   }
 
   private invalidateTransformCache_() {
-    this.dirty = true;
-    for (let child of this.children) {
-      child.invalidateTransformCache_();
+    // note: lots of redundant action if we do a lot of txs
+    // assumption: if a child is already dirty, its children will be dirty as well
+    if (this.dirty) {
+      this.dirty = true;
+      for (let child of this.children) {
+        child.invalidateTransformCache_();
+      }
     }
   }
 
