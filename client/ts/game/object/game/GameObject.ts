@@ -31,10 +31,11 @@ export class GameObject extends EngineObject {
 
     this.scale = vec3.create();
     vec3.zero(this.scale);
+    vec3.set(this.scale, 1, 1, 1);
 
     this.rotation = quat.create();
     quat.identity(this.rotation);
-    this.dirty = false;
+    this.dirty = true;
   }
 
   /**
@@ -52,6 +53,10 @@ export class GameObject extends EngineObject {
     }
 
     return res;
+  }
+
+  getParent() {
+    return this.parent;
   }
 
   getChild(id: number) {
@@ -170,7 +175,6 @@ export class GameObject extends EngineObject {
 
   private setRotationEulerNum_(x: number, y: number, z: number) {
     quat.fromEuler(this.rotation, x, y, z);
-
     this.invalidateTransformCache_();
   }
 
@@ -225,7 +229,7 @@ export class GameObject extends EngineObject {
   private invalidateTransformCache_() {
     // note: lots of redundant action if we do a lot of txs
     // assumption: if a child is already dirty, its children will be dirty as well
-    if (this.dirty) {
+    if (!this.dirty) {
       this.dirty = true;
       for (let child of this.children) {
         child.invalidateTransformCache_();

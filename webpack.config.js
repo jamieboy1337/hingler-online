@@ -10,6 +10,7 @@ module.exports = [{
   
   entry: {
     client: "./client/index.ts",
+    drawtest2: "./client/ts/drawtest2.ts"
   },
 
   mode: "development",

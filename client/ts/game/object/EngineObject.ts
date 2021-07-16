@@ -14,6 +14,7 @@ export abstract class EngineObject {
   private id: number;
   private created: boolean;
   private context: GameContext;
+  // i dont need this anymore :)
   readonly type: ObjectType;
 
   constructor(ctx: GameContext) {
@@ -84,5 +85,4 @@ export abstract class EngineObject {
   protected destroy() {
 
   }
-
 }
