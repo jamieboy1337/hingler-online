@@ -1,4 +1,10 @@
+import { mat4 } from "gl-matrix";
 import { perf } from "../../../../../ts/performance";
+import { CameraInfo } from "../../object/game/Camera";
+import { GameCamera } from "../../object/game/GameCamera";
+import { GameObject } from "../../object/game/GameObject";
+import { Scene } from "../../object/scene/Scene";
+import { RenderContext, RenderPass } from "../../render/RenderContext";
 import { GameContext } from "../GameContext";
 import { FileLoader } from "../loaders/FileLoader";
 import { GLTFLoaderImpl } from "../loaders/internal/GLTFLoaderImpl";
@@ -13,9 +19,10 @@ export class EngineContext implements GameContext {
   private gltfLoader: GLTFLoaderImpl;
   private glContext: WebGLRenderingContext;
   private canvas: HTMLCanvasElement;
+  private scene: Scene;
 
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, scene?: Scene) {
     this.lastDelta = 0;
     this.lastTimePoint = perf.now();
     this.loader = new FileLoader();
@@ -28,6 +35,24 @@ export class EngineContext implements GameContext {
     gl.clearColor(0, 0, 0, 1);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
+
+    gl.clearColor(0, 0, 0, 1);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+
+    this.scene = scene;
+    if (!this.scene.isInitialized()) {
+      this.scene.begininit(this);
+    }
+  }
+
+  // TODO: add method to switch scenes.
+
+  /**
+   * @returns the current active scene.
+   */
+  getScene() : Scene {
+    return this.scene;
   }
 
   getDelta() {
@@ -62,14 +87,53 @@ export class EngineContext implements GameContext {
   step() {
     // handle everything in engine
     this.updateDelta();
-    // what else?
-    // i'd want to update the scene (not right now)
-    // that's it i think
-    // scene swaps should still be cued via our context...
-    // but the engine should facilitate the creation of a new context
-    // it works a bit better here bc we can duplicate our sound library
-    // the best solution in the cpp engine would be to create those components
-    // as singletons and pass them in as ctor args that way we didnt have to bother
-    // with passing that shit around
+    let gl = this.glContext;
+    gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+    // update funcs
+    if (this.scene) {
+      this.scene.getGameObjectRoot().updateChildren();
+      // no shadow pass yet
+      // find active camera
+      let cam = this.findActiveCamera(this.scene.getGameObjectRoot());
+      let info : CameraInfo;
+      if (cam) {
+        info = cam.getCameraInfo();
+      } else {
+        info = {
+          viewMatrix: mat4.create(),
+          perspectiveMatrix: mat4.create(),
+          vpMatrix: mat4.create()
+        };
+
+        mat4.identity(info.viewMatrix);
+        let rat = this.getScreenDims();
+        mat4.perspective(info.perspectiveMatrix, 1.0826, (rat[0] / rat[1]), 0.01, 100);
+        mat4.mul(info.vpMatrix, info.viewMatrix, info.perspectiveMatrix);
+      }
+
+      let rc : RenderContext = {
+        getRenderPass() {
+          return RenderPass.FINAL;
+        },
+  
+        getActiveCameraInfo() {
+          return info;
+        }
+      }
+  
+      this.scene.getGameObjectRoot().renderChildren(rc);
+    }
+  }
+
+  private findActiveCamera(root: GameObject) : GameCamera {
+    for (let child of root.getChildren()) {
+      if (child instanceof GameCamera) {
+        if (child.isActive()) {
+          return child;
+        } else {
+          this.findActiveCamera(child);
+        }
+      }
+    }
   }
 }

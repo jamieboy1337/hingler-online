@@ -63,6 +63,10 @@ export class GameCamera extends GameObject implements Camera {
     this.active = true;    
   }
 
+  isActive() : boolean {
+    return this.active;
+  }
+
   private deactivateCamera() {
     this.active = false;
   }

@@ -46,6 +46,21 @@ export class GameObject extends EngineObject {
     // currently a noop
   }
 
+  // renders itself and its children
+  protected renderfunc(rc: RenderContext) {
+    this.renderMaterial(rc);
+    for (let child of this.children) {
+      child.renderfunc(rc);
+    }
+  }
+
+  protected updatefunc() {
+    this.update();
+    for (let child of this.children) {
+      child.updatefunc();
+    }
+  }
+
   getChildren() : Array<GameObject> {
     let res = [] as GameObject[];
     for (let child of this.children) {

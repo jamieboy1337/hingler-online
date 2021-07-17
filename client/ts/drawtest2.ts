@@ -1,10 +1,10 @@
-import { vec3, vec4 } from "gl-matrix";
 import { GameContext } from "./game/engine/GameContext";
 import { EngineContext } from "./game/engine/internal/EngineContext";
 import { Model } from "./game/engine/storage/Model";
 import { MatteMaterial } from "./game/material/MatteMaterial";
 import { GameCamera } from "./game/object/game/GameCamera";
 import { GameModel } from "./game/object/game/GameModel";
+import { Scene } from "./game/object/scene/Scene";
 import { RenderContext, RenderPass } from "./game/render/RenderContext";
 
 
@@ -45,7 +45,7 @@ class DummyModel extends GameModel {
   update() {
     this.time += this.getContext().getDelta();
     console.log(this.time);
-    this.setRotationEuler(this.time * 360, 0, 0);
+    this.setRotationEuler(this.time * 360, this.time * 360, 0);
   }
 
   renderMaterial(rc: RenderContext) {
@@ -61,39 +61,28 @@ class DummyModel extends GameModel {
 }
 
 let ctx : EngineContext;
-let model : DummyModel;
-let cam : DummyCamera;
+
+// add findactivecamera to scene
+class TestScene extends Scene {
+  initialize(ctx: GameContext) {
+    let root = this.getGameObjectRoot();
+    let model = new DummyModel(ctx, "../res/test.glb");
+    let cam = new DummyCamera(ctx);
+    cam.fov = 45;
+    cam.setPosition(0, 0, 15);
+    root.addChild(model);
+    root.addChild(cam);
+    cam.setAsActive();
+  }
+}
 
 function main() {
   let canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  ctx = new EngineContext(canvas);
-  model = new DummyModel(ctx, "../res/test.glb");
-  cam = new DummyCamera(ctx);
-  cam.fov = 45;
-  cam.setPosition(0, 0, 15);
-
+  ctx = new EngineContext(canvas, new TestScene());
   requestAnimationFrame(thehingler);
 }
 
 function thehingler() {
   ctx.step();
-  model.update();
-  cam.update();
-  
-  let caminfo = cam.getCameraInfo();
-  let rc : RenderContext = {
-    getRenderPass() {
-      return RenderPass.FINAL;
-    },
-
-    getActiveCameraInfo() {
-      return caminfo;
-    }
-  };
-
-  let gl = ctx.getGLContext();
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  model.renderMaterial(rc);
   requestAnimationFrame(thehingler);
 }
