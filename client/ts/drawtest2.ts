@@ -44,7 +44,6 @@ class DummyModel extends GameModel {
 
   update() {
     this.time += this.getContext().getDelta();
-    console.log(this.time);
     this.setRotationEuler(this.time * 360, this.time * 360, 0);
   }
 
@@ -67,10 +66,12 @@ class TestScene extends Scene {
   initialize(ctx: GameContext) {
     let root = this.getGameObjectRoot();
     let model = new DummyModel(ctx, "../res/test.glb");
+    let modelt = new DummyModel(ctx, "../res/cubetest.glb");
     let cam = new DummyCamera(ctx);
     cam.fov = 45;
     cam.setPosition(0, 0, 15);
     root.addChild(model);
+    root.addChild(modelt);
     root.addChild(cam);
     cam.setAsActive();
   }

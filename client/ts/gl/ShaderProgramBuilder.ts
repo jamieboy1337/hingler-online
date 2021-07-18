@@ -5,22 +5,24 @@
 import { GameContext } from "../game/engine/GameContext";
 import { ShaderFileParser } from "./internal/ShaderFileParser";
 
+const shaderCache : Map<string, WebGLProgram> = new Map();
+const shadersCompiling : Map<string, Promise<void>> = new Map();
+
 /**
  * Builds shaders from files.
  * Also supports non-standard include syntax for incorporating shader code from other files.
  */
 export class ShaderProgramBuilder {
-  private vertPromise: Promise<WebGLShader>;
-  private fragPromise: Promise<WebGLShader>;
   private fileParser: ShaderFileParser;
   private ctx: GameContext;
 
+  private vertPath: string;
+  private fragPath: string;
+
   constructor(ctx: GameContext) {
-    this.vertPromise = null;
-    this.fragPromise = null;
-
+    this.vertPath = null;
+    this.fragPath = null;
     this.ctx = ctx;
-
     this.fileParser = new ShaderFileParser(this.ctx.getFileLoader());
 
   }
@@ -32,8 +34,7 @@ export class ShaderProgramBuilder {
    */
   withVertexShader(vertexPath: string) {
     // cue an async method which will build the shader
-    const gl = this.ctx.getGLContext();
-    this.vertPromise = this.createShaderFromFile_(vertexPath, gl.VERTEX_SHADER);
+    this.vertPath = vertexPath;
     return this;
   }
 
@@ -43,8 +44,7 @@ export class ShaderProgramBuilder {
    * @returns the builder instance.
    */
   withFragmentShader(fragmentPath: string) {
-    const gl = this.ctx.getGLContext();
-    this.fragPromise = this.createShaderFromFile_(fragmentPath, gl.FRAGMENT_SHADER);
+    this.fragPath = fragmentPath;
     return this;
   }
 
@@ -55,17 +55,47 @@ export class ShaderProgramBuilder {
   async build() : Promise<WebGLProgram> {
     // since our shaders are async: we ought to come up with a way to return this :(
     // in usage: if the built shader is not ready yet, then perform a no-op when drawing.
-    if (this.vertPromise === null || this.fragPromise === null) {
-      let err = `Missing ${this.vertPromise === null ? "vertex " : ""}${this.vertPromise === null && this.fragPromise === null ? "and " : ""}${this.fragPromise === null ? "fragment " : ""}shader!`;
+    if (this.vertPath === null || this.fragPath === null) {
+      let err = `Missing ${this.vertPath === null ? "vertex " : ""}${this.vertPath === null && this.fragPath === null ? "and " : ""}${this.fragPath === null ? "fragment " : ""}shader!`;
       console.error(err);
       throw err;
     }
 
-    // errors from compilation will throw here
-    let vertShader = await this.vertPromise;
-    let fragShader = await this.fragPromise;
-
     const gl = this.ctx.getGLContext();
+    
+    // errors from compilation will throw here
+    let pathString = `${this.vertPath}|${this.fragPath}`;
+    if (shadersCompiling.has(pathString)) {
+      await shadersCompiling.get(pathString);
+      // shader is compiling -- wait for completion
+    }
+
+    if (shaderCache.has(pathString)) {
+      // since we've already waited for compilation: if this is false, the shader has not been compiled yet.
+      console.info("Shader cache hit!");
+      return shaderCache.get(pathString);
+    }
+    
+    let res: () => void;
+    let rej: () => void;
+    let progress : Promise<void> = new Promise((resolve, reject) => {
+      res = resolve;
+      rej = reject;
+    });
+
+    shadersCompiling.set(pathString, progress);
+    
+    let vertShader : WebGLShader;
+    let fragShader : WebGLShader;
+    
+    try {
+      vertShader = await this.createShaderFromFile_(this.vertPath, gl.VERTEX_SHADER);
+      fragShader = await this.createShaderFromFile_(this.fragPath, gl.FRAGMENT_SHADER);
+    } catch (e) {
+      console.error(e);
+      rej();
+    }
+
     let prog = gl.createProgram();
     gl.attachShader(prog, vertShader);
     gl.attachShader(prog, fragShader);
@@ -73,9 +103,13 @@ export class ShaderProgramBuilder {
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
       let info = gl.getProgramInfoLog(prog);
       console.error(info);
+      rej();
       throw Error(info);
     }
 
+    // shader is not cached -- cache it!
+    shaderCache.set(pathString, prog);
+    res();
     return prog;
   }
 
