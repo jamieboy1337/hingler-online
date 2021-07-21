@@ -50,8 +50,5 @@ export class ShadowFramebuffer implements Framebuffer {
 
     
     this.gl.bindFramebuffer(targ, this.framebuffer);
-    if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
-      console.warn("incomplete shadow framebuffer");
-    }
   }
 }

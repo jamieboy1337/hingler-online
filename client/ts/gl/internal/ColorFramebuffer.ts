@@ -40,10 +40,6 @@ export class ColorFramebuffer implements Framebuffer {
       targ = this.gl.FRAMEBUFFER;
     }
 
-    if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
-      console.error("lol :(");
-    }
-
     this.gl.bindFramebuffer(targ, this.fb);
   }
 
