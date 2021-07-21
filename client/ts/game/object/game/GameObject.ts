@@ -173,7 +173,7 @@ export class GameObject extends EngineObject {
   }
 
   /**
-   * Sets the rotation of this GameObject in euler coordinates.
+   * Sets the rotation of this GameObject as euler coordinates, specified in degrees.
    * @param x - x rotation, or vec3 containing XYZ euler rotation.
    * @param y - if valid: y rotation.
    * @param z - if valid: z rotation.

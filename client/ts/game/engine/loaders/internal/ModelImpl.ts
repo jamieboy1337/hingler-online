@@ -4,7 +4,7 @@ import { GLAttributeImpl } from "../../../../gl/internal/GLAttributeImpl";
 import { GLIndexImpl } from "../../../../gl/internal/GLIndexImpl";
 import { AttributeType, Model, Triangle, Vertex } from "../../storage/Model";
 
-// todo: reclassify as primitive -- point=1, line=2, tri=3
+// TODO: reclassify as primitive -- point=1, line=2, tri=3
 class TriangleIterator implements Iterator<Triangle> {
   model: ModelImpl;
   offset: number;

@@ -17,7 +17,6 @@ export class ShaderFileParser {
   }
 
   private async parseShaderFile_(path: string) {
-    console.log(path);
     if (this.pathRecord.has(path)) {
       console.error("Circular reference detected on " + path + " -- terminating...");
       return "";

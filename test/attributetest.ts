@@ -189,7 +189,7 @@ for (let i = 0; i < 4; i++) {
 }
 
 describe("GLAttributeImpl", function() {
-  // todo: build a sample buffer which contains dummy data
+  // TODO: build a sample buffer which contains dummy data
   // positions, normals, and texcoords.
   it("Should properly point to data elements", function() {
     let accessorPos : Accessor = {

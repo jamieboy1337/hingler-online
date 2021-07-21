@@ -1,17 +1,20 @@
 import { GameContext } from "../../engine/GameContext";
 import { Model } from "../../engine/storage/Model";
 import { Material } from "../../material/Material";
-import { RenderContext } from "../../render/RenderContext";
+import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
+import { RenderContext, RenderPass } from "../../render/RenderContext";
 import { GameObject } from "./GameObject";
 
 export class GameModel extends GameObject {
   model: Model;
+  private shadowTex: ShadowNoTextureMaterial;
 
   constructor(ctx: GameContext, init: string | Model) {
     // pass by path? pass as arg?
     // ctor raw seems like a piss idea
     super(ctx);
     this.model = null;
+    this.shadowTex = new ShadowNoTextureMaterial(ctx);
     if (typeof init === "string") {
       // TODO: figure out how best to expose our GLTF loader from the engine context.
       this.getContext().getGLTFLoader().loadGLTFModel(init)
@@ -23,6 +26,7 @@ export class GameModel extends GameObject {
           }
         }).catch((reason) => {
           console.error("Something went wrong while parsing model");
+          console.error(reason);
         });
     } else {
       // init instanceof Model
@@ -36,12 +40,15 @@ export class GameModel extends GameObject {
    * @param material - the material which should be drawn.
    */
   protected drawModel(rc: RenderContext, material: Material) {
-    // it doesn't seem fitting for a material to be passed here
-    // at the same time, having a "setViewMatrix, etc." func on our material seems like a bad move
-    // we provide this method so that clients can draw the model themselves.
     let info = rc.getActiveCameraInfo();
     if (this.model) {
-      material.drawMaterial(this.model);
+      if (rc.getRenderPass() === RenderPass.SHADOW) {
+        this.shadowTex.modelMat = this.getTransformationMatrix();
+        this.shadowTex.shadowMat = info.vpMatrix;
+        this.shadowTex.drawMaterial(this.model);
+      } else {
+        material.drawMaterial(this.model);
+      }
     }
   }
 }

@@ -16,7 +16,7 @@ export class GLBufferImpl implements GLBuffer {
 
   dataMode: number;
 
-  // todo: assign a target on ctor? (array / element array / etc?)
+  // TODO: assign a target on ctor? (array / element array / etc?)
   // we'd have a confusing dependency :( but even then it like won't matter
   // it's just a safeguard for me, so that we have a bit more info instead of just crashing out
   constructor(gl: WebGLRenderingContext, buffer: ArrayBuffer, dataMode?: number) {

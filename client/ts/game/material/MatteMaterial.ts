@@ -1,7 +1,9 @@
 import { mat3, mat4, vec4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
+import { SpotLightStruct } from "../../gl/struct/SpotLightStruct";
 import { GameContext } from "../engine/GameContext";
 import { AttributeType, Model } from "../engine/storage/Model";
+import { SpotLight } from "../object/game/light/SpotLight";
 import { Material } from "./Material";
 
 // temp
@@ -12,9 +14,14 @@ export interface Light {
   ambient: vec4
 }
 
+// TODO: swap to a spotlight here
+// don't bother with shadows yet -- write a temp func which ignores them to get attenuation working
+// then get shadows working and then we're good :)
+
 export class MatteMaterial implements Material {
   private prog: WebGLProgram;
   private ctx: GameContext;
+  private spot: SpotLightStruct;
   vpMat: mat4;
   modelMat: mat4;
   color: vec4;
@@ -91,6 +98,10 @@ export class MatteMaterial implements Material {
       })
   }
 
+  setSpotLight(light: SpotLightStruct) {
+    this.spot = light; 
+  }
+
   // good TODO for here: create a debug camera that i can pilot around :3
 
   drawMaterial(model: Model) {
@@ -106,17 +117,18 @@ export class MatteMaterial implements Material {
       gl.uniformMatrix4fv(this.locs.vpMat, false, this.vpMat);
       gl.uniformMatrix3fv(this.locs.normalMat, false, normalMat);
       gl.uniform4fv(this.locs.surfaceColor, this.color);
-      gl.uniform4fv(this.locs.light.pos, this.light.position);
-      gl.uniform1f(this.locs.light.intensity, this.light.intensity);
-      gl.uniform4fv(this.locs.light.diff, this.light.diffuse);
-      gl.uniform4fv(this.locs.light.amb, this.light.ambient);
+
+      // recalculates uniform locations on every bind
+      // maybe if we've seen the prog and the name, we have the locations already?
+      // whatever
+      if (this.spot) {
+        this.spot.bindToUniformByName(this.prog, "spotlight");
+      }
       
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);
       model.bindAttribute(AttributeType.NORMAL, this.attribs.norm);
 
       model.draw();
-    } else {
-      console.log("wtf");
     }
   }
 }

@@ -124,9 +124,21 @@ export class ShaderProgramBuilder {
       let log = gl.getShaderInfoLog(shader);
       console.error(log);
       gl.deleteShader(shader);
+      this.printParsedShaderWithLineNumbers(contents);
       throw Error(log);
     }
 
     return shader;
+  }
+
+  private printParsedShaderWithLineNumbers(shader: string) {
+    let lines = shader.split(/\r?\n/);
+    let breaks = Math.ceil(Math.log10(lines.length + 1)) + 2;
+    for (let i = 0; i < lines.length; i++) {
+      let numstr = (i + 1).toString(10).padEnd(breaks, " ");
+      lines[i] = numstr + lines[i];
+    }
+
+    console.warn(lines.join("\r\n"));
   }
 }

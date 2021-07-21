@@ -88,7 +88,7 @@ export class ClientSocket extends SafeEventEmitter implements SocketLike {
     this.socket = new WebSocket(this.url);
 
     let errHandler = (e: Event) => {
-      // todo: reconnect method should work a bit better.
+      // TODO: reconnect method should work a bit better.
       console.error("Failed to reconnect!");
       console.error(e);
       this.emit("error", e);
