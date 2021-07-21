@@ -3,7 +3,6 @@ import { ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
 import { SpotLightStruct } from "../../gl/struct/SpotLightStruct";
 import { GameContext } from "../engine/GameContext";
 import { AttributeType, Model } from "../engine/storage/Model";
-import { SpotLight } from "../object/game/light/SpotLight";
 import { Material } from "./Material";
 
 // temp
@@ -21,22 +20,17 @@ export interface Light {
 export class MatteMaterial implements Material {
   private prog: WebGLProgram;
   private ctx: GameContext;
-  private spot: SpotLightStruct;
+  private spot: Array<SpotLightStruct>;
   vpMat: mat4;
   modelMat: mat4;
   color: vec4;
-  light: {
-    position: vec4,
-    intensity: number,
-    diffuse: vec4,
-    ambient: vec4
-  };
 
   private locs: {
     modelMat: WebGLUniformLocation,
     vpMat: WebGLUniformLocation,
     normalMat: WebGLUniformLocation,
     surfaceColor: WebGLUniformLocation,
+    lightCount: WebGLUniformLocation,
     light: {
       pos: WebGLUniformLocation,
       intensity: WebGLUniformLocation,
@@ -53,12 +47,6 @@ export class MatteMaterial implements Material {
   constructor(ctx: GameContext) {
     this.ctx = ctx;
     this.prog = null;
-    this.light = {
-      position: vec4.create(),
-      intensity: 0.0,
-      diffuse: vec4.create(),
-      ambient: vec4.create()
-    };
 
     this.vpMat = mat4.create();
     this.modelMat = mat4.create();
@@ -80,6 +68,7 @@ export class MatteMaterial implements Material {
           vpMat: gl.getUniformLocation(prog, "vp_matrix"),
           normalMat: gl.getUniformLocation(prog, "normal_matrix"),
           surfaceColor: gl.getUniformLocation(prog, "surface_color"),
+          lightCount: gl.getUniformLocation(prog, "spotlightCount"),
           light: {
             pos: gl.getUniformLocation(prog, "light.pos"),
             intensity: gl.getUniformLocation(prog, "light.intensity"),
@@ -98,8 +87,11 @@ export class MatteMaterial implements Material {
       })
   }
 
-  setSpotLight(light: SpotLightStruct) {
+  setSpotLight(light: Array<SpotLightStruct>) {
     this.spot = light; 
+    if (this.spot.length > 4) {
+      this.spot = this.spot.slice(0, 4);
+    }
   }
 
   // good TODO for here: create a debug camera that i can pilot around :3
@@ -122,7 +114,14 @@ export class MatteMaterial implements Material {
       // maybe if we've seen the prog and the name, we have the locations already?
       // whatever
       if (this.spot) {
-        this.spot.bindToUniformByName(this.prog, "spotlight");
+        for (let i = 0; i < this.spot.length; i++) {
+          this.spot[i].setShadowTextureIndex(i + 16);
+          this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`);
+        }
+
+        gl.uniform1i(this.locs.lightCount, this.spot.length);
+      } else {
+        gl.uniform1i(this.locs.lightCount, 0);
       }
       
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);

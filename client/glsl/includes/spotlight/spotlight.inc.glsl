@@ -21,8 +21,6 @@ struct SpotLight {
   // color of light
   vec4 color;
 
-  // shadow depth texture as a sampler2d.
-  sampler2D shadowTex;
   // mat4 which transforms from global coordinates to NDC from our light. correct for texcoord and lookup
   mat4 lightTransform;
 
@@ -30,9 +28,11 @@ struct SpotLight {
   Attenuation a;
 };
 
-float getShadowTexture(sampler2D, vec3, vec4);
+// define a macro for spotlight arr?
 
-vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos) {
+float getShadowTexture(SpotLight, vec3, vec4, in sampler2D);
+
+vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shadowtex) {
   // figure out intensity w/ attenuation based on dist, falloff, fov
   vec3 dist = (pos - s.position);
   // atten based on dist
@@ -46,7 +46,7 @@ vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos) {
   intensity *= min(max(0.0, (1.0 - rad) / (s.falloffRadius + SHADOW_BIAS)), 1.0);
 
   // shadow texture
-  float shadowprop = getShadowTexture(s.shadowTex, pos, light_pos);
+  float shadowprop = getShadowTexture(s, pos, light_pos, shadowtex);
 
   return (intensity * shadowprop) * s.color;
 }
@@ -58,14 +58,14 @@ vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos) {
  * @param pos - the world position which we are checking.
  * @returns 1 if the position is lit by the light, 0 otherwise.
  */
-float getShadowTexture(sampler2D tex, vec3 pos, vec4 light_pos) {
+float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shadowtex) {
   vec4 pos_ndc = light_pos;
   pos_ndc /= pos_ndc.w;
   float depth = pos_ndc.z + SHADOW_BIAS;
   pos_ndc *= 0.5;
   pos_ndc += 0.5;
   vec2 pos_tex = pos_ndc.xy;
-  float shadow_dist = texture2D(tex, pos_tex).r;
+  float shadow_dist = texture2D(shadowtex, pos_tex).r;
 
   float rawDist = (depth - shadow_dist);
   return 1.0 - step(0.0, rawDist);

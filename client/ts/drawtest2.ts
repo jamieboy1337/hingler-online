@@ -51,7 +51,7 @@ class CrapModel extends GameModel {
     this.mat.modelMat = this.getTransformationMatrix();
     let lights = rc.getSpotLightInfo();
     if (lights.length > 0) {
-      this.mat.setSpotLight(lights[0]);
+      this.mat.setSpotLight(lights);
     }
     this.drawModel(rc, this.mat);
   }
@@ -85,7 +85,7 @@ class DummyModel extends GameModel {
     this.mat.modelMat = this.getTransformationMatrix();
     let lights = rc.getSpotLightInfo();
     if (lights.length > 0) {
-      this.mat.setSpotLight(lights[0]);
+      this.mat.setSpotLight(lights);
     }
     this.drawModel(rc, this.mat);
   }

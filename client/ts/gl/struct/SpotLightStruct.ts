@@ -60,7 +60,7 @@ export class SpotLightStruct implements GLSLStruct {
     const falloffLoc =    gl.getUniformLocation(prog, name + ".falloffRadius");
     const intensityLoc =  gl.getUniformLocation(prog, name + ".intensity");
     const colorLoc =      gl.getUniformLocation(prog, name + ".color");
-    const texLoc =        gl.getUniformLocation(prog, name + ".shadowTex");
+    const texLoc =        gl.getUniformLocation(prog, "texture_" + name);
     const transformLoc =  gl.getUniformLocation(prog, name + ".lightTransform");
     
     this.attenuation.bindToUniformByName(prog, name + ".a");

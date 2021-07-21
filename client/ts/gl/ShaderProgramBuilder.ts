@@ -8,6 +8,8 @@ import { ShaderFileParser } from "./internal/ShaderFileParser";
 const shaderCache : Map<string, WebGLProgram> = new Map();
 const shadersCompiling : Map<string, Promise<void>> = new Map();
 
+let test : WEBGL_debug_shaders;
+
 /**
  * Builds shaders from files.
  * Also supports non-standard include syntax for incorporating shader code from other files.
@@ -20,6 +22,7 @@ export class ShaderProgramBuilder {
   private fragPath: string;
 
   constructor(ctx: GameContext) {
+    test = ctx.getGLContext().getExtension("WEBGL_debug_shaders");
     this.vertPath = null;
     this.fragPath = null;
     this.ctx = ctx;
