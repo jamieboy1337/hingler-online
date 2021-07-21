@@ -8,10 +8,6 @@ export interface SpotLight extends ShadowCastingLight, AttenuatingLight {
   // fov of the spotlight, in degrees.
   fov: number;
 
-  // clipping planes
-  near: number;
-  far: number;
-
   // radius until falloff begins. 0 = no falloff -- 1 = all falloff.
   falloffRadius: number;
 

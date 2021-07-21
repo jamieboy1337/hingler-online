@@ -2,6 +2,8 @@
 // support include syntax path relative
 // i already wrote this in cpp :)
 
+import { Future } from "../../../ts/util/task/Future";
+import { Task } from "../../../ts/util/task/Task";
 import { GameContext } from "../game/engine/GameContext";
 import { ShaderFileParser } from "./internal/ShaderFileParser";
 
@@ -9,6 +11,22 @@ const shaderCache : Map<string, WebGLProgram> = new Map();
 const shadersCompiling : Map<string, Promise<void>> = new Map();
 
 let test : WEBGL_debug_shaders;
+
+// kind of a funny singleton thing
+// but i dont really care that much
+// alternative: come up with a wrapper so that we can run the build function synchronously,
+// and the client can just wait for the value to resolve
+// we can still use the async ver, just check the cache before queueing it
+export class ShaderCache {
+  getShaderImmediatelyIfCached(vertPath: string, fragPath: string) {
+    let pathString = `${vertPath}|${fragPath}`;
+    if (shaderCache.has(pathString)) {
+      return shaderCache.get(pathString);
+    }
+
+    return null;
+  }
+}
 
 /**
  * Builds shaders from files.
@@ -51,6 +69,35 @@ export class ShaderProgramBuilder {
     return this;
   }
 
+  buildFuture() : Future<WebGLProgram> {
+    if (this.vertPath === null || this.fragPath === null) {
+      let err = `Missing ${this.vertPath === null ? "vertex " : ""}${this.vertPath === null && this.fragPath === null ? "and " : ""}${this.fragPath === null ? "fragment " : ""}shader!`;
+      console.error(err);
+      throw err;
+    }
+
+    let progTask = new Task<WebGLProgram>();
+    
+    // errors from compilation will throw here
+    let pathString = `${this.vertPath}|${this.fragPath}`;
+
+    if (shaderCache.has(pathString)) {
+      progTask.resolve(shaderCache.get(pathString));
+    } else if (shadersCompiling.has(pathString)) {
+      shadersCompiling.get(pathString).then(() => {
+        if (shaderCache.has(pathString)) {
+          progTask.resolve(shaderCache.get(pathString));
+        }
+      })
+    } else {
+      this.build().then((prog) => {
+        progTask.resolve(prog);
+      })
+    }
+
+    return progTask.getFuture();
+  }
+
   /**
    * Builds the shader.
    * @returns a promise which rejects if either shader is missing or invalid, or if a link error occurs, and resolves to the compiled program.
@@ -75,7 +122,6 @@ export class ShaderProgramBuilder {
 
     if (shaderCache.has(pathString)) {
       // since we've already waited for compilation: if this is false, the shader has not been compiled yet.
-      console.info("Shader cache hit!");
       return shaderCache.get(pathString);
     }
     
@@ -112,6 +158,7 @@ export class ShaderProgramBuilder {
 
     // shader is not cached -- cache it!
     shaderCache.set(pathString, prog);
+    shadersCompiling.delete(pathString);
     res();
     return prog;
   }

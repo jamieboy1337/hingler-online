@@ -1,5 +1,5 @@
 import { perf } from "../../../../../ts/performance";
-import { TextureDisplay } from "../../material/TextureDisplay";
+import { ColorDisplay } from "../../material/ColorDisplay";
 import { GameCamera } from "../../object/game/GameCamera";
 import { GameObject } from "../../object/game/GameObject";
 import { Scene } from "../../object/scene/Scene";
@@ -20,7 +20,6 @@ export class EngineContext implements GameContext {
   private canvas: HTMLCanvasElement;
   private scene: Scene;
   private renderer: Renderer;
-  private textureDisplay: TextureDisplay;
   private passOffset: number;
 
 
@@ -47,8 +46,6 @@ export class EngineContext implements GameContext {
     if (!this.scene.isInitialized()) {
       this.scene.begininit(this);
     }
-
-    this.textureDisplay = new TextureDisplay(this);
 
     addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "a") {
@@ -104,10 +101,10 @@ export class EngineContext implements GameContext {
       this.scene.getGameObjectRoot().updateChildren();
       this.renderer.renderScene();
       let passCount = this.renderer.getPassCount();
-      let tex = this.renderer.getPassTexture(Math.abs((passCount - 1 + this.passOffset) % passCount));
+      let disp = this.renderer.getPass(Math.abs((passCount - 1 + this.passOffset) % passCount));
       // come up with a way to display a particular pass
       this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
-      this.textureDisplay.drawTexture(tex);
+      disp.drawTexture();
     }
   }
 

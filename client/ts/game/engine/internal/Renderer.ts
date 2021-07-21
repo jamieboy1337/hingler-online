@@ -3,6 +3,9 @@ import { Framebuffer } from "../../../gl/Framebuffer";
 import { ColorFramebuffer } from "../../../gl/internal/ColorFramebuffer";
 import { SpotLightStruct } from "../../../gl/struct/SpotLightStruct";
 import { Texture } from "../../../gl/Texture";
+import { ColorDisplay } from "../../material/ColorDisplay";
+import { ShadowDisplay } from "../../material/ShadowDisplay";
+import { TextureDisplay } from "../../material/TextureDisplay";
 import { CameraInfo } from "../../object/game/Camera";
 import { GameCamera } from "../../object/game/GameCamera";
 import { GameObject } from "../../object/game/GameObject";
@@ -42,7 +45,7 @@ export class Renderer {
   private primaryFB: Framebuffer;
 
   // tracks rendered textures
-  private renderPasses: Array<Texture>;
+  private renderPasses: Array<TextureDisplay>;
   constructor(ctx: GameContext, scene: Scene) {
     this.ctx = ctx;
     this.gl = ctx.getGLContext();
@@ -115,7 +118,7 @@ export class Renderer {
     let dim = this.ctx.getScreenDims();
     this.gl.viewport(0, 0, dim[0], dim[1]);
     this.scene.getGameObjectRoot().renderChildren(rc);
-    this.renderPasses.push(this.primaryFB.getColorTexture());
+    this.renderPasses.push(new ColorDisplay(this.ctx, this.primaryFB.getColorTexture()));
   }
 
   /**
@@ -131,7 +134,7 @@ export class Renderer {
    * @param index - index fetched.
    * @returns Texture, or null if the index was invalid.
    */
-  getPassTexture(index: number) : Texture {
+  getPass(index: number) : TextureDisplay {
     if (index < 0 || index > this.getPassCount()) {
       return null;
     }
@@ -163,7 +166,7 @@ export class Renderer {
     this.gl.viewport(0, 0, dim[0], dim[1]);
     this.scene.getGameObjectRoot().renderChildren(rc);
     // shadow texture will contain result
-    this.renderPasses.push(light._getShadowFramebuffer().getColorTexture());
+    this.renderPasses.push(new ShadowDisplay(this.ctx, light));
   }
 
   private findActiveCamera(root: GameObject) : GameCamera {

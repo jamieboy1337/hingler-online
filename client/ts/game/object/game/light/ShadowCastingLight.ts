@@ -3,6 +3,10 @@ import { Texture } from "../../../../gl/Texture";
 import { Light } from "./Light";
 
 export interface ShadowCastingLight extends Light {
+  
+  // near/far clipping planes for shadow rendering
+  readonly near: number;
+  readonly far: number;
   /**
    * sets the dimensions of this light's shadow textures.
    * @param dim_a - x_dim, or x and y dim array.
