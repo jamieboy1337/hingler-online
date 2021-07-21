@@ -12,22 +12,6 @@ const shadersCompiling : Map<string, Promise<void>> = new Map();
 
 let test : WEBGL_debug_shaders;
 
-// kind of a funny singleton thing
-// but i dont really care that much
-// alternative: come up with a wrapper so that we can run the build function synchronously,
-// and the client can just wait for the value to resolve
-// we can still use the async ver, just check the cache before queueing it
-export class ShaderCache {
-  getShaderImmediatelyIfCached(vertPath: string, fragPath: string) {
-    let pathString = `${vertPath}|${fragPath}`;
-    if (shaderCache.has(pathString)) {
-      return shaderCache.get(pathString);
-    }
-
-    return null;
-  }
-}
-
 /**
  * Builds shaders from files.
  * Also supports non-standard include syntax for incorporating shader code from other files.

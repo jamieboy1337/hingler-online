@@ -1,8 +1,7 @@
 import { Future } from "../../../../ts/util/task/Future";
-import { ShaderCache, ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
+import { ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
 import { Texture } from "../../gl/Texture";
 import { GameContext } from "../engine/GameContext";
-import { Material } from "./Material";
 
 // fucking 
 const screenCoords = new Float32Array([
