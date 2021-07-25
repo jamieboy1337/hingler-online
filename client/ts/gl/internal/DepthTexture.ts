@@ -35,12 +35,12 @@ export class DepthTexture implements Texture {
 
   bindToUniform(location: WebGLUniformLocation, index: number) {
     let gl = this.gl;
-    gl.activeTexture(gl.TEXTURE0 + index);
-    if (index > 31) {
+    if (index > 31 || index < 0) {
       console.error("OOB index");
       throw Error("OOB index");
     }
-
+    
+    gl.activeTexture(gl.TEXTURE0 + index);
     gl.bindTexture(gl.TEXTURE_2D, this.tex);
     gl.uniform1i(location, index);
   }
@@ -65,7 +65,7 @@ export class DepthTexture implements Texture {
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.tex, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, targ, gl.TEXTURE_2D, this.tex, 0);
   }
 
   private validateTextureSize(dim_a: [number, number] | number, dim_b: number) : [number, number] {

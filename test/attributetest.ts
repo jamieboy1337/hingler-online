@@ -24,6 +24,10 @@ class BufferStub implements GLBuffer {
     this.elems = 0;
   }
 
+  arrayBuffer() {
+    return this.data;
+  }
+
   copy() {
     return null;
     // stub, never used in this ctx

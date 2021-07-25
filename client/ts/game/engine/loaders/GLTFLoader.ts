@@ -1,4 +1,5 @@
 import { Model } from "../storage/Model";
+import { GLTFScene } from "./GLTFScene";
 
 /**
  * Handles loading of GLTF files and binaries.
@@ -10,4 +11,5 @@ import { Model } from "../storage/Model";
  */
 export interface GLTFLoader {
   loadGLTFModel(path: string) : Promise<Array<Model>>;
+  loadAsGLTFScene(path: string) : Promise<GLTFScene>;
 }

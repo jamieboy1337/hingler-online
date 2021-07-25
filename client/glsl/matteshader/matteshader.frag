@@ -4,6 +4,11 @@ precision highp float;
 precision highp int;
 
 #include <../includes/spotlight/spotlight.inc.glsl>
+
+// come up with some vector where spotlight structs do not include a texture
+// just make it a null if relevant tbh and then just skip it in shader
+// have the struct figure it out
+// would also help if we had a macro which made names consistent
 uniform SpotLight spotlight[4];
 uniform sampler2D texture_spotlight[4];
 

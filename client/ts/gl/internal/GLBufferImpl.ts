@@ -150,6 +150,10 @@ export class GLBufferImpl implements GLBuffer {
   getFloat32(offset: number, littleEndian?: boolean) {
     return this.view.getFloat32(offset, littleEndian);
   }
+
+  arrayBuffer() {
+    return this.buf;
+  }
   
   copy() : GLBuffer {
     return new GLBufferImpl(this.gl, this.buf, this.dataMode);

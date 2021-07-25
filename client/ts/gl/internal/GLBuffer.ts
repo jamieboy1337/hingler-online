@@ -57,4 +57,10 @@ export interface GLBuffer {
    * Creates a fresh, unbound GLBuffer from the current one.
    */
   copy() : GLBuffer;
+
+  /**
+   * Returns the underlying array buffer.
+   * Use in times of great peril.
+   */
+  arrayBuffer() : ArrayBuffer;
 }

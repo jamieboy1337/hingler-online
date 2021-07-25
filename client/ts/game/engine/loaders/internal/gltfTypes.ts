@@ -1,6 +1,7 @@
 export interface Accessor {
   bufferView: number,
   byteOffset?: number,
+  normalized?: boolean,
   componentType: number,
   count: number,
   min: Array<number>,
@@ -48,10 +49,33 @@ export interface Mesh {
   primitives: Array<Primitive>
 }
 
+// TODO: handling defaults?
+export interface Sampler {
+  magFilter?: number,
+  minFilter?: number,
+  wrapS?: number,
+  wrapT?: number,
+  name?: string
+};
+
+export interface ImageSchema {
+  mimeType?: string;
+  bufferView?: number;
+  name: string;
+}
+
+export interface TextureSchema {
+  sampler: number,
+  source: number
+};
+
+// handle optional params
 export interface GLTFJson {
-  accessors: Array<Accessor>,
-  bufferViews: Array<BufferView>,
-  buffers: Array<Buffer>,
-  meshes: Array<Mesh>,
-  nodes: Array<Node>
+  accessors?: Array<Accessor>,
+  buffers?: Array<Buffer>,
+  bufferViews?: Array<BufferView>,
+  images?: Array<ImageSchema>,
+  meshes?: Array<Mesh>,
+  samplers?: Array<Sampler>,
+  textures?: Array<TextureSchema>
 };

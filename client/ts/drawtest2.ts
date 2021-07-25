@@ -2,6 +2,7 @@ import { GameContext } from "./game/engine/GameContext";
 import { EngineContext } from "./game/engine/internal/EngineContext";
 import { Model } from "./game/engine/storage/Model";
 import { MatteMaterial } from "./game/material/MatteMaterial";
+import { TextureAlbedoMaterial } from "./game/material/TextureAlbedoMaterial";
 import { GameCamera } from "./game/object/game/GameCamera";
 import { GameModel } from "./game/object/game/GameModel";
 import { SpotLightObject } from "./game/object/game/light/SpotLightObject";
@@ -76,6 +77,7 @@ class DummyModel extends GameModel {
   }
 
   renderMaterial(rc: RenderContext) {
+    console.info("dummyrender");
     this.mat.color[0] = 0;
     this.mat.color[1] = 0.8;
     this.mat.color[2] = 0.8;
@@ -91,13 +93,36 @@ class DummyModel extends GameModel {
   }
 }
 
+class TextureTest extends DummyModel {
+  texmat: TextureAlbedoMaterial;
+  constructor(ctx: GameContext, init: Model | string) {
+    super(ctx, init);
+    this.texmat = new TextureAlbedoMaterial(ctx);
+    this.loadTexture();
+  }
+
+  private async loadTexture() {
+    let loader = this.getContext().getGLTFLoader();
+    let scene = await loader.loadAsGLTFScene("../res/test.glb");
+    this.texmat.tex = scene.getTexture("Untitled");
+    console.log(this.texmat.tex);
+  }
+
+  renderMaterial(rc: RenderContext) {
+    let info = rc.getActiveCameraInfo();
+    this.texmat.modelMat = this.getTransformationMatrix();
+    this.texmat.vpMat = info.vpMatrix;
+    this.drawModel(rc, this.texmat);
+  }
+}
+
 let ctx : EngineContext;
 
 // add findactivecamera to scene
 class TestScene extends Scene {
   initialize(ctx: GameContext) {
     let root = this.getGameObjectRoot();
-    let model = new DummyModel(ctx, "../res/test.glb");
+    let model = new TextureTest(ctx, "../res/test.glb");
     let modelt = new CrapModel(ctx, "../res/cubetest.glb");
     let cam = new DummyCamera(ctx);
     let light = new SpotLightObject(ctx);

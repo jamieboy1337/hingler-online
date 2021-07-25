@@ -8,12 +8,19 @@ import { Model } from "../../storage/Model";
 import { FileLike } from "../FileLike";
 import { FileLoader } from "../FileLoader";
 import { GLTFLoader } from "../GLTFLoader";
+import { GLTFScene } from "../GLTFScene";
+import { GLTFSceneImpl } from "./GLTFSceneImpl";
 import { Accessor, GLTFJson } from "./gltfTypes";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 
 const GLTF_MAGIC = 0x46546C67;
 const CHUNK_TYPE_JSON = 0x4E4F534A;
 const CHUNK_TYPE_BIN = 0x004E4942;
+
+enum FileType {
+  BINARY,
+  UNKNOWN
+};
 
 export class GLTFLoaderImpl implements GLTFLoader {
   private loader: FileLoader;
@@ -24,9 +31,38 @@ export class GLTFLoaderImpl implements GLTFLoader {
     this.gl = gl;
   }
 
+  resolvePath(path: string) {
+    let suffix = path.substring(path.lastIndexOf('.') + 1).toLowerCase();
+    switch (suffix) {
+      case "glb":
+        return FileType.BINARY;
+      default:
+        console.error("Cannot currently handle file " + path);
+        return FileType.UNKNOWN;
+    }
+  }
+
+  async loadAsGLTFScene(path: string) {
+    let type = this.resolvePath(path);
+    let res : GLTFScene;
+    switch (type) {
+      case FileType.BINARY:
+        res = await this.glbBinaryToScene(path);
+        break;
+      case FileType.UNKNOWN:
+        return null;
+      default:
+        console.error("Something went wrong :(");
+        throw Error("what");
+    }
+
+    return res;
+  }
+
   async loadGLTFModel(path: string) : Promise<Array<Model>> {
     // start out by just printing the stuff in the json field
     // as well as interpreting the binary data
+    // convert to a resolvepath func
     let suffix = path.substring(path.lastIndexOf('.') + 1).toLowerCase();
     let file = await this.loader.open(path);
     switch (suffix) {
@@ -38,6 +74,51 @@ export class GLTFLoaderImpl implements GLTFLoader {
     }
   }
 
+  async glbBinaryToScene(path: string) : Promise<GLTFScene> {
+    let file = await this.loader.open(path);
+    let buf = file.asArrayBuffer();
+    let view = new DataView(buf);
+
+    // do everything up to reading the buffers, then return those
+    // let the loading function handle parsing
+    
+    // read magic
+    const magic = view.getUint32(0, true);
+    if (magic !== GLTF_MAGIC) {
+      let err = `Magic number in file does not match desired!`;
+      console.warn(err);
+      throw Error(err);
+    }
+
+    const ver = view.getUint32(4, true);
+    if (ver !== 2) {
+      let err = `Version number in file is not 2!`;
+      console.warn(err);
+      throw Error(err);
+    }
+
+    const len = view.getUint32(8, true);
+
+    // first chunk is always json data, remaining are binary
+    const jsonChunkLen = view.getUint32(12, true);
+    const jsonChunkType = view.getUint32(16, true);
+    if (jsonChunkType !== CHUNK_TYPE_JSON) {
+      let err = `First chunk is not JSON!`;
+      console.warn(err);
+      throw Error(err);
+    }
+
+    let jsonData = buf.slice(20, 20 + jsonChunkLen);
+    let jsonRaw = ArrayBufferToString(jsonData);
+    console.debug(jsonRaw);
+    let jsonParsed = JSON.parse(jsonRaw) as GLTFJson;
+
+    console.log(jsonParsed);
+
+    let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
+    return new GLTFSceneImpl(this.gl, jsonParsed, buffers);
+  }
+
   private async loadGLB(file: FileLike) : Promise<Array<Model>> {
     // TODO: load armatures alongside model data
     // for now, let's just get the model data into the scene
@@ -45,6 +126,9 @@ export class GLTFLoaderImpl implements GLTFLoader {
     // there was some reason for it but i dont remember what
     let buf = file.asArrayBuffer();
     let view = new DataView(buf);
+
+    // do everything up to reading the buffers, then return those
+    // let the loading function handle parsing
     
     // read magic
     const magic = view.getUint32(0, true);

@@ -24,6 +24,8 @@ export enum AttributeType {
 
 /**
  * Represents a 3D model.
+ * TODO: Create a version of Model which acts like a GLTF model.
+ * Probably wrap this class and not import -- draw will use GLTF material w params.
  */
 export interface Model {
   [Symbol.iterator]() : Iterator<Triangle>;
