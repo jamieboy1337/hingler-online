@@ -61,11 +61,11 @@ vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
 float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shadowtex) {
   vec4 pos_ndc = light_pos;
   pos_ndc /= pos_ndc.w;
-  float depth = pos_ndc.z + SHADOW_BIAS;
+  float depth = pos_ndc.z;
   pos_ndc *= 0.5;
   pos_ndc += 0.5;
   vec2 pos_tex = pos_ndc.xy;
-  float shadow_dist = texture2D(shadowtex, pos_tex).r;
+  float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
 
   float rawDist = (depth - shadow_dist);
   return 1.0 - step(0.0, rawDist);
