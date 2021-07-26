@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { ShaderFileParser } from "../../client/ts/gl/internal/ShaderFileParser";
-import { FileLoader } from "../../client/ts/game/engine/loaders/FileLoader";
+import { ShaderFileParser } from "../../client/ts/engine/gl/internal/ShaderFileParser";
+import { FileLoader } from "../../client/ts/engine/loaders/FileLoader";
 
 describe("ShaderFileParser", function() {
   it("Should read a plain shader", async function() {

@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
-import { Accessor, BufferView } from "../client/ts/game/engine/loaders/internal/gltfTypes";
-import { GLAttributeImpl } from "../client/ts/gl/internal/GLAttributeImpl";
-import { DataType, DrawMode, GLBuffer } from "../client/ts/gl/internal/GLBuffer";
+import { Accessor, BufferView } from "../client/ts/engine/loaders/internal/gltfTypes";
+import { GLAttributeImpl } from "../client/ts/engine/gl/internal/GLAttributeImpl";
+import { DataType, DrawMode, GLBuffer } from "../client/ts/engine/gl/internal/GLBuffer";
 
 interface AttribRecord {
   stride: number;

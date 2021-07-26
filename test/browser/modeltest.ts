@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { FileLoader } from "../../client/ts/game/engine/loaders/FileLoader";
-import { GLTFLoaderImpl } from "../../client/ts/game/engine/loaders/internal/GLTFLoaderImpl";
+import { FileLoader } from "../../client/ts/engine/loaders/FileLoader";
+import { GLTFLoaderImpl } from "../../client/ts/engine/loaders/internal/GLTFLoaderImpl";
 
 const canvas = document.getElementById("test-canvas") as HTMLCanvasElement;
 const gl = canvas.getContext("webgl");

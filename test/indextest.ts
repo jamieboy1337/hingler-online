@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { Accessor, BufferView } from "../client/ts/game/engine/loaders/internal/gltfTypes";
-import { DataType, DrawMode, GLBuffer } from "../client/ts/gl/internal/GLBuffer";
-import { GLIndexImpl } from "../client/ts/gl/internal/GLIndexImpl";
+import { Accessor, BufferView } from "../client/ts/engine/loaders/internal/gltfTypes";
+import { DataType, DrawMode, GLBuffer } from "../client/ts/engine/gl/internal/GLBuffer";
+import { GLIndexImpl } from "../client/ts/engine/gl/internal/GLIndexImpl";
 
 interface IndexRecord {
   offset: number,

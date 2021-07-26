@@ -3,11 +3,11 @@
 // just increment and add to vector!
 
 import { assert, expect } from "chai";
-import { ModelImpl, ModelInstance } from "../client/ts/game/engine/loaders/internal/ModelImpl";
-import { AttributeType } from "../client/ts/game/engine/storage/Model";
-import { GLAttribute } from "../client/ts/gl/GLAttribute";
-import { GLIndex } from "../client/ts/gl/GLIndex";
-import { DataType } from "../client/ts/gl/internal/GLBuffer";
+import { ModelImpl, ModelInstance } from "../client/ts/engine/loaders/internal/ModelImpl";
+import { AttributeType } from "../client/ts/engine/storage/Model";
+import { GLAttribute } from "../client/ts/engine/gl/GLAttribute";
+import { GLIndex } from "../client/ts/engine/gl/GLIndex";
+import { DataType } from "../client/ts/engine/gl/internal/GLBuffer";
 
 // 
 class IndexStub implements GLIndex {

@@ -1,13 +1,13 @@
-import { GameContext } from "./game/engine/GameContext";
-import { EngineContext } from "./game/engine/internal/EngineContext";
-import { Model } from "./game/engine/storage/Model";
-import { MatteMaterial } from "./game/engine/material/MatteMaterial";
-import { TextureAlbedoMaterial } from "./game/engine/material/TextureAlbedoMaterial";
-import { GameCamera } from "./game/engine/object/game/GameCamera";
-import { GameModel } from "./game/engine/object/game/GameModel";
-import { SpotLightObject } from "./game/engine/object/game/light/SpotLightObject";
-import { Scene } from "./game/engine/object/scene/Scene";
-import { RenderContext } from "./game/render/RenderContext";
+import { GameContext } from "./engine/GameContext";
+import { EngineContext } from "./engine/internal/EngineContext";
+import { Model } from "./engine/storage/Model";
+import { MatteMaterial } from "./engine/material/MatteMaterial";
+import { TextureAlbedoMaterial } from "./engine/material/TextureAlbedoMaterial";
+import { GameCamera } from "./engine/object/game/GameCamera";
+import { GameModel } from "./engine/object/game/GameModel";
+import { SpotLightObject } from "./engine/object/game/light/SpotLightObject";
+import { Scene } from "./engine/object/scene/Scene";
+import { RenderContext } from "./engine/render/RenderContext";
 
 
 window.addEventListener("load", main);

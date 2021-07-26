@@ -1,9 +1,9 @@
 import { mat3, mat4 } from "gl-matrix";
-import { EngineContext } from "../../client/ts/game/engine/internal/EngineContext";
-import { FileLoader } from "../../client/ts/game/engine/loaders/FileLoader";
-import { GLTFLoaderImpl } from "../../client/ts/game/engine/loaders/internal/GLTFLoaderImpl";
-import { AttributeType, Model } from "../../client/ts/game/engine/storage/Model";
-import { ShaderProgramBuilder } from "../../client/ts/gl/ShaderProgramBuilder";
+import { EngineContext } from "../../client/ts/engine/internal/EngineContext";
+import { FileLoader } from "../../client/ts/engine/loaders/FileLoader";
+import { GLTFLoaderImpl } from "../../client/ts/engine/loaders/internal/GLTFLoaderImpl";
+import { AttributeType, Model } from "../../client/ts/engine/storage/Model";
+import { ShaderProgramBuilder } from "../../client/ts/engine/gl/ShaderProgramBuilder";
 
 window.addEventListener("load", main);
 

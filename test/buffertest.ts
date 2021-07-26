@@ -1,6 +1,6 @@
 import { assert, expect } from "chai";
-import { DataType } from "../client/ts/gl/internal/GLBuffer";
-import { GLBufferImpl } from "../client/ts/gl/internal/GLBufferImpl";
+import { DataType } from "../client/ts/engine/gl/internal/GLBuffer";
+import { GLBufferImpl } from "../client/ts/engine/gl/internal/GLBufferImpl";
 
 
 // TODO: stub GL with a proxy so that we can test locally

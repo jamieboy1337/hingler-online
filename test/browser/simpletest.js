@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { FileLoader } from "../../client/ts/game/engine/loaders/FileLoader";
+import { FileLoader } from "../../client/ts/engine/loaders/FileLoader";
 
 describe("FileLoader", function() {
   it("reads the contents of a sample file", async function() {
