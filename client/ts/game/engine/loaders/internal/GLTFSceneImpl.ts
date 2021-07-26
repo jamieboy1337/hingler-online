@@ -3,7 +3,6 @@ import { GLBuffer } from "../../../../gl/internal/GLBuffer";
 import { GLIndexImpl } from "../../../../gl/internal/GLIndexImpl";
 import { GLTFTexture } from "../../../../gl/internal/GLTFTexture";
 import { Texture } from "../../../../gl/Texture";
-import { GameContext } from "../../GameContext";
 import { Model } from "../../storage/Model";
 import { GLTFScene } from "../GLTFScene";
 import { GLTFJson, ImageSchema, Mesh, TextureSchema } from "./gltfTypes";
@@ -19,6 +18,13 @@ export class GLTFSceneImpl implements GLTFScene {
     this.data = data;
     this.buffers = buffers;
   }
+
+  // TODO: add function which fetches a pbr model
+  // the pbr model obscures all binding locations bc it always uses the same shader(s).
+  // I'm not up to speed on how the pbr shader is written but i think i can do it within a short span of time
+
+  // this should not be the priority, though!
+  // our priority should be ensuring that our engine is usable.
 
   getModel(name: string) : Model {
     for (let mesh of this.data.meshes) {

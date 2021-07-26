@@ -1,5 +1,5 @@
 import { GameContext } from "../../game/engine/GameContext";
-import { AttenuatingLight } from "../../game/object/game/light/AttenuatingLight";
+import { AttenuatingLight } from "../../game/engine/object/game/light/AttenuatingLight";
 import { GLSLStruct } from "../GLSLStruct";
 
 export class AttenuationStruct implements GLSLStruct {

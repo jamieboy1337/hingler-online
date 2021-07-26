@@ -1,8 +1,8 @@
-import { GameContext } from "../../engine/GameContext";
-import { Model } from "../../engine/storage/Model";
+import { GameContext } from "../../GameContext";
+import { Model } from "../../storage/Model";
 import { Material } from "../../material/Material";
 import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
-import { RenderContext, RenderPass } from "../../render/RenderContext";
+import { RenderContext, RenderPass } from "../../../render/RenderContext";
 import { GameObject } from "./GameObject";
 
 export class GameModel extends GameObject {

@@ -1,12 +1,12 @@
 import { GameContext } from "./game/engine/GameContext";
 import { EngineContext } from "./game/engine/internal/EngineContext";
 import { Model } from "./game/engine/storage/Model";
-import { MatteMaterial } from "./game/material/MatteMaterial";
-import { TextureAlbedoMaterial } from "./game/material/TextureAlbedoMaterial";
-import { GameCamera } from "./game/object/game/GameCamera";
-import { GameModel } from "./game/object/game/GameModel";
-import { SpotLightObject } from "./game/object/game/light/SpotLightObject";
-import { Scene } from "./game/object/scene/Scene";
+import { MatteMaterial } from "./game/engine/material/MatteMaterial";
+import { TextureAlbedoMaterial } from "./game/engine/material/TextureAlbedoMaterial";
+import { GameCamera } from "./game/engine/object/game/GameCamera";
+import { GameModel } from "./game/engine/object/game/GameModel";
+import { SpotLightObject } from "./game/engine/object/game/light/SpotLightObject";
+import { Scene } from "./game/engine/object/scene/Scene";
 import { RenderContext } from "./game/render/RenderContext";
 
 
@@ -123,7 +123,7 @@ class TestScene extends Scene {
   initialize(ctx: GameContext) {
     let root = this.getGameObjectRoot();
     let model = new TextureTest(ctx, "../res/test.glb");
-    let modelt = new CrapModel(ctx, "../res/cubetest.glb");
+    let modelt = new CrapModel(ctx, "../res/crate.glb");
     let cam = new DummyCamera(ctx);
     let light = new SpotLightObject(ctx);
     light.setPosition(0, 0, 5);
@@ -137,7 +137,7 @@ class TestScene extends Scene {
     light.intensity = 1;
     cam.fov = 45;
 
-    modelt.setScale(9, 9, 9);
+    modelt.setScale(3.6, 3.6, 3.6);
     modelt.setPosition(0, 0, -15);
     cam.setPosition(0, 0, 15);
     root.addChild(model);

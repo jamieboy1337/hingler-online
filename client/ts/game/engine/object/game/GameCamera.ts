@@ -1,5 +1,5 @@
 import { mat4 } from "gl-matrix";
-import { GameContext } from "../../engine/GameContext";
+import { GameContext } from "../../GameContext";
 import { Camera, CameraInfo } from "./Camera";
 import { GameObject } from "./GameObject";
 

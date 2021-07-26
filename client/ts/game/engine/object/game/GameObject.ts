@@ -1,8 +1,8 @@
-import { GameContext } from "../../engine/GameContext";
+import { GameContext } from "../../GameContext";
 import { EngineObject } from "../EngineObject";
 
 import { mat4, vec3, quat } from "gl-matrix";
-import { RenderContext } from "../../render/RenderContext";
+import { RenderContext } from "../../../render/RenderContext";
 
 /**
  * Game object rendered to a lovely 3d world.

@@ -1,5 +1,5 @@
-import { Texture } from "../../gl/Texture";
-import { GameContext } from "../engine/GameContext";
+import { Texture } from "../../../gl/Texture";
+import { GameContext } from "../GameContext";
 import { TextureDisplay } from "./TextureDisplay";
 
 export class ColorDisplay extends TextureDisplay {

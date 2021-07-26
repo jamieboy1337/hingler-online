@@ -1,4 +1,4 @@
-import { Model } from "../engine/storage/Model";
+import { Model } from "../storage/Model";
 
 export interface Material {
   /**

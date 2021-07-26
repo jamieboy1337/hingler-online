@@ -1,8 +1,8 @@
 import { mat3, mat4, vec4 } from "gl-matrix";
-import { ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
-import { SpotLightStruct } from "../../gl/struct/SpotLightStruct";
-import { GameContext } from "../engine/GameContext";
-import { AttributeType, Model } from "../engine/storage/Model";
+import { ShaderProgramBuilder } from "../../../gl/ShaderProgramBuilder";
+import { SpotLightStruct } from "../../../gl/struct/SpotLightStruct";
+import { GameContext } from "../GameContext";
+import { AttributeType, Model } from "../storage/Model";
 import { Material } from "./Material";
 
 // temp

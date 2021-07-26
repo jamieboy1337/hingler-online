@@ -1,8 +1,8 @@
 import { mat4 } from "gl-matrix";
-import { ShaderProgramBuilder } from "../../gl/ShaderProgramBuilder";
-import { Texture } from "../../gl/Texture";
-import { GameContext } from "../engine/GameContext";
-import { AttributeType, Model } from "../engine/storage/Model";
+import { ShaderProgramBuilder } from "../../../gl/ShaderProgramBuilder";
+import { Texture } from "../../../gl/Texture";
+import { GameContext } from "../GameContext";
+import { AttributeType, Model } from "../storage/Model";
 import { Material } from "./Material";
 
 export class TextureAlbedoMaterial implements Material {

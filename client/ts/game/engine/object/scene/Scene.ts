@@ -1,4 +1,4 @@
-import { GameContext } from "../../engine/GameContext";
+import { GameContext } from "../../GameContext";
 import { GameObject } from "../game/GameObject";
 import { GameObjectRoot } from "./internal/GameObjectRoot";
 

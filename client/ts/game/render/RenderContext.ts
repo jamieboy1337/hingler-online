@@ -4,7 +4,7 @@
  */
 
 import { SpotLightStruct } from "../../gl/struct/SpotLightStruct";
-import { CameraInfo } from "../object/game/Camera";
+import { CameraInfo } from "../engine/object/game/Camera";
 
 /**
  * Identifies which render pass we should run.

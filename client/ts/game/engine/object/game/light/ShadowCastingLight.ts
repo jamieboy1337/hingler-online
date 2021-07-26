@@ -1,5 +1,5 @@
-import { Framebuffer } from "../../../../gl/Framebuffer";
-import { Texture } from "../../../../gl/Texture";
+import { Framebuffer } from "../../../../../gl/Framebuffer";
+import { Texture } from "../../../../../gl/Texture";
 import { Light } from "./Light";
 
 export interface ShadowCastingLight extends Light {

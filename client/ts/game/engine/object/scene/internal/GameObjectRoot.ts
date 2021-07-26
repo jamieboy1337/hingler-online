@@ -1,5 +1,5 @@
-import { GameContext } from "../../../engine/GameContext";
-import { RenderContext } from "../../../render/RenderContext";
+import { GameContext } from "../../../GameContext";
+import { RenderContext } from "../../../../render/RenderContext";
 import { GameObject } from "../../game/GameObject";
 
 // special type of game object which exposes update funcs

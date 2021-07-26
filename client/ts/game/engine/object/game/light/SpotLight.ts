@@ -1,5 +1,5 @@
 import { mat4, vec3 } from "gl-matrix";
-import { Texture } from "../../../../gl/Texture";
+import { Texture } from "../../../../../gl/Texture";
 import { CameraInfo } from "../Camera";
 import { AttenuatingLight } from "./AttenuatingLight";
 import { ShadowCastingLight } from "./ShadowCastingLight";

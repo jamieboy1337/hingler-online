@@ -1,6 +1,6 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
 import { GameContext } from "../../game/engine/GameContext";
-import { SpotLight } from "../../game/object/game/light/SpotLight";
+import { SpotLight } from "../../game/engine/object/game/light/SpotLight";
 import { GLSLStruct } from "../GLSLStruct";
 import { Texture } from "../Texture";
 import { AttenuationStruct } from "./AttenuationStruct";

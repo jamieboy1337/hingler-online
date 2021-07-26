@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { mat4, quat, vec3 } from "gl-matrix";
-import { EngineObject } from "../client/ts/game/object/EngineObject";
-import { GameObject } from "../client/ts/game/object/game/GameObject";
+import { EngineObject } from "../client/ts/game/engine/object/EngineObject";
+import { GameObject } from "../client/ts/game/engine/object/game/GameObject";
 import { RenderContext } from "../client/ts/game/render/RenderContext";
 
 class stubObject extends EngineObject {

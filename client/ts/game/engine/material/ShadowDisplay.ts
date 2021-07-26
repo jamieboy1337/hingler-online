@@ -1,4 +1,4 @@
-import { GameContext } from "../engine/GameContext";
+import { GameContext } from "../GameContext";
 import { ShadowCastingLight } from "../object/game/light/ShadowCastingLight";
 import { SpotLight } from "../object/game/light/SpotLight";
 import { TextureDisplay } from "./TextureDisplay";

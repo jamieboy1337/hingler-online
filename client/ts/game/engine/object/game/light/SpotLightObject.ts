@@ -1,7 +1,7 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
-import { Framebuffer } from "../../../../gl/Framebuffer";
-import { ShadowFramebuffer } from "../../../../gl/internal/ShadowFramebuffer";
-import { GameContext } from "../../../engine/GameContext";
+import { Framebuffer } from "../../../../../gl/Framebuffer";
+import { ShadowFramebuffer } from "../../../../../gl/internal/ShadowFramebuffer";
+import { GameContext } from "../../../GameContext";
 import { CameraInfo } from "../Camera";
 import { GameObject } from "../GameObject";
 import { SpotLight } from "./SpotLight";

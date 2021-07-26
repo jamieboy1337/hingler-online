@@ -4,8 +4,8 @@
  * which are called throughout the object's lifecycle.
  */
 
-import { IDGenerator } from "../../../../ts/util/IDGenerator";
-import { GameContext } from "../engine/GameContext";
+import { IDGenerator } from "../../../../../ts/util/IDGenerator";
+import { GameContext } from "../GameContext";
 import { ObjectType } from "./ObjectType";
 
 const gen = new IDGenerator();

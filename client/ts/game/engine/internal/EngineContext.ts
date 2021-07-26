@@ -1,8 +1,8 @@
 import { perf } from "../../../../../ts/performance";
-import { ColorDisplay } from "../../material/ColorDisplay";
-import { GameCamera } from "../../object/game/GameCamera";
-import { GameObject } from "../../object/game/GameObject";
-import { Scene } from "../../object/scene/Scene";
+import { ColorDisplay } from "../material/ColorDisplay";
+import { GameCamera } from "../object/game/GameCamera";
+import { GameObject } from "../object/game/GameObject";
+import { Scene } from "../object/scene/Scene";
 import { GameContext } from "../GameContext";
 import { FileLoader } from "../loaders/FileLoader";
 import { GLTFLoaderImpl } from "../loaders/internal/GLTFLoaderImpl";
