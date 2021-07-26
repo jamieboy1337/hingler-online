@@ -78,7 +78,10 @@ export class Renderer {
     let spotLightInfo : Array<SpotLightStruct> = [];
     for (let light of lights) {
       // skip until spotlights are definitely working
-      this.renderFromSpotLight(light);
+      if (light.getShadowState()) {
+        this.renderFromSpotLight(light);
+      }
+      
       spotLightInfo.push(new SpotLightStruct(this.ctx, light));
     }
 
