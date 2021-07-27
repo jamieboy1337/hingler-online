@@ -241,6 +241,25 @@ export class GameObject extends EngineObject {
     this.invalidateTransformCache_();
   }
 
+  lookAt(x: number | vec3, y?: number, z?: number) {
+    let dirVector : vec3 = (typeof x === "number" ? vec3.fromValues(x, y, z) : x);
+    let pos = this.getPosition();
+    // account for own offset: vector from camera to dest
+    vec3.sub(dirVector, dirVector, pos);
+    let dir = vec3.create();
+    vec3.normalize(dir, dirVector);
+    let theta = Math.PI + Math.atan2(dir[0], dir[2]);
+    let phi : number;
+    let phi_denom = Math.sqrt(dir[0] * dir[0] + dir[2] * dir[2]);
+    if (phi_denom === 0 || phi_denom === NaN) {
+      phi = 0;
+    } else {
+      phi = Math.atan(dir[1] / phi_denom);
+    }
+
+    this.setRotationEuler(phi * (180 / Math.PI), theta * (180 / Math.PI), 0);
+  }
+
   private invalidateTransformCache_() {
     // note: lots of redundant action if we do a lot of txs
     // assumption: if a child is already dirty, its children will be dirty as well

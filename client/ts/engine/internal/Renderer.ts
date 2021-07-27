@@ -76,6 +76,10 @@ export class Renderer {
     // find lights
     let lights = this.findSpotLights(this.scene.getGameObjectRoot());
     let spotLightInfo : Array<SpotLightStruct> = [];
+
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.FRONT);
+
     for (let light of lights) {
       // skip until spotlights are definitely working
       if (light.getShadowState()) {
@@ -84,6 +88,8 @@ export class Renderer {
       
       spotLightInfo.push(new SpotLightStruct(this.ctx, light));
     }
+
+    gl.disable(gl.CULL_FACE);
 
     let cam = this.findActiveCamera(this.scene.getGameObjectRoot());
     let info : CameraInfo;

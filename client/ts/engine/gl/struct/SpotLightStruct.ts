@@ -28,7 +28,13 @@ export class SpotLightStruct implements GLSLStruct {
     this.falloffRadius = light.falloffRadius;
     this.intensity = light.intensity;
     this.color = light.color;
-    this.shadowTex = light.getShadowTexture();
+
+    if (light.getShadowState()) {
+      this.shadowTex = light.getShadowTexture();
+    } else {
+      this.shadowTex = null;
+    }
+
     this.lightTransform = light.getLightMatrix();
 
     this.attenuation = new AttenuationStruct(ctx, light);
@@ -36,6 +42,10 @@ export class SpotLightStruct implements GLSLStruct {
     this.index = 0;
 
     this.gl = ctx.getGLContext();
+  }
+
+  hasShadow() {
+    return (this.shadowTex !== null);
   }
 
   // this is fine :)
@@ -51,17 +61,26 @@ export class SpotLightStruct implements GLSLStruct {
     this.index = index;
   }
 
-  bindToUniformByName(prog: WebGLProgram, name: string) {
+  bindToUniformByName(prog: WebGLProgram, name: string, enableShadow?: boolean) {
     let gl = this.gl;
     
+    // resolves if undefined
+    let useShadow = (!!enableShadow) && (this.shadowTex !== null);
+    
+    // this is the biggest performance hit
+    // invent a wrapper so that we don't need to fetch these locations a bunch of times
     const posLoc =        gl.getUniformLocation(prog, name + ".position");
     const dirLoc =        gl.getUniformLocation(prog, name + ".dir");
     const fovLoc =        gl.getUniformLocation(prog, name + ".fov");
     const falloffLoc =    gl.getUniformLocation(prog, name + ".falloffRadius");
     const intensityLoc =  gl.getUniformLocation(prog, name + ".intensity");
     const colorLoc =      gl.getUniformLocation(prog, name + ".color");
-    const texLoc =        gl.getUniformLocation(prog, "texture_" + name);
     const transformLoc =  gl.getUniformLocation(prog, name + ".lightTransform");
+    let texLoc : WebGLUniformLocation;
+
+    if (useShadow) {
+      texLoc =            gl.getUniformLocation(prog, "texture_" + name);
+    }
     
     this.attenuation.bindToUniformByName(prog, name + ".a");
 
@@ -71,7 +90,11 @@ export class SpotLightStruct implements GLSLStruct {
     gl.uniform1f(falloffLoc, this.falloffRadius);
     gl.uniform1f(intensityLoc, this.intensity);
     gl.uniform4fv(colorLoc, this.color);
-    this.shadowTex.bindToUniform(texLoc, this.index);
+
+    if (useShadow) {
+      this.shadowTex.bindToUniform(texLoc, this.index);
+    }
+
     gl.uniformMatrix4fv(transformLoc, false, this.lightTransform);
   }
   

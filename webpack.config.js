@@ -9,8 +9,9 @@ module.exports = [{
   ],
   
   entry: {
-    client: "./client/index.ts",
-    drawtest2: "./client/ts/drawtest2.ts"
+    client: "./client/index",
+    drawtest2: "./client/ts/drawtest2",
+    maptest: "./client/ts/maptest"
   },
 
   mode: "development",

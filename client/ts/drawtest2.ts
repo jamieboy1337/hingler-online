@@ -22,6 +22,7 @@ class DummyCamera extends GameCamera {
   update() {
     this.time += this.getContext().getDelta();
     this.setPosition(Math.sin(this.time * 6) * 4, 0, 15);
+    this.lookAt(0, 0, 0);
   }
 }
 

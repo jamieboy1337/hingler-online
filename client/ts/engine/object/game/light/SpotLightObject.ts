@@ -24,10 +24,10 @@ export class SpotLightObject extends GameObject implements SpotLight {
   constructor(ctx: GameContext) {
     super(ctx);
     // TODO: find some way to store consts like shadow map size across objects
-    this.fb = new ShadowFramebuffer(ctx, [2048, 2048]);
+    this.fb = new ShadowFramebuffer(ctx, [512, 512]);
     this.fov = 45;
-    this.near = 0.01;
-    this.far = 100.0;
+    this.near = 0.1;
+    this.far = 1000.0;
     this.falloffRadius = 1;
     this.color = vec4.create();
     this.intensity = 1;

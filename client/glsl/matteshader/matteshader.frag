@@ -16,6 +16,10 @@ uniform int spotlightCount;
 
 varying vec4 spot_coord[4];
 
+uniform SpotLight spotlight_no_shadow[16];
+
+uniform int spotlightCount_no_shadow;
+
 varying vec4 position_v;
 varying vec3 normal_v;
 
@@ -36,5 +40,19 @@ void main() {
     col += n_b * light_col;
   }
 
+  for (int i = 0; i < 16; i++) {
+    if (i >= spotlightCount_no_shadow) {
+      break;
+    }
+
+    vec3 light_vector = spotlight[i].position - position_v.xyz;
+    light_vector = normalize(light_vector);
+    float n_b = max(dot(light_vector.xyz, normal_v), 0.0);
+    vec4 light_col = getSpotLightColor(spotlight[i], position_v.xyz);
+    col += n_b * light_col;
+  }
+
+  vec3 temp = ((spot_coord[0].xyz / spot_coord[0].w) * 0.5 + 0.5);
+  // gl_FragColor = vec4(vec3((temp.z - texture2D(texture_spotlight[0], temp.xy).r)) * 10000.0, 1.0);
   gl_FragColor = vec4(col.xyz, 1.0);
 }

@@ -48,30 +48,6 @@ export class GameCamera extends GameObject implements Camera {
     return pm;
   }
 
-  lookAt(x: number | vec3, y: number, z: number) {
-    // this is a bit of a pain in the ass
-    // we need to alter rotation to aim towards a preset vector
-    // x is theta, y is phi if we're working in euler
-    let dirVector : vec3 = (typeof x === "number" ? vec3.fromValues(x, y, z) : x);
-    let pos = this.getPosition();
-    // account for own offset: vector from camera to dest
-    vec3.sub(dirVector, dirVector, pos);
-    console.log(dirVector);
-    let dir = vec3.create();
-    vec3.normalize(dir, dirVector);
-    let theta = Math.PI + Math.atan2(dir[0], dir[2]);
-    let phi : number;
-    let phi_denom = Math.sqrt(dir[0] * dir[0] + dir[2] * dir[2]);
-    if (phi_denom === 0 || phi_denom === NaN) {
-      phi = 0;
-    } else {
-      phi = Math.atan(dir[1] / phi_denom);
-    }
-    // kinda shit
-    console.log(`${theta}, ${phi}`);
-    this.setRotationEuler(phi * (180 / Math.PI), theta * (180 / Math.PI), 0);
-  }
-
   // todo2: set active camera?
   setAsActive() {
     // contract: only one active camera at a time

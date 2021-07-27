@@ -4,7 +4,7 @@
 #include <attenuation.inc.glsl>
 
 // TODO: scoot around?
-#define SHADOW_BIAS 0.0005
+#define SHADOW_BIAS 0.000001
 
 struct SpotLight {
   // position of spot
@@ -30,10 +30,11 @@ struct SpotLight {
 
 // define a macro for spotlight arr?
 
+vec4 getSpotLightColor(SpotLight, vec3);
+vec4 getSpotLightColor(SpotLight, vec3, vec4, in sampler2D);
 float getShadowTexture(SpotLight, vec3, vec4, in sampler2D);
 
-vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shadowtex) {
-  // figure out intensity w/ attenuation based on dist, falloff, fov
+vec4 getSpotLightColor(SpotLight s, vec3 pos) {
   vec3 dist = (pos - s.position);
   // atten based on dist
   float intensity = calculateAttenFactor(s.a, length(dist)) * s.intensity;
@@ -45,10 +46,14 @@ vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   // falloff
   intensity *= min(max(0.0, (1.0 - rad) / (s.falloffRadius + SHADOW_BIAS)), 1.0);
 
-  // shadow texture
+  return intensity * s.color;
+}
+
+vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shadowtex) {
+  vec4 final_color = getSpotLightColor(s, pos);
   float shadowprop = getShadowTexture(s, pos, light_pos, shadowtex);
 
-  return (intensity * shadowprop) * s.color;
+  return shadowprop * final_color;
 }
 
 /**
@@ -67,6 +72,6 @@ float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   vec2 pos_tex = pos_ndc.xy;
   float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
 
-  float rawDist = (depth - shadow_dist);
+  float rawDist = (pos_ndc.z - shadow_dist);
   return 1.0 - step(0.0, rawDist);
 }

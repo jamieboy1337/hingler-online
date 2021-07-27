@@ -31,12 +31,7 @@ export class MatteMaterial implements Material {
     normalMat: WebGLUniformLocation,
     surfaceColor: WebGLUniformLocation,
     lightCount: WebGLUniformLocation,
-    light: {
-      pos: WebGLUniformLocation,
-      intensity: WebGLUniformLocation,
-      diff: WebGLUniformLocation,
-      amb: WebGLUniformLocation
-    }
+    lightCountNoShadow: WebGLUniformLocation
   }
 
   private attribs: {
@@ -69,12 +64,7 @@ export class MatteMaterial implements Material {
           normalMat: gl.getUniformLocation(prog, "normal_matrix"),
           surfaceColor: gl.getUniformLocation(prog, "surface_color"),
           lightCount: gl.getUniformLocation(prog, "spotlightCount"),
-          light: {
-            pos: gl.getUniformLocation(prog, "light.pos"),
-            intensity: gl.getUniformLocation(prog, "light.intensity"),
-            diff: gl.getUniformLocation(prog, "light.diffuse"),
-            amb: gl.getUniformLocation(prog, "light.ambient")
-          }
+          lightCountNoShadow: gl.getUniformLocation(prog, "spotlightCount_no_shadow")
         };
 
         this.attribs = {
@@ -113,16 +103,24 @@ export class MatteMaterial implements Material {
       // recalculates uniform locations on every bind
       // maybe if we've seen the prog and the name, we have the locations already?
       // whatever
+
+      let shadowSpot = 0;
+      let noShadowSpot = 0;
       if (this.spot) {
         for (let i = 0; i < this.spot.length; i++) {
           this.spot[i].setShadowTextureIndex(i + 16);
-          this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`);
+          if (this.spot[i].hasShadow() && shadowSpot < 4) {
+            this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`, true);
+            shadowSpot++;
+          } else {
+            this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`, false);
+            noShadowSpot++;
+          }
         }
-
-        gl.uniform1i(this.locs.lightCount, this.spot.length);
-      } else {
-        gl.uniform1i(this.locs.lightCount, 0);
       }
+
+      gl.uniform1i(this.locs.lightCount, shadowSpot);
+      gl.uniform1i(this.locs.lightCountNoShadow, noShadowSpot);
       
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);
       model.bindAttribute(AttributeType.NORMAL, this.attribs.norm);

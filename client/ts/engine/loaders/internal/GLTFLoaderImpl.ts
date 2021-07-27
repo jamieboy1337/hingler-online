@@ -85,6 +85,8 @@ export class GLTFLoaderImpl implements GLTFLoader {
     // read magic
     const magic = view.getUint32(0, true);
     if (magic !== GLTF_MAGIC) {
+      console.log(magic);
+      console.log(GLTF_MAGIC);
       let err = `Magic number in file does not match desired!`;
       console.warn(err);
       throw Error(err);

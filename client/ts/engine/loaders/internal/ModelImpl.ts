@@ -4,6 +4,23 @@ import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLIndexImpl } from "../../gl/internal/GLIndexImpl";
 import { AttributeType, Model, Triangle, Vertex } from "../../storage/Model";
 
+// instanced pathway: draw all instances in one go?
+// if that's the case, then tiling gets a bit weird
+
+// instanced rendering is not compatible with our current workflow, and cannot be used
+// in place of regular models (limitations on instancing + materials)
+
+// as a workaround, in order to support instancing we'll need a subclass of materials to support it
+// we'll need a completely separate workflow for instanced rendering, probably involving
+// queueing up "draws" by uploading attributes, etc. before finally "flush"ing those attributes
+// in one go
+
+// we'd probably construct the instanced model in a super class and manage it from there.
+// we'd have to set the model's material, instead of a material consuming a model.
+// and remember to use gl.DYNAMIC_DRAW.
+
+// for now though: use regular models :-)
+
 // TODO: reclassify as primitive -- point=1, line=2, tri=3
 class TriangleIterator implements Iterator<Triangle> {
   model: ModelImpl;
