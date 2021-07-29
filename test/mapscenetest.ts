@@ -1,5 +1,6 @@
 import { GameContext } from "../client/ts/engine/GameContext";
 import { GameCamera } from "../client/ts/engine/object/game/GameCamera";
+import { GameObject } from "../client/ts/engine/object/game/GameObject";
 import { SpotLightObject } from "../client/ts/engine/object/game/light/SpotLightObject";
 import { Scene } from "../client/ts/engine/object/scene/Scene";
 import { MapManager } from "../client/ts/game/MapManager";
@@ -13,9 +14,21 @@ class DummyCamera extends GameCamera {
   }
 
   update() {
+  }
+}
+
+class DummyEmpty extends GameObject {
+  time: number;
+  rot: boolean;
+  constructor(ctx: GameContext, rot?: boolean) {
+    super(ctx);
+    this.time = 0;
+    this.rot = (!!rot);
+  }
+
+  update() {
     this.time += this.getContext().getDelta();
-    this.setPosition(Math.sin(this.time * 6) * 4, 35, 60);
-    this.lookAt(0, 0, 0);
+    this.setRotationEuler(0, 50.0 * this.time * (this.rot ? 1 : -0.8502934), 0);
   }
 }
 
@@ -24,34 +37,44 @@ export class MapSceneTest extends Scene {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
     cam.setPosition(0, 35, 60);
-    cam.fov = 25;
+    cam.fov = 18;
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy
 
     let conn = new GameConnectionManagerStub();
     let mapmgr = new MapManager(ctx, conn);
+    let rot = new DummyEmpty(ctx, true);
+    rot.setPosition(0, 0, 0);
+    cam.lookAt(0, 0, 0);
     let root = this.getGameObjectRoot();
+
     root.addChild(mapmgr);
-    root.addChild(cam);
+    rot.addChild(cam);
+    root.addChild(rot);
     cam.setAsActive();
 
+    let rot_two = new DummyEmpty(ctx);
+    // rot_two.setScale(1, 1, -1);
+    rot_two.setPosition(0, 0, 0);
+    
     let spot = new SpotLightObject(ctx);
     spot.setPosition(-20, 30, 45);
-    spot.fov = 45;
-    spot.falloffRadius = 0.4;
+    spot.fov = 31;
+    spot.falloffRadius = 0.2;
     spot.atten_const = 1;
     spot.atten_linear = 0;
     spot.atten_quad = 0;
-    spot.intensity = 1;
-    spot.color = [1, 1, 1, 1];
+    spot.intensity = 2.0;
+    spot.color = new Float32Array([1, 1, 1, 1]);
     
     spot.near = 0.1;
     spot.far = 1000.0;
 
-    spot.setShadowDims(2048, 2048);
+    spot.setShadowDims(1024, 1024);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 
-    root.addChild(spot);
+    rot_two.addChild(spot);
+    root.addChild(rot_two);
   }
 }

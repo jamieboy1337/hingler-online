@@ -21,7 +21,7 @@ export class SpotLightStruct implements GLSLStruct {
 
   private gl: WebGLRenderingContext;
   constructor(ctx: GameContext, light: SpotLight) {
-    this.position = light.getPosition();
+    this.position = light.getGlobalPosition();
     this.dir = light.getDirectionVector();
     // convert back to rads for shader :)
     this.fov = light.fov * (Math.PI / 180);

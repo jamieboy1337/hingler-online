@@ -49,6 +49,7 @@ class CrapModel extends GameModel {
     this.mat.color[2] = 0.8;
     this.mat.color[3] = 1;
     let info = rc.getActiveCameraInfo();
+    this.mat.cameraPos = info.cameraPosition;
     this.mat.vpMat = info.vpMatrix;
     this.mat.modelMat = this.getTransformationMatrix();
     let lights = rc.getSpotLightInfo();
@@ -84,6 +85,7 @@ class DummyModel extends GameModel {
     this.mat.color[2] = 0.8;
     this.mat.color[3] = 1;
     let info = rc.getActiveCameraInfo();
+    this.mat.cameraPos = info.cameraPosition;
     this.mat.vpMat = info.vpMatrix;
     this.mat.modelMat = this.getTransformationMatrix();
     let lights = rc.getSpotLightInfo();

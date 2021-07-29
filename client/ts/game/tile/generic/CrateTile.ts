@@ -19,6 +19,7 @@ export class CrateTile extends GameTile {
     let info = rc.getActiveCameraInfo();
     this.mat.vpMat = info.vpMatrix;
     this.mat.modelMat = this.getTransformationMatrix();
+    this.mat.cameraPos = info.cameraPosition;
     let lights = rc.getSpotLightInfo();
     if (lights.length > 0) {
       this.mat.setSpotLight(lights);

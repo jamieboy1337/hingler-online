@@ -24,7 +24,7 @@ export class ShaderFileParser {
 
     this.pathRecord.add(path);
     const includeHeader = "#include "
-    const includeExtract = /\s*#include\s+<?(.*)>.*/g
+    const includeExtract = /\s*#include\s+<?(.*)>.*/
     let contents = await this.loader.open(path);
     let folder = path.substring(0, Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
@@ -33,11 +33,14 @@ export class ShaderFileParser {
     
     for (let line of lines) {
       if (line.indexOf(includeHeader) !== -1) {
+        console.log(line);
         let match = includeExtract.exec(line);
-        if (match) {
+        if (match !== null) {
           let relativePath = folder + match[1];
           output.push(await this.parseShaderFile(relativePath));
           continue;
+        } else {
+          console.log(includeExtract.exec(line));
         }
       }
 

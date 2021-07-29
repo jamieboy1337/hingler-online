@@ -1,4 +1,4 @@
-import { mat3, mat4, vec4 } from "gl-matrix";
+import { mat3, mat4, vec3, vec4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { GameContext } from "../GameContext";
@@ -24,6 +24,8 @@ export class MatteMaterial implements Material {
   vpMat: mat4;
   modelMat: mat4;
   color: vec4;
+  cameraPos: vec3;
+
 
   private locs: {
     modelMat: WebGLUniformLocation,
@@ -31,7 +33,8 @@ export class MatteMaterial implements Material {
     normalMat: WebGLUniformLocation,
     surfaceColor: WebGLUniformLocation,
     lightCount: WebGLUniformLocation,
-    lightCountNoShadow: WebGLUniformLocation
+    lightCountNoShadow: WebGLUniformLocation,
+    cameraPos: WebGLUniformLocation
   }
 
   private attribs: {
@@ -46,6 +49,8 @@ export class MatteMaterial implements Material {
     this.vpMat = mat4.create();
     this.modelMat = mat4.create();
     this.color = vec4.create();
+
+    this.cameraPos = vec3.create();
 
     mat4.identity(this.vpMat);
     mat4.identity(this.modelMat);
@@ -64,7 +69,8 @@ export class MatteMaterial implements Material {
           normalMat: gl.getUniformLocation(prog, "normal_matrix"),
           surfaceColor: gl.getUniformLocation(prog, "surface_color"),
           lightCount: gl.getUniformLocation(prog, "spotlightCount"),
-          lightCountNoShadow: gl.getUniformLocation(prog, "spotlightCount_no_shadow")
+          lightCountNoShadow: gl.getUniformLocation(prog, "spotlightCount_no_shadow"),
+          cameraPos: gl.getUniformLocation(prog, "camera_pos")
         };
 
         this.attribs = {
@@ -121,6 +127,8 @@ export class MatteMaterial implements Material {
 
       gl.uniform1i(this.locs.lightCount, shadowSpot);
       gl.uniform1i(this.locs.lightCountNoShadow, noShadowSpot);
+
+      gl.uniform3fv(this.locs.cameraPos, this.cameraPos);
       
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);
       model.bindAttribute(AttributeType.NORMAL, this.attribs.norm);

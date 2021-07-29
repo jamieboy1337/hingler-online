@@ -241,6 +241,12 @@ export class GameObject extends EngineObject {
     this.invalidateTransformCache_();
   }
 
+  getGlobalPosition() {
+    let posLocal = vec3.zero(vec3.create());
+    vec3.transformMat4(posLocal, posLocal, this.getTransformationMatrix());
+    return posLocal;
+  }
+
   lookAt(x: number | vec3, y?: number, z?: number) {
     let dirVector : vec3 = (typeof x === "number" ? vec3.fromValues(x, y, z) : x);
     let pos = this.getPosition();

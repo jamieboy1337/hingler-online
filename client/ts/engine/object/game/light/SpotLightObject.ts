@@ -80,10 +80,15 @@ export class SpotLightObject extends GameObject implements SpotLight {
    * @returns this light's perspective as a CameraInfo.
    */
   getLightMatrixAsCameraInfo() {
+    // zero, bc our transformation matrix will move it
+    let pos = vec3.create();
+    vec3.zero(pos);
+    vec3.transformMat4(pos, pos, this.getTransformationMatrix());
     let info : CameraInfo = {
       viewMatrix: this.getTransformationMatrix(),
       perspectiveMatrix: mat4.create(),
-      vpMatrix: mat4.create()
+      vpMatrix: mat4.create(),
+      cameraPosition: pos
     };
 
     mat4.invert(info.viewMatrix, info.viewMatrix);

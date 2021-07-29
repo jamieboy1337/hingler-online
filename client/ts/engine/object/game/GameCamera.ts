@@ -24,10 +24,15 @@ export class GameCamera extends GameObject implements Camera {
   }
 
   getCameraInfo() : CameraInfo {
+    let pos = vec3.create();
+    vec3.zero(pos);
+    let mat = this.getTransformationMatrix();
+    vec3.transformMat4(pos, pos, mat);
     let res = {
       viewMatrix: this.getViewMatrix(),
       perspectiveMatrix: this.getPerspectiveMatrix(),
-      vpMatrix: mat4.create()
+      vpMatrix: mat4.create(),
+      cameraPosition: this.getPosition()
     }
 
     mat4.mul(res.vpMatrix, res.perspectiveMatrix, res.viewMatrix);

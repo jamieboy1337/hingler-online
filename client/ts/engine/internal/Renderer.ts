@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, vec3 } from "gl-matrix";
 import { Framebuffer } from "../gl/Framebuffer";
 import { ColorFramebuffer } from "../gl/internal/ColorFramebuffer";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
@@ -99,13 +99,17 @@ export class Renderer {
       info = {
         viewMatrix: mat4.create(),
         perspectiveMatrix: mat4.create(),
-        vpMatrix: mat4.create()
+        vpMatrix: mat4.create(),
+        cameraPosition: vec3.create()
       };
+
+      console.log("no active cam found");
 
       mat4.identity(info.viewMatrix);
       let rat = this.ctx.getScreenDims();
       mat4.perspective(info.perspectiveMatrix, 1.0826, (rat[0] / rat[1]), 0.01, 100);
       mat4.mul(info.vpMatrix, info.viewMatrix, info.perspectiveMatrix);
+      vec3.zero(info.cameraPosition);
     }
 
     let rc : RenderContext = {
@@ -180,13 +184,16 @@ export class Renderer {
 
   private findActiveCamera(root: GameObject) : GameCamera {
     for (let child of root.getChildren()) {
-      if (child instanceof GameCamera) {
-        if (child.isActive()) {
-          return child;
-        } else {
-          this.findActiveCamera(child);
+      if (child instanceof GameCamera && child.isActive()) {
+        return child;
+      } else {
+        let activeCamera = this.findActiveCamera(child);
+        if (activeCamera !== null) {
+          return activeCamera;
         }
       }
     }
+
+    return null;
   }
 }

@@ -21,7 +21,7 @@ export interface SpotLight extends ShadowCastingLight, AttenuatingLight {
   /**
    * @returns the position of this spotlight.
    */
-  getPosition() : vec3;
+  getGlobalPosition() : vec3;
   
   /**
    * @returns the direction in which this spotlight points.

@@ -25,6 +25,8 @@ varying vec3 normal_v;
 
 uniform vec4 surface_color;
 
+uniform vec3 camera_pos;
+
 
 void main() {
   vec4 col = vec4(0.0);
@@ -36,8 +38,7 @@ void main() {
     vec3 light_vector = spotlight[i].position - position_v.xyz;
     light_vector = normalize(light_vector);
     float n_b = max(dot(light_vector.xyz, normal_v), 0.0);
-    vec4 light_col = getSpotLightColor(spotlight[i], position_v.xyz, spot_coord[i], texture_spotlight[i]);
-    col += n_b * light_col;
+    col += getSpotLightColorPBR(spotlight[i], camera_pos, position_v.xyz, spot_coord[i], surface_color.rgb, normal_v, 0.35, texture_spotlight[i]);
   }
 
   for (int i = 0; i < 16; i++) {
