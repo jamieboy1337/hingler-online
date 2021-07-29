@@ -1,14 +1,7 @@
 // definitions pertaining to spotlights
 // TODO: including these engine components vs from external?
-// one solution would be including by default from some engine location (quotes vs angle brackets)
 
 #include <attenuation.inc.glsl>
-
-#include <pbr.inc.glsl>
-
-// TODO: scoot around?
-#define SHADOW_BIAS 0.0000005
-
 struct SpotLight {
   // position of spot
   vec3 position;
@@ -30,6 +23,16 @@ struct SpotLight {
   // attenuation factors for our light.
   Attenuation a;
 };
+
+// only include all this shader code if we absolutely need it
+#ifndef STRUCT_ONLY
+#define SHADOW_BIAS 0.0000005
+
+// one solution would be including by default from some engine location (quotes vs angle brackets)
+
+#include <../pbr.inc.glsl>
+
+// TODO: scoot around?
 
 // define a macro for spotlight arr?
 // TODO: account for normals in shadow func?
@@ -116,3 +119,5 @@ float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   float rawDist = (pos_ndc.z - shadow_dist);
   return 1.0 - step(0.0, rawDist);
 }
+
+#endif
