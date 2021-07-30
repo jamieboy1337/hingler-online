@@ -1,5 +1,4 @@
 import { perf } from "../../../../ts/performance";
-import { ColorDisplay } from "../material/ColorDisplay";
 import { GameCamera } from "../object/game/GameCamera";
 import { GameObject } from "../object/game/GameObject";
 import { Scene } from "../object/scene/Scene";
@@ -30,7 +29,7 @@ export class EngineContext implements GameContext {
     this.canvas = canvas;
     this.passOffset = 0;
     this.glContext = canvas.getContext("webgl");
-    this.gltfLoader = new GLTFLoaderImpl(this.loader, this.glContext);
+    this.gltfLoader = new GLTFLoaderImpl(this.loader, this);
 
     let gl = this.glContext;
     gl.clearColor(0, 0, 0, 1);

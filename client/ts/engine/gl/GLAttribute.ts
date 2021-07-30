@@ -5,7 +5,10 @@ export interface GLAttribute {
 
   // number of components in each entry (scalar = 1, vec2 = 2, etc.)
   readonly comps: number;
+  // byte size of each component
   readonly componentByteSize: number;
+  // number of components in all
+  readonly count: number;
 
   /**
    * Binds this attribute to a particular vertex index.

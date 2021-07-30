@@ -1,6 +1,7 @@
 import { GameContext } from "../../GameContext";
 import { AttenuatingLight } from "../../object/game/light/AttenuatingLight";
 import { GLSLStruct } from "../GLSLStruct";
+import { GLProgramWrap } from "../internal/GLProgramWrap";
 
 export class AttenuationStruct implements GLSLStruct {
   readonly atten_const: number;
@@ -16,11 +17,11 @@ export class AttenuationStruct implements GLSLStruct {
     this.gl = ctx.getGLContext();
   }
 
-  bindToUniformByName(prog: WebGLProgram, name: string) {
+  bindToUniformByName(prog: GLProgramWrap, name: string) {
     let gl = this.gl;
-    const constLoc = gl.getUniformLocation(prog, name + ".atten_const");
-    const linearLoc = gl.getUniformLocation(prog, name + ".atten_linear");
-    const quadLoc = gl.getUniformLocation(prog, name + ".atten_quad");
+    const constLoc = prog.getUniformLocation(name + ".atten_const");
+    const linearLoc = prog.getUniformLocation(name + ".atten_linear");
+    const quadLoc = prog.getUniformLocation(name + ".atten_quad");
 
     gl.uniform1f(constLoc, this.atten_const);
     gl.uniform1f(linearLoc, this.atten_linear);

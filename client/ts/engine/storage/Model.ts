@@ -19,7 +19,8 @@ export enum AttributeType {
   NORMAL,
   TEXCOORD,
   JOINT,
-  WEIGHT
+  WEIGHT,
+  TANGENT
 }
 
 /**
@@ -28,8 +29,6 @@ export enum AttributeType {
  * Probably wrap this class and not import -- draw will use GLTF material w params.
  */
 export interface Model {
-  [Symbol.iterator]() : Iterator<Triangle>;
-
   /**
    * Binds an attribute to a specific location.
    * @param at - The attribute type we are binding.
@@ -39,6 +38,12 @@ export interface Model {
    *                     can be provided via an array.
    */
   bindAttribute(at: AttributeType, ...location: Array<number>) : void;
+  // separate bind out into its own interface
+  // models exported thus far will use that interface
+  // others will not :(
+
+  // pbrmodel should support this workflow... but it should also contain a method
+  // which just draws its pbr shit straight up and out
 
   /**
    * Dispatches draw calls for all geometry stored inside this model.

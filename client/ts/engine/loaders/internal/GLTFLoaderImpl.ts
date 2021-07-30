@@ -1,5 +1,5 @@
 import { ArrayBufferToString } from "../../../../../ts/util/StringToArrayBuffer";
-import { GLAttribute } from "../../gl/GLAttribute";
+import { GameContext } from "../../GameContext";
 import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
 import { GLBufferImpl } from "../../gl/internal/GLBufferImpl";
@@ -10,7 +10,7 @@ import { FileLoader } from "../FileLoader";
 import { GLTFLoader } from "../GLTFLoader";
 import { GLTFScene } from "../GLTFScene";
 import { GLTFSceneImpl } from "./GLTFSceneImpl";
-import { Accessor, GLTFJson } from "./gltfTypes";
+import { GLTFJson } from "./gltfTypes";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 
 const GLTF_MAGIC = 0x46546C67;
@@ -25,10 +25,12 @@ enum FileType {
 export class GLTFLoaderImpl implements GLTFLoader {
   private loader: FileLoader;
   private gl: WebGLRenderingContext;
+  private ctx: GameContext;
 
-  constructor(loader: FileLoader, gl: WebGLRenderingContext) {
+  constructor(loader: FileLoader, ctx: GameContext) {
     this.loader = loader;
-    this.gl = gl;
+    this.gl = ctx.getGLContext();
+    this.ctx = ctx;
   }
 
   resolvePath(path: string) {
@@ -118,7 +120,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
     console.log(jsonParsed);
 
     let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
-    return new GLTFSceneImpl(this.gl, jsonParsed, buffers);
+    return new GLTFSceneImpl(this.ctx, jsonParsed, buffers);
   }
 
   private async loadGLB(file: FileLike) : Promise<Array<Model>> {
@@ -181,6 +183,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
         inst.positions      = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.POSITION);
         inst.normals        = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.NORMAL);
         inst.texcoords      = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.TEXCOORD_0);
+        inst.tangents       = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.TANGENT);
 
         let joint = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.JOINTS_0);
         if (joint) {

@@ -18,7 +18,7 @@ export class ShaderFileParser {
 
   private async parseShaderFile_(path: string) {
     if (this.pathRecord.has(path)) {
-      console.error("Circular reference detected on " + path + " -- terminating...");
+      console.info(path + " already included in program. Ignoring import...");
       return "";
     }
 
@@ -33,7 +33,7 @@ export class ShaderFileParser {
     
     for (let line of lines) {
       if (line.indexOf(includeHeader) !== -1) {
-        console.log(line);
+        console.info("Encountered new include: " + line);
         let match = includeExtract.exec(line);
         if (match !== null) {
           let relativePath = folder + match[1];

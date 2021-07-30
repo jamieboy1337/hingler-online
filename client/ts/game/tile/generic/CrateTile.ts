@@ -14,16 +14,4 @@ export class CrateTile extends GameTile {
   destroy() {
     this.markAsClean();
   }
-
-  renderMaterial(rc: RenderContext) {
-    let info = rc.getActiveCameraInfo();
-    this.mat.vpMat = info.vpMatrix;
-    this.mat.modelMat = this.getTransformationMatrix();
-    this.mat.cameraPos = info.cameraPosition;
-    let lights = rc.getSpotLightInfo();
-    if (lights.length > 0) {
-      this.mat.setSpotLight(lights);
-    }
-    this.drawModel(rc, this.mat);
-  }
 }

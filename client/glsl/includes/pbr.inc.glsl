@@ -10,7 +10,7 @@ vec3 fresnel(vec3, vec3, vec3);
 
 // if we have an image skybox, we can  
 // to do
-vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, vec3 normal, float roughness) {
+vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, vec3 normal, float roughness, float metallic) {
   vec3 N = normalize(normal);
   vec3 V = normalize(cam_pos - pos);
   vec3 L = normalize(light_pos - pos);
@@ -24,7 +24,7 @@ vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, 
 
   vec3 ks = F;
   vec3 kd = vec3(1.0) - F;
-  // kd *= 1.0 - metallic
+  kd *= (1.0 - metallic);
 
   vec3 num = NDF * G * F;
   float denom = 4.0 * max(dot(N, V), 0.0) * NdotL;

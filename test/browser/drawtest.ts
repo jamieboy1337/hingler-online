@@ -36,9 +36,9 @@ async function main() {
   });
   
   let loader = new FileLoader();
-  let modelLoader = new GLTFLoaderImpl(loader, gl);
-  model = (await modelLoader.loadGLTFModel("../data/test.glb"))[0];
   let ctx = new EngineContext(canvas);
+  let modelLoader = new GLTFLoaderImpl(loader, ctx);
+  model = (await modelLoader.loadGLTFModel("../data/test.glb"))[0];
   // build shader, get program
   prog = await (new ShaderProgramBuilder(ctx).withVertexShader("../data/dummyshader.vert")
     .withFragmentShader("../data/dummyshader.frag")

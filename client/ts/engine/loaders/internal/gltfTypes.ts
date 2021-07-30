@@ -69,12 +69,38 @@ export interface TextureSchema {
   source: number
 };
 
+export interface TextureInfoSchema {
+  index: number;
+}
+
+export interface PBRMaterial {
+  baseColorFactor: [number, number, number, number],
+  baseColorTexture: TextureInfoSchema,
+  metallicFactor: number,
+  roughnessFactor: number,
+  metallicRoughnessTexture: TextureInfoSchema
+};
+
+export interface MatNormalTexture {
+  index: number,
+  // ignore this for now
+  texcoord: number,
+  scale: number
+}
+
+export interface Material {
+  name?: string,
+  pbrMetallicRoughness: PBRMaterial,
+  normalTexture?: MatNormalTexture
+};
+
 // handle optional params
 export interface GLTFJson {
   accessors?: Array<Accessor>,
   buffers?: Array<Buffer>,
   bufferViews?: Array<BufferView>,
   images?: Array<ImageSchema>,
+  materials?: Array<Material>,
   meshes?: Array<Mesh>,
   samplers?: Array<Sampler>,
   textures?: Array<TextureSchema>

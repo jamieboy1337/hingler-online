@@ -2,6 +2,7 @@ import { mat4, vec3, vec4 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
 import { SpotLight } from "../../object/game/light/SpotLight";
 import { GLSLStruct } from "../GLSLStruct";
+import { GLProgramWrap } from "../internal/GLProgramWrap";
 import { Texture } from "../Texture";
 import { AttenuationStruct } from "./AttenuationStruct";
 
@@ -61,7 +62,7 @@ export class SpotLightStruct implements GLSLStruct {
     this.index = index;
   }
 
-  bindToUniformByName(prog: WebGLProgram, name: string, enableShadow?: boolean) {
+  bindToUniformByName(prog: GLProgramWrap, name: string, enableShadow?: boolean) {
     let gl = this.gl;
     
     // resolves if undefined
@@ -69,17 +70,17 @@ export class SpotLightStruct implements GLSLStruct {
     
     // this is the biggest performance hit
     // invent a wrapper so that we don't need to fetch these locations a bunch of times
-    const posLoc =        gl.getUniformLocation(prog, name + ".position");
-    const dirLoc =        gl.getUniformLocation(prog, name + ".dir");
-    const fovLoc =        gl.getUniformLocation(prog, name + ".fov");
-    const falloffLoc =    gl.getUniformLocation(prog, name + ".falloffRadius");
-    const intensityLoc =  gl.getUniformLocation(prog, name + ".intensity");
-    const colorLoc =      gl.getUniformLocation(prog, name + ".color");
-    const transformLoc =  gl.getUniformLocation(prog, name + ".lightTransform");
+    const posLoc =        prog.getUniformLocation(name + ".position");
+    const dirLoc =        prog.getUniformLocation(name + ".dir");
+    const fovLoc =        prog.getUniformLocation(name + ".fov");
+    const falloffLoc =    prog.getUniformLocation(name + ".falloffRadius");
+    const intensityLoc =  prog.getUniformLocation(name + ".intensity");
+    const colorLoc =      prog.getUniformLocation(name + ".color");
+    const transformLoc =  prog.getUniformLocation(name + ".lightTransform");
     let texLoc : WebGLUniformLocation;
 
     if (useShadow) {
-      texLoc =            gl.getUniformLocation(prog, "texture_" + name);
+      texLoc =            prog.getUniformLocation("texture_" + name);
     }
     
     this.attenuation.bindToUniformByName(prog, name + ".a");

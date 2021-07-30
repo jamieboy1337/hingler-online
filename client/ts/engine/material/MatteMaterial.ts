@@ -4,6 +4,7 @@ import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { GameContext } from "../GameContext";
 import { AttributeType, Model } from "../storage/Model";
 import { Material } from "./Material";
+import { GLProgramWrap } from "../gl/internal/GLProgramWrap";
 
 // temp
 export interface Light {
@@ -19,6 +20,8 @@ export interface Light {
 
 export class MatteMaterial implements Material {
   private prog: WebGLProgram;
+
+  private progWrap: GLProgramWrap;
   private ctx: GameContext;
   private spot: Array<SpotLightStruct>;
   vpMat: mat4;
@@ -77,6 +80,8 @@ export class MatteMaterial implements Material {
           pos: gl.getAttribLocation(prog, "position"),
           norm: gl.getAttribLocation(prog, "normal")
         }
+
+        this.progWrap = new GLProgramWrap(this.ctx.getGLContext(), this.prog);
       })
       .catch((err) => {
         console.error(err);
@@ -116,10 +121,10 @@ export class MatteMaterial implements Material {
         for (let i = 0; i < this.spot.length; i++) {
           this.spot[i].setShadowTextureIndex(i + 16);
           if (this.spot[i].hasShadow() && shadowSpot < 4) {
-            this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`, true);
+            this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${i}]`, true);
             shadowSpot++;
           } else {
-            this.spot[i].bindToUniformByName(this.prog, `spotlight[${i}]`, false);
+            this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${i}]`, false);
             noShadowSpot++;
           }
         }

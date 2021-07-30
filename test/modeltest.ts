@@ -54,11 +54,13 @@ class AttributeStub implements GLAttribute {
   componentByteSize: number;
   boundAttribute: number;
   lastBound: number;
+  count: number;
   private offset: number;
   private start: number;
   constructor(length: number, components: number, byteSize: number, start?: number) {
     this.offset = 0;
     this.length = length;
+    this.count = length;
     this.comps = components;
     this.boundAttribute = -1;
     this.lastBound = -1;

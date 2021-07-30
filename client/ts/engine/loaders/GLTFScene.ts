@@ -1,5 +1,6 @@
 import { Texture } from "../gl/Texture";
 import { Model } from "../storage/Model";
+import { PBRModel } from "../storage/PBRModel";
 
 /**
  * Represents the data contained inside a GLTF file
@@ -19,5 +20,12 @@ export interface GLTFScene {
    */
   getModel(name: string) : Model;
 
-  // TODO: getGLTFModel -- handle materials, textures, etc. if available.
+  /**
+   * 
+   * @param model - either the name of the model, or the index associated with it.
+   * @returns a new PBRModel.
+   */
+  getPBRModel(model: string | number) : PBRModel;
+
+  // TODO: getPBRModel -- handle materials, textures, etc. if available.
 }

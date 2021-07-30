@@ -53,8 +53,8 @@ vec4 getSpotLightColor(SpotLight, vec3, vec4, in sampler2D);
  *  @param rough - roughness of surface at point
  *  @param shadow_tex - (optional) shadow texture at point.
  */
-vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos,                      vec3 albedo, vec3 norm, float rough);
-vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec4 shadow_tex_pos, vec3 albedo, vec3 norm, float rough, in sampler2D shadow_tex);
+vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos,                      vec3 albedo, vec3 norm, float rough, float metal);
+vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec4 shadow_tex_pos, vec3 albedo, vec3 norm, float rough, float metal, in sampler2D shadow_tex);
 float getShadowTexture(SpotLight, vec3, vec4, in sampler2D);
 
 vec4 getSpotLightColor(SpotLight s, vec3 pos) {
@@ -79,8 +79,8 @@ vec4 getSpotLightColor(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   return shadowprop * final_color;
 }
 
-vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec3 albedo, vec3 norm, float rough) {
-  vec3 col = pbr(geom_pos, cam_pos, s.position.xyz, s.color.rgb, albedo, norm, rough) * s.intensity;
+vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec3 albedo, vec3 norm, float rough, float metal) {
+  vec3 col = pbr(geom_pos, cam_pos, s.position.xyz, s.color.rgb, albedo, norm, rough, metal) * s.intensity;
   vec3 dist = (geom_pos - s.position);
   col *= calculateAttenFactor(s.a, length(dist));
   float aoi = acos(dot(normalize(dist), normalize(s.dir)));
@@ -93,8 +93,8 @@ vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec3 albedo,
   return vec4(col, 1.0);
 }
 
-vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec4 shadow_tex_pos, vec3 albedo, vec3 norm, float rough, in sampler2D shadow_tex) {
-  vec4 col = getSpotLightColorPBR(s, cam_pos, geom_pos, albedo, norm, rough);
+vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec4 shadow_tex_pos, vec3 albedo, vec3 norm, float rough, float metal, in sampler2D shadow_tex) {
+  vec4 col = getSpotLightColorPBR(s, cam_pos, geom_pos, albedo, norm, rough, metal);
   float shadowprop = getShadowTexture(s, geom_pos, shadow_tex_pos, shadow_tex);
 
   return vec4(shadowprop * col.rgb, 1.0);

@@ -1,7 +1,5 @@
 import { GLAttribute } from "../../gl/GLAttribute";
 import { GLIndex } from "../../gl/GLIndex";
-import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
-import { GLIndexImpl } from "../../gl/internal/GLIndexImpl";
 import { AttributeType, Model, Triangle, Vertex } from "../../storage/Model";
 
 // instanced pathway: draw all instances in one go?
@@ -101,6 +99,7 @@ export interface ModelInstance {
   positions: GLAttribute;
   normals?: GLAttribute;
   texcoords?: GLAttribute;
+  tangents?: GLAttribute;
   joints?: Array<GLAttribute>;
   weights?: Array<GLAttribute>;
   indices: GLIndex;
@@ -112,6 +111,7 @@ export class ModelImpl implements Model {
   posLocation: number;
   normLocation: number;
   texLocation: number;
+  tangentLocation: number;
   jointLocation: Array<number>;
   weightLocation: Array<number>;
   
@@ -120,6 +120,7 @@ export class ModelImpl implements Model {
     this.posLocation = -1;
     this.normLocation = -1;
     this.texLocation = -1;
+    this.tangentLocation = -1;
     this.jointLocation = null;
     this.weightLocation = null;
   }
@@ -138,6 +139,9 @@ export class ModelImpl implements Model {
         break;
       case AttributeType.TEXCOORD:
         this.texLocation = location[0];
+        break;
+      case AttributeType.TANGENT:
+        this.tangentLocation = location[0];
         break;
       case AttributeType.JOINT:
         this.jointLocation = location;
@@ -166,9 +170,14 @@ export class ModelImpl implements Model {
         inst.texcoords.pointToAttribute(this.texLocation);
       }
 
+      if (inst.tangents && this.tangentLocation >= 0) {
+        inst.tangents.pointToAttribute(this.tangentLocation);
+      }
+
       for (let i = 0; inst.joints && this.jointLocation && i < this.jointLocation.length && i < inst.joints.length; i++) {
         inst.joints[i].pointToAttribute(this.jointLocation[i]);
       }
+
 
       for (let i = 0; inst.weights && this.weightLocation && i < this.weightLocation.length && i < inst.weights.length; i++) {
         inst.weights[i].pointToAttribute(this.weightLocation[i]);
@@ -183,6 +192,10 @@ export class ModelImpl implements Model {
 
       if (inst.texcoords) {
         inst.texcoords.disableAttribute();
+      }
+
+      if (inst.tangents) {
+        inst.tangents.disableAttribute();
       }
 
       if (inst.joints) {

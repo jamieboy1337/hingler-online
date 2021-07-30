@@ -38,7 +38,7 @@ void main() {
     vec3 light_vector = spotlight[i].position - position_v.xyz;
     light_vector = normalize(light_vector);
     float n_b = max(dot(light_vector.xyz, normal_v), 0.0);
-    col += getSpotLightColorPBR(spotlight[i], camera_pos, position_v.xyz, spot_coord[i], surface_color.rgb, normal_v, 0.35, texture_spotlight[i]);
+    col += getSpotLightColorPBR(spotlight[i], camera_pos, position_v.xyz, spot_coord[i], surface_color.rgb, normal_v, 0.35, 0.0, texture_spotlight[i]);
   }
 
   for (int i = 0; i < 16; i++) {
@@ -53,7 +53,5 @@ void main() {
     col += n_b * light_col;
   }
 
-  vec3 temp = ((spot_coord[0].xyz / spot_coord[0].w) * 0.5 + 0.5);
-  // gl_FragColor = vec4(vec3((temp.z - texture2D(texture_spotlight[0], temp.xy).r)) * 10000.0, 1.0);
   gl_FragColor = vec4(col.xyz, 1.0);
 }

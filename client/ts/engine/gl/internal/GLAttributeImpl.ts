@@ -38,6 +38,50 @@ export class GLAttributeImpl implements GLAttribute {
 
   private accessFunc: (offset: number, littleEndian?: boolean) => number;
   
+  /**
+   * Returns a new GLAttributeImpl from attributes, rather than a BufferView and Accessor.
+   * @param buffer - the buffer in question
+   * @param components - number of components per element
+   * @param type - the type of data stored in each component
+   * @param offset - offset between components and start of buffer
+   * @param stride - stride between individual components.
+   */
+  static createFromValues(buffer: GLBuffer, components: number, type: number, num: number, offset?: number, stride?: number) {
+    let typeString : string;
+    switch (components) {
+      case 1:
+        typeString = "SCALAR";
+        break;
+      case 2:
+        typeString = "VEC2";
+        break;
+      case 3:
+        typeString = "VEC3";
+        break;
+      case 4:
+        typeString = "VEC4";
+        break;
+    };
+
+    let a : Accessor = {
+      bufferView: -1,
+      componentType: type,
+      count: num,
+      min: [-1, -1, -1],
+      max: [1, 1, 1],
+      type: typeString
+    };
+
+    let b : BufferView = {
+      buffer: -1,
+      byteLength: -1,
+      byteStride: stride,
+      byteOffset: offset
+    };
+
+    return new GLAttributeImpl(buffer, b, a);
+  }
+
   constructor(buffer: GLBuffer, view: BufferView, accessor: Accessor) {
     this.buffer = buffer;
     switch (accessor.type) {
