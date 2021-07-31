@@ -4,5 +4,5 @@ struct AmbientLight {
 };
 
 vec4 getAmbientColor(AmbientLight a) {
-  return color * intensity;
+  return a.color * a.intensity;
 }

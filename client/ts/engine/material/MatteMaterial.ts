@@ -124,7 +124,7 @@ export class MatteMaterial implements Material {
             this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${i}]`, true);
             shadowSpot++;
           } else {
-            this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${i}]`, false);
+            this.spot[i].bindToUniformByName(this.progWrap, `spotlight_no_shadow[${i}]`, false);
             noShadowSpot++;
           }
         }

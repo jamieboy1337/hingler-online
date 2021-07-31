@@ -3,6 +3,7 @@
 precision highp float;
 precision highp int;
 
+#include <../includes/ambient.inc.glsl>
 #include <../includes/spotlight/spotlight.inc.glsl>
 
 uniform SpotLight spotlight[4];
@@ -12,6 +13,9 @@ varying vec4 spot_coord[4];
 
 uniform SpotLight spotlight_no_shadow[16];
 uniform int spotlightCount_no_shadow;
+
+uniform AmbientLight ambient[4];
+uniform int ambientCount;
 
 varying vec4 v_pos;
 varying vec3 v_norm;
@@ -71,12 +75,12 @@ void main() {
   }
 
   for (int i = 0; i < 16; i++) {
-    if (i > spotlightCount_no_shadow) {
+    if (i >= spotlightCount_no_shadow) {
       break;
     }
 
     vec3 light_vector = normalize(spotlight_no_shadow[i].position - v_pos.xyz);
-    col += getSpotLightColorPBR(spotlight[i], camera_pos, v_pos.xyz, C, N, rough, metal);
+    col += getSpotLightColorPBR(spotlight_no_shadow[i], camera_pos, v_pos.xyz, C, N, rough, metal);
   }
 
   gl_FragColor = vec4(col.xyz, 1.0);
