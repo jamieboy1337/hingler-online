@@ -9,22 +9,29 @@ import { GLTFTexture } from "../../gl/internal/GLTFTexture";
 import { Texture } from "../../gl/Texture";
 import { PBRMaterial } from "../../material/PBRMaterial";
 import { Model } from "../../storage/Model";
+import { PBRModel } from "../../storage/PBRModel";
 import { GLTFScene } from "../GLTFScene";
 import { GLTFJson, ImageSchema, Mesh, Primitive, TextureSchema } from "./gltfTypes";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 import { PBRModelImpl } from "./PBRModelImpl";
 
 export class GLTFSceneImpl implements GLTFScene {
-  ctx    : GameContext;
-  gl     : WebGLRenderingContext;
-  buffers: Array<GLBuffer>;
-  data   : GLTFJson;
+  ctx         : GameContext;
+  gl          : WebGLRenderingContext;
+  buffers     : Array<GLBuffer>;
+  data        : GLTFJson;
+
+  modelCache  : Map<number, Model>;
+  pbrCache    : Map<number, PBRModel>;
 
   constructor(ctx: GameContext, data: GLTFJson, buffers: Array<GLBuffer>) {
     this.ctx = ctx;
     this.gl = ctx.getGLContext();
     this.data = data;
     this.buffers = buffers;
+
+    this.modelCache = new Map();
+    this.pbrCache = new Map();
   }
 
   // TODO: add function which fetches a pbr model
@@ -34,13 +41,33 @@ export class GLTFSceneImpl implements GLTFScene {
   // this should not be the priority, though!
   // our priority should be ensuring that our engine is usable.
 
-  getModel(name: string) : Model {
-    for (let mesh of this.data.meshes) {
-      if (mesh.name === name) {
-        return this.meshToModel(mesh);
+  getModel(name: string | number) : Model {
+    if (typeof name === "string") {
+      for (let i = 0; i < this.data.meshes.length; i++) {
+        let mesh = this.data.meshes[i];
+        if (mesh.name === name) {
+          if (this.modelCache.has(i)) {
+            return this.modelCache.get(i);
+          }
+
+          let model = this.meshToModel(mesh);
+          this.modelCache.set(i, model);
+          return model;
+        }
       }
+    } else {
+      if (name > this.data.meshes.length || name < 0) {
+        return null;
+      }
+
+      if (this.modelCache.has(name)) {
+        return this.modelCache.get(name);
+      }
+      
+      let model = this.meshToModel(this.data.meshes[name]);
+      this.modelCache.set(name, model);
+      return model;
     }
-    return null;
   }
 
   getTexture(name: string | number) : Texture {
@@ -70,6 +97,10 @@ export class GLTFSceneImpl implements GLTFScene {
     }
   }
 
+  getModelCount() {
+    return this.data.meshes.length;
+  }
+
   getPBRModel(model: string | number) {
     // get model name or number as mesh
     let meshID: number = -1;
@@ -88,6 +119,11 @@ export class GLTFSceneImpl implements GLTFScene {
       let err = "Invalid mesh identifier provided.";
       console.error(err);
       throw err;
+    }
+
+    if (this.pbrCache.has(meshID)) {
+      console.log("PBR cache hit!");
+      return this.pbrCache.get(meshID);
     }
 
     let mesh = this.data.meshes[meshID];
@@ -138,7 +174,9 @@ export class GLTFSceneImpl implements GLTFScene {
     // build their associated materials
     // done :-)
 
-    return new PBRModelImpl(this.ctx, models, materials);
+    let res = new PBRModelImpl(this.ctx, models, materials);
+    this.pbrCache.set(meshID, res);
+    return res;
   }
 
   private calculateTangentVectors(inst: ModelInstance) : GLAttribute {

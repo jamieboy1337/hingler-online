@@ -9,7 +9,7 @@ import { PBRModel } from "../storage/PBRModel";
 export interface GLTFScene {
   /**
    * 
-   * @param name - the name of the desired texture within the GLTF file.
+   * @param name - the name of the desired texture within the GLTF file, or its index.
    * @returns the texture which has the desired name, or null if the texture could not be found.
    */
   getTexture(name: string) : Texture;
@@ -18,7 +18,7 @@ export interface GLTFScene {
    * @param name - the name of the desired model.
    * @returns the model, with no associated materials or textures attached.
    */
-  getModel(name: string) : Model;
+  getModel(name: string | number) : Model;
 
   /**
    * 
@@ -26,6 +26,8 @@ export interface GLTFScene {
    * @returns a new PBRModel.
    */
   getPBRModel(model: string | number) : PBRModel;
+
+  getModelCount() : number;
 
   // TODO: getPBRModel -- handle materials, textures, etc. if available.
 }

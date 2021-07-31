@@ -25,12 +25,16 @@ enum FileType {
 export class GLTFLoaderImpl implements GLTFLoader {
   private loader: FileLoader;
   private gl: WebGLRenderingContext;
+  private sceneCache: Map<string, GLTFScene>;
+  private scenesLoading: Map<string, Promise<GLTFScene>>;
   private ctx: GameContext;
 
   constructor(loader: FileLoader, ctx: GameContext) {
     this.loader = loader;
     this.gl = ctx.getGLContext();
     this.ctx = ctx;
+    this.sceneCache = new Map();
+    this.scenesLoading = new Map();
   }
 
   resolvePath(path: string) {
@@ -66,10 +70,9 @@ export class GLTFLoaderImpl implements GLTFLoader {
     // as well as interpreting the binary data
     // convert to a resolvepath func
     let suffix = path.substring(path.lastIndexOf('.') + 1).toLowerCase();
-    let file = await this.loader.open(path);
     switch (suffix) {
       case "glb":
-        return this.loadGLB(file);
+        return this.loadGLB(path);
       default:
         console.error("Cannot currently handle file " + path);
         return null;
@@ -77,6 +80,25 @@ export class GLTFLoaderImpl implements GLTFLoader {
   }
 
   async glbBinaryToScene(path: string) : Promise<GLTFScene> {
+    if (this.scenesLoading.has(path)) {
+      return await this.scenesLoading.get(path);
+    }
+
+    if (this.sceneCache.has(path)) {
+      console.log("scene cache hit!");
+      return this.sceneCache.get(path);
+    }
+
+    let resolve : (a: GLTFScene | PromiseLike<GLTFScene>) => void;
+    let reject : (a: any) => void;
+
+    let progress : Promise<GLTFScene> = new Promise((re, rj) => {
+      resolve = re;
+      reject = rj;
+    });
+
+    this.scenesLoading.set(path, progress);
+
     let file = await this.loader.open(path);
     let buf = file.asArrayBuffer();
     let view = new DataView(buf);
@@ -91,6 +113,8 @@ export class GLTFLoaderImpl implements GLTFLoader {
       console.log(GLTF_MAGIC);
       let err = `Magic number in file does not match desired!`;
       console.warn(err);
+      reject(err);
+      this.scenesLoading.delete(path);
       throw Error(err);
     }
 
@@ -98,6 +122,8 @@ export class GLTFLoaderImpl implements GLTFLoader {
     if (ver !== 2) {
       let err = `Version number in file is not 2!`;
       console.warn(err);
+      reject(err);
+      this.scenesLoading.delete(path);
       throw Error(err);
     }
 
@@ -109,6 +135,8 @@ export class GLTFLoaderImpl implements GLTFLoader {
     if (jsonChunkType !== CHUNK_TYPE_JSON) {
       let err = `First chunk is not JSON!`;
       console.warn(err);
+      reject(err);
+      this.scenesLoading.delete(path);
       throw Error(err);
     }
 
@@ -120,99 +148,19 @@ export class GLTFLoaderImpl implements GLTFLoader {
     console.info(jsonParsed);
 
     let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
-    return new GLTFSceneImpl(this.ctx, jsonParsed, buffers);
+    let res = new GLTFSceneImpl(this.ctx, jsonParsed, buffers);
+    this.sceneCache.set(path, res);
+    this.scenesLoading.delete(path);
+    resolve(res);
+    return res;
   }
 
-  private async loadGLB(file: FileLike) : Promise<Array<Model>> {
-    // TODO: load armatures alongside model data
-    // for now, let's just get the model data into the scene
-    // pass file arrbuf instead
-    // there was some reason for it but i dont remember what
-    let buf = file.asArrayBuffer();
-    let view = new DataView(buf);
-
-    // do everything up to reading the buffers, then return those
-    // let the loading function handle parsing
-    
-    // read magic
-    const magic = view.getUint32(0, true);
-    if (magic !== GLTF_MAGIC) {
-      let err = `Magic number in file does not match desired!`;
-      console.warn(err);
-      throw Error(err);
-    }
-
-    const ver = view.getUint32(4, true);
-    if (ver !== 2) {
-      let err = `Version number in file is not 2!`;
-      console.warn(err);
-      throw Error(err);
-    }
-
-    const len = view.getUint32(8, true);
-
-    // first chunk is always json data, remaining are binary
-    const jsonChunkLen = view.getUint32(12, true);
-    const jsonChunkType = view.getUint32(16, true);
-    if (jsonChunkType !== CHUNK_TYPE_JSON) {
-      let err = `First chunk is not JSON!`;
-      console.warn(err);
-      throw Error(err);
-    }
-
-    let jsonData = buf.slice(20, 20 + jsonChunkLen);
-    let jsonRaw = ArrayBufferToString(jsonData);
-    console.debug(jsonRaw);
-    let jsonParsed = JSON.parse(jsonRaw) as GLTFJson;
-
-    console.info(jsonParsed);
-
-    let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
+  private async loadGLB(path: string) : Promise<Array<Model>> {
+    let scene = await this.glbBinaryToScene(path);
     let models : Array<Model> = [];
 
-    // create GLAttribute for each accessor
-    
-    for (let mesh of jsonParsed.meshes) {
-      
-      // hash by contents, share attributes between models
-      const instances : Array<ModelInstance> = [];
-      
-      for (let prim of mesh.primitives) {
-        // tba: come up with a more efficient method to avoid redundant attributes
-        const inst = {} as ModelInstance;
-        inst.positions      = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.POSITION);
-        inst.normals        = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.NORMAL);
-        inst.texcoords      = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.TEXCOORD_0);
-        inst.tangents       = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.TANGENT);
-
-        let joint = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.JOINTS_0);
-        if (joint) {
-          inst.joints = [joint];
-        }
-
-        let weight = this.createAttributeFromJSON(jsonParsed, buffers, prim.attributes.WEIGHTS_0);
-        if (weight) {
-          inst.weights = [weight];
-        }
-
-        {
-          // indices
-          let indexAccessor = jsonParsed.accessors[prim.indices];
-          let indexView = jsonParsed.bufferViews[indexAccessor.bufferView];
-          let buffer = buffers[indexView.buffer];
-          // copy buffer to indexBuffer
-          // we reuse the arrbuf object, so there's no needless duplication of data
-          // we just give it a fresh start as an element array
-          let indexBuffer = buffer.copy();
-
-          inst.indices = new GLIndexImpl(indexBuffer, indexAccessor, indexView);
-        }
-
-        instances.push(inst);
-      }
-
-      let model = new ModelImpl(instances);
-      models.push(model);
+    for (let i = 0; i < scene.getModelCount(); i++) {
+      models.push(scene.getModel(i));
     }
 
     return models;
