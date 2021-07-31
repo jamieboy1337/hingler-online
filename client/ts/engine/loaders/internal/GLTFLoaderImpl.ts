@@ -117,7 +117,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
     console.debug(jsonRaw);
     let jsonParsed = JSON.parse(jsonRaw) as GLTFJson;
 
-    console.log(jsonParsed);
+    console.info(jsonParsed);
 
     let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
     return new GLTFSceneImpl(this.ctx, jsonParsed, buffers);
@@ -165,7 +165,7 @@ export class GLTFLoaderImpl implements GLTFLoader {
     console.debug(jsonRaw);
     let jsonParsed = JSON.parse(jsonRaw) as GLTFJson;
 
-    console.log(jsonParsed);
+    console.info(jsonParsed);
 
     let buffers = this.readBinaryDataToBuffers(view, buf, 20 + jsonChunkLen, len);
     let models : Array<Model> = [];

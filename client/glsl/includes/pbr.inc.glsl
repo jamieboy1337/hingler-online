@@ -7,9 +7,6 @@ float schlick(vec3, vec3, float);
 float schlickSmith(vec3, vec3, vec3, float);
 vec3 fresnel(vec3, vec3, vec3);
 
-
-// if we have an image skybox, we can  
-// to do
 vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, vec3 normal, float roughness, float metallic) {
   vec3 N = normalize(normal);
   vec3 V = normalize(cam_pos - pos);
@@ -20,7 +17,8 @@ vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, 
 
   float NDF = trowbridgeReitz(N, H, roughness);
   float G = schlickSmith(N, V, L, roughness);
-  vec3 F = fresnel(H, V, vec3(0.04));
+  vec3 F0 = mix(vec3(0.04), albedo, metallic);
+  vec3 F = fresnel(H, V, F0);
 
   vec3 ks = F;
   vec3 kd = vec3(1.0) - F;

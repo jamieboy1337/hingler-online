@@ -79,8 +79,6 @@ export abstract class TextureDisplay {
 
       this.tex.bindToUniform(this.locs.tex, 1);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-    } else {
-      console.error("what");
     }
   }
 }
