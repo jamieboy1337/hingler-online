@@ -71,7 +71,7 @@ export class MapSceneTest extends Scene {
     spot.near = 0.1;
     spot.far = 1000.0;
 
-    spot.setShadowDims(1024, 1024);
+    spot.setShadowDims(2048, 2048);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 

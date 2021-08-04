@@ -26,7 +26,7 @@ struct SpotLight {
 
 // only include all this shader code if we absolutely need it
 #ifndef STRUCT_ONLY
-#define SHADOW_BIAS 0.0000005
+#define SHADOW_BIAS 0.0000036
 
 // one solution would be including by default from some engine location (quotes vs angle brackets)
 
@@ -88,7 +88,7 @@ vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec3 albedo,
   // radius wrt fov --  1.0 = edge of lit area
   float rad = aoi / cut;
 
-  col *= min(max(0.0, (1.0 - rad) / (s.falloffRadius + 0.001)), 1.0);
+  col *= min(max(0.0, (1.0 - rad) / (s.falloffRadius + SHADOW_BIAS)), 1.0);
 
   return vec4(col, 1.0);
 }
@@ -114,7 +114,7 @@ float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   pos_ndc *= 0.5;
   pos_ndc += 0.5;
   vec2 pos_tex = pos_ndc.xy;
-  float shadow_dist = texture2D(shadowtex, pos_tex).r + 0.000005;
+  float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
 
   float rawDist = (pos_ndc.z - shadow_dist);
   return 1.0 - step(0.0, rawDist);

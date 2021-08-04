@@ -10,10 +10,21 @@ export class GameCamera extends GameObject implements Camera {
   fov: number;
   private active: boolean;
 
+  near: number;
+  far: number;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.active = false;
     this.fov = 60;
+    this.near = 0.1;
+    this.far = 100.0;
+  }
+
+  getGlobalPosition() {
+    let pos = this.getPosition();
+    vec3.transformMat4(pos, pos, this.getTransformationMatrix());
+    return pos;
   }
 
   getCameraMatrix() {
@@ -32,7 +43,7 @@ export class GameCamera extends GameObject implements Camera {
       viewMatrix: this.getViewMatrix(),
       perspectiveMatrix: this.getPerspectiveMatrix(),
       vpMatrix: mat4.create(),
-      cameraPosition: this.getPosition()
+      cameraPosition: this.getGlobalPosition()
     }
 
     mat4.mul(res.vpMatrix, res.perspectiveMatrix, res.viewMatrix);
@@ -49,7 +60,7 @@ export class GameCamera extends GameObject implements Camera {
     let dims = this.getContext().getScreenDims();
     let aspectRatio = dims[0] / dims[1];
     let pm = mat4.create();
-    mat4.perspective(pm, this.fov * (Math.PI / 180.0), aspectRatio, 0.01, 100);
+    mat4.perspective(pm, this.fov * (Math.PI / 180.0), aspectRatio, this.near, this.far);
     return pm;
   }
 

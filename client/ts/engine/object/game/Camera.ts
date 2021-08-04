@@ -17,6 +17,15 @@ export interface Camera {
   // represents the vertical FOV, in degrees.
   fov: number;
 
+  // represents the near and far clipping planes.
+  near: number;
+  far: number;
+
+  /**
+   * @returns the position of this camera in object space.
+   */
+  getGlobalPosition() : vec3;
+
   /**
    * @returns the product of this camera's view and perspective matrices.
    */
