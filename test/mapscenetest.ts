@@ -75,9 +75,9 @@ export class MapSceneTest extends Scene {
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 
-    // let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
-    // chewingcharacter.setPosition(0, 4, 0);
-    // root.addChild(chewingcharacter);
+    let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
+    chewingcharacter.setPosition(0, 4, 0);
+    root.addChild(chewingcharacter);
 
     rot_two.addChild(spot);
     root.addChild(rot_two);

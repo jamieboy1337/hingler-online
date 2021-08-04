@@ -165,8 +165,8 @@ export class GLTFSceneImpl implements GLTFScene {
         pbrMat.color = this.getTextureFromNumber(pbrSchema.baseColorTexture.index);
       }
 
-      pbrMat.roughFactor = (pbrSchema.roughnessFactor ? pbrSchema.roughnessFactor : 1.0);
-      pbrMat.metalFactor = (pbrSchema.metallicFactor ? pbrSchema.metallicFactor : 1.0);
+      pbrMat.roughFactor = (pbrSchema.roughnessFactor !== undefined ? pbrSchema.roughnessFactor : 1.0);
+      pbrMat.metalFactor = (pbrSchema.metallicFactor !== undefined ? pbrSchema.metallicFactor : 1.0);
 
       if (pbrSchema.metallicRoughnessTexture) {
         pbrMat.metalRough = this.getTextureFromNumber(pbrSchema.metallicRoughnessTexture.index);

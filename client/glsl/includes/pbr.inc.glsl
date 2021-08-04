@@ -21,7 +21,7 @@ vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, 
   vec3 F = fresnel(H, V, F0);
 
   vec3 ks = F;
-  vec3 kd = vec3(1.0) - F;
+  vec3 kd = vec3(1.0) - ks;
   kd *= (1.0 - metallic);
 
   vec3 num = NDF * G * F;
