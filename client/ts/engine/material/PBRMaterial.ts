@@ -161,7 +161,7 @@ export class PBRMaterial implements Material {
         this.color.bindToUniform(this.locs.texAlbedo, 0);
         gl.uniform1i(this.locs.useAlbedo, 1);
       }
-
+      
       gl.uniform4fv(this.locs.albedoDef, this.colorFactor);
 
       if (this.normal === null) {

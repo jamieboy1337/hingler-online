@@ -1,6 +1,7 @@
 import { GameContext } from "../client/ts/engine/GameContext";
 import { GameCamera } from "../client/ts/engine/object/game/GameCamera";
 import { GameObject } from "../client/ts/engine/object/game/GameObject";
+import { GamePBRModel } from "../client/ts/engine/object/game/GamePBRModel";
 import { SpotLightObject } from "../client/ts/engine/object/game/light/SpotLightObject";
 import { Scene } from "../client/ts/engine/object/scene/Scene";
 import { MapManager } from "../client/ts/game/MapManager";
@@ -73,6 +74,10 @@ export class MapSceneTest extends Scene {
     spot.setShadowDims(1024, 1024);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
+
+    // let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
+    // chewingcharacter.setPosition(0, 4, 0);
+    // root.addChild(chewingcharacter);
 
     rot_two.addChild(spot);
     root.addChild(rot_two);

@@ -122,7 +122,6 @@ export class GLTFSceneImpl implements GLTFScene {
     }
 
     if (this.pbrCache.has(meshID)) {
-      console.log("PBR cache hit!");
       return this.pbrCache.get(meshID);
     }
 
@@ -156,13 +155,19 @@ export class GLTFSceneImpl implements GLTFScene {
 
       let pbrSchema = mat.pbrMetallicRoughness;
 
-      pbrMat.colorFactor = pbrSchema.baseColorFactor;
+      if (pbrSchema.baseColorFactor) {
+        pbrMat.colorFactor = pbrSchema.baseColorFactor;
+      } else {
+        pbrMat.colorFactor = [1, 1, 1, 1];
+      }
+
       if (pbrSchema.baseColorTexture) {
         pbrMat.color = this.getTextureFromNumber(pbrSchema.baseColorTexture.index);
       }
 
-      pbrMat.roughFactor = pbrSchema.roughnessFactor;
-      pbrMat.metalFactor = pbrSchema.metallicFactor;
+      pbrMat.roughFactor = (pbrSchema.roughnessFactor ? pbrSchema.roughnessFactor : 1.0);
+      pbrMat.metalFactor = (pbrSchema.metallicFactor ? pbrSchema.metallicFactor : 1.0);
+
       if (pbrSchema.metallicRoughnessTexture) {
         pbrMat.metalRough = this.getTextureFromNumber(pbrSchema.metallicRoughnessTexture.index);
       }

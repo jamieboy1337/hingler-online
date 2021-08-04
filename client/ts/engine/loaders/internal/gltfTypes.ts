@@ -74,11 +74,11 @@ export interface TextureInfoSchema {
 }
 
 export interface PBRMaterial {
-  baseColorFactor: [number, number, number, number],
-  baseColorTexture: TextureInfoSchema,
-  metallicFactor: number,
-  roughnessFactor: number,
-  metallicRoughnessTexture: TextureInfoSchema
+  baseColorFactor?: [number, number, number, number],
+  baseColorTexture?: TextureInfoSchema,
+  metallicFactor?: number,
+  roughnessFactor?: number,
+  metallicRoughnessTexture?: TextureInfoSchema
 };
 
 export interface MatNormalTexture {
