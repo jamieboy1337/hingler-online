@@ -4,13 +4,16 @@ import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
 import { GLBufferImpl } from "../../gl/internal/GLBufferImpl";
 import { GLIndexImpl } from "../../gl/internal/GLIndexImpl";
-import { Model } from "../../storage/Model";
+import { EngineContext } from "../../internal/EngineContext";
+import { InstancedModel } from "../../model/InstancedModel";
+import { Model } from "../../model/Model";
 import { FileLike } from "../FileLike";
 import { FileLoader } from "../FileLoader";
 import { GLTFLoader } from "../GLTFLoader";
 import { GLTFScene } from "../GLTFScene";
 import { GLTFSceneImpl } from "./GLTFSceneImpl";
 import { GLTFJson } from "./gltfTypes";
+import { InstancedModelImpl } from "./InstancedModelImpl";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 
 const GLTF_MAGIC = 0x46546C67;
@@ -27,14 +30,31 @@ export class GLTFLoaderImpl implements GLTFLoader {
   private gl: WebGLRenderingContext;
   private sceneCache: Map<string, GLTFScene>;
   private scenesLoading: Map<string, Promise<GLTFScene>>;
-  private ctx: GameContext;
+  private instancedModels: Set<InstancedModelImpl>;
+  private ctx: EngineContext;
 
-  constructor(loader: FileLoader, ctx: GameContext) {
+  constructor(loader: FileLoader, ctx: EngineContext) {
     this.loader = loader;
     this.gl = ctx.getGLContext();
     this.ctx = ctx;
     this.sceneCache = new Map();
     this.scenesLoading = new Map();
+    this.instancedModels = new Set();
+  }
+
+  getInstancedModels() {
+    return this.instancedModels;
+  }
+
+  /**
+   * Internally stores the passed model, so that the renderer can draw it.
+   * @param model - The model being registered.
+   * 
+   * todo: handling duplicates from multiple scenes? it shouldnt be a problem
+   * if we implement scene switching we'll dump loader contents and spin up a new context
+   */
+  registerInstancedModel(model: InstancedModelImpl) {
+    this.instancedModels.add(model);
   }
 
   resolvePath(path: string) {

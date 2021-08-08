@@ -1,7 +1,7 @@
 import { GameContext } from "../../GameContext";
 import { GLTFScene } from "../../loaders/GLTFScene";
 import { RenderContext, RenderPass } from "../../render/RenderContext";
-import { PBRModel } from "../../storage/PBRModel";
+import { PBRModel } from "../../model/PBRModel";
 import { GameObject } from "./GameObject";
 
 export class GamePBRModel extends GameObject {

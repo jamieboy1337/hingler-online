@@ -1,5 +1,4 @@
 import { vec2, vec3 } from "gl-matrix";
-import { GameContext } from "../../GameContext";
 import { GLAttribute } from "../../gl/GLAttribute";
 import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
@@ -7,31 +6,38 @@ import { GLBufferImpl } from "../../gl/internal/GLBufferImpl";
 import { GLIndexImpl } from "../../gl/internal/GLIndexImpl";
 import { GLTFTexture } from "../../gl/internal/GLTFTexture";
 import { Texture } from "../../gl/Texture";
-import { PBRMaterial } from "../../material/PBRMaterial";
-import { Model } from "../../storage/Model";
-import { PBRModel } from "../../storage/PBRModel";
+import { EngineContext } from "../../internal/EngineContext";
+import { PBRInterface } from "../../material/PBRInterface";
+import { PBRMaterialImpl } from "../../material/PBRMaterialImpl";
+import { InstancedModel } from "../../model/InstancedModel";
+import { Model } from "../../model/Model";
+import { PBRInstanceFactory } from "../../model/PBRInstanceFactory";
 import { GLTFScene } from "../GLTFScene";
-import { GLTFJson, ImageSchema, Mesh, Primitive, TextureSchema } from "./gltfTypes";
+import { GLTFJson, ImageSchema, Material, Mesh, Primitive, TextureSchema } from "./gltfTypes";
+import { InstancedModelImpl } from "./InstancedModelImpl";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 import { PBRModelImpl } from "./PBRModelImpl";
 
 export class GLTFSceneImpl implements GLTFScene {
-  ctx         : GameContext;
+  ctx         : EngineContext;
   gl          : WebGLRenderingContext;
   buffers     : Array<GLBuffer>;
   data        : GLTFJson;
 
-  modelCache  : Map<number, Model>;
-  pbrCache    : Map<number, PBRModel>;
+  modelCache    : Map<number, ModelImpl>;
+  modelCachePBR : Map<number, Array<ModelImpl>>;
+  matCache      : Map<number, PBRMaterialImpl>;
 
-  constructor(ctx: GameContext, data: GLTFJson, buffers: Array<GLBuffer>) {
+  constructor(ctx: EngineContext, data: GLTFJson, buffers: Array<GLBuffer>) {
     this.ctx = ctx;
     this.gl = ctx.getGLContext();
     this.data = data;
     this.buffers = buffers;
 
     this.modelCache = new Map();
-    this.pbrCache = new Map();
+    this.modelCachePBR = new Map();
+    this.matCache = new Map();
+
   }
 
   // TODO: add function which fetches a pbr model
@@ -70,6 +76,16 @@ export class GLTFSceneImpl implements GLTFScene {
     }
   }
 
+  getInstancedModel(name: string | number) : InstancedModel {
+    // create the instanced model
+    let model = this.getModel(name) as ModelImpl;
+    let instModel = new InstancedModelImpl(this.ctx, model);
+    this.ctx.getGLTFLoader().registerInstancedModel(instModel);
+    return instModel;
+    // put it somewhere in the engine
+    // the renderer will pick it up and flush it
+  }
+
   getTexture(name: string | number) : Texture {
     if (typeof name === "string") {
       return this.getTextureFromName(name);
@@ -101,8 +117,85 @@ export class GLTFSceneImpl implements GLTFScene {
     return this.data.meshes.length;
   }
 
-  getPBRModel(model: string | number) {
-    // get model name or number as mesh
+  private getInstancesAsModels(meshID: number) {
+    if (this.modelCachePBR.has(meshID)) {
+      return this.modelCachePBR.get(meshID);
+    }
+
+    let mesh = this.data.meshes[meshID];
+    let models : Array<ModelImpl> = []; 
+    for (let prim of mesh.primitives) {
+
+      let inst = this.getInstance(prim);
+      // caching is a mess
+      // PBRArray should return models (from instances)
+      // and materials
+      
+      let model = new ModelImpl([inst]);
+      models.push(model);
+    }
+
+    this.modelCachePBR.set(meshID, models);
+    return models;
+  }
+
+  // consumes a PBRInterface and a material and configures all fixed values in the PBRInterface.
+  private configurePBR<T extends PBRInterface>(pbrMat: T, mat: Material) {
+    if (mat.normalTexture) {
+      let normtex = this.getTextureFromNumber(mat.normalTexture.index);
+      pbrMat.normal = normtex;
+    }
+
+    let pbrSchema = mat.pbrMetallicRoughness;
+
+    if (pbrSchema.baseColorFactor) {
+      pbrMat.colorFactor = pbrSchema.baseColorFactor;
+    } else {
+      pbrMat.colorFactor = [1, 1, 1, 1];
+    }
+
+    if (pbrSchema.baseColorTexture) {
+      pbrMat.color = this.getTextureFromNumber(pbrSchema.baseColorTexture.index);
+    }
+
+    pbrMat.roughFactor = (pbrSchema.roughnessFactor !== undefined ? pbrSchema.roughnessFactor : 1.0);
+    pbrMat.metalFactor = (pbrSchema.metallicFactor !== undefined ? pbrSchema.metallicFactor : 1.0);
+
+    if (pbrSchema.metallicRoughnessTexture) {
+      pbrMat.metalRough = this.getTextureFromNumber(pbrSchema.metallicRoughnessTexture.index);
+    }
+
+    return pbrMat;
+  }
+
+  private getPBRMaterials(meshID: number) {
+    let mesh = this.data.meshes[meshID];
+    let materials : Array<PBRMaterialImpl> = [];
+    for (let prim of mesh.primitives) {
+      if (this.matCache.has(prim.material)) {
+        materials.push(this.matCache.get(prim.material));
+        continue;
+      }
+
+      let mat = this.data.materials[prim.material];
+      if (!mat) {
+        const err = "Could not find relevant material";
+        console.error(err);
+        throw Error(err);
+      }
+      // create a PBRMaterial which mirrors that material
+      // append it to an array
+
+      let pbrMat = new PBRMaterialImpl(this.ctx);
+      pbrMat = this.configurePBR(pbrMat, mat);
+
+      materials.push(pbrMat);
+    }
+
+    return materials;
+  }
+
+  private lookupMeshID(model: string | number) {
     let meshID: number = -1;
     if (typeof model === "number") {
       meshID = model;
@@ -121,67 +214,32 @@ export class GLTFSceneImpl implements GLTFScene {
       throw err;
     }
 
-    if (this.pbrCache.has(meshID)) {
-      return this.pbrCache.get(meshID);
-    }
+    return meshID;
+  }
 
-    let mesh = this.data.meshes[meshID];
-    let models : Array<Model> = [];
-    let materials : Array<PBRMaterial> = [];
-    for (let prim of mesh.primitives) {
-      let inst = this.getInstance(prim);
-      // if (!inst.tangents) {
-      //   let tans = this.calculateTangentVectors(inst);
-      //   inst.tangents = tans;
-      // }
-      
-      let model = new ModelImpl([inst]);
-      // get material for primitive
-      let mat = this.data.materials[prim.material];
-      if (!mat) {
-        const err = "Could not find relevant material";
-        console.error(err);
-        throw Error(err);
-      }
-      // create a PBRMaterial which mirrors that material
-      // append it to an array
+  getPBRModel(model: string | number) {
+    let meshID = this.lookupMeshID(model); 
 
-      let pbrMat = new PBRMaterial(this.ctx);
-
-      if (mat.normalTexture) {
-        let normtex = this.getTextureFromNumber(mat.normalTexture.index);
-        pbrMat.normal = normtex;
-      }
-
-      let pbrSchema = mat.pbrMetallicRoughness;
-
-      if (pbrSchema.baseColorFactor) {
-        pbrMat.colorFactor = pbrSchema.baseColorFactor;
-      } else {
-        pbrMat.colorFactor = [1, 1, 1, 1];
-      }
-
-      if (pbrSchema.baseColorTexture) {
-        pbrMat.color = this.getTextureFromNumber(pbrSchema.baseColorTexture.index);
-      }
-
-      pbrMat.roughFactor = (pbrSchema.roughnessFactor !== undefined ? pbrSchema.roughnessFactor : 1.0);
-      pbrMat.metalFactor = (pbrSchema.metallicFactor !== undefined ? pbrSchema.metallicFactor : 1.0);
-
-      if (pbrSchema.metallicRoughnessTexture) {
-        pbrMat.metalRough = this.getTextureFromNumber(pbrSchema.metallicRoughnessTexture.index);
-      }
-
-      models.push(model);
-      materials.push(pbrMat);
-    }
-    // call something like meshtomodel on each instance
-    // build their associated materials
-    // done :-)
-
+    let [models, materials] = [this.getInstancesAsModels(meshID), this.getPBRMaterials(meshID)];
     let res = new PBRModelImpl(this.ctx, models, materials);
-    this.pbrCache.set(meshID, res);
     return res;
+  }
+
+
+  getPBRInstanceFactory(model: string | number) {
+    // need multiple instances and materials
+    let meshID = this.lookupMeshID(model);
+    let [models, materials] = [this.getInstancesAsModels(meshID), this.getPBRMaterials(meshID)];
+
+    // queue these up under the meshID
+    let modelsInstanced = models.map((model) => {
+      let inst = new InstancedModelImpl(this.ctx, model);
+      this.ctx.getGLTFLoader().registerInstancedModel(inst);
+      return inst; 
+    });
+
+
+    return new PBRInstanceFactory(this.ctx, modelsInstanced, materials);
   }
 
   private calculateTangentVectors(inst: ModelInstance) : GLAttribute {
@@ -338,7 +396,7 @@ export class GLTFSceneImpl implements GLTFScene {
     return inst;
   }
 
-  private meshToModel(mesh: Mesh) : Model {
+  private meshToModel(mesh: Mesh) : ModelImpl {
     const instances : Array<ModelInstance> = [];
     for (let prim of mesh.primitives) {
       let inst = this.getInstance(prim);

@@ -37,7 +37,7 @@ export class MapSceneTest extends Scene {
   initialize(ctx: GameContext) {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
-    cam.setPosition(0, 35, 60);
+    cam.setPosition(0, 25, 60);
     cam.fov = 18;
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy

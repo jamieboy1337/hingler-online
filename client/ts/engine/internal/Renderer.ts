@@ -13,7 +13,7 @@ import { SpotLight } from "../object/game/light/SpotLight";
 import { SpotLightObject } from "../object/game/light/SpotLightObject";
 import { Scene } from "../object/scene/Scene";
 import { RenderContext, RenderPass } from "../render/RenderContext";
-import { GameContext } from "../GameContext";
+import { EngineContext } from "./EngineContext";
 
 class SpotLightRenderContext implements RenderContext {
   info: CameraInfo;
@@ -39,14 +39,14 @@ class SpotLightRenderContext implements RenderContext {
  * Handles rendering of our component hierarchy.
  */
 export class Renderer {
-  private ctx: GameContext;
+  private ctx: EngineContext;
   private gl: WebGLRenderingContext;
   private scene: Scene;
   private primaryFB: Framebuffer;
 
   // tracks rendered textures
   private renderPasses: Array<TextureDisplay>;
-  constructor(ctx: GameContext, scene: Scene) {
+  constructor(ctx: EngineContext, scene: Scene) {
     this.ctx = ctx;
     this.gl = ctx.getGLContext();
 
@@ -131,6 +131,9 @@ export class Renderer {
     let dim = this.ctx.getScreenDims();
     this.gl.viewport(0, 0, dim[0], dim[1]);
     this.scene.getGameObjectRoot().renderChildren(rc);
+    for (let model of this.ctx.getGLTFLoader().getInstancedModels()) {
+      model.flush(rc);
+    }
     this.renderPasses.push(new ColorDisplay(this.ctx, this.primaryFB.getColorTexture()));
   }
 
@@ -178,6 +181,10 @@ export class Renderer {
     let dim = fb.dims;
     this.gl.viewport(0, 0, dim[0], dim[1]);
     this.scene.getGameObjectRoot().renderChildren(rc);
+    // flush instanced models
+    for (let model of this.ctx.getGLTFLoader().getInstancedModels()) {
+      model.flush(rc);
+    }
     // shadow texture will contain result
     this.renderPasses.push(new ShadowDisplay(this.ctx, light));
   }

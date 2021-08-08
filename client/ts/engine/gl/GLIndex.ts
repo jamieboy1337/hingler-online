@@ -20,5 +20,7 @@ export interface GLIndex {
    */
   draw(): void;
 
+  drawInstanced(count: number): void;
+
   
 }

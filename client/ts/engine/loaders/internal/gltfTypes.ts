@@ -73,7 +73,7 @@ export interface TextureInfoSchema {
   index: number;
 }
 
-export interface PBRMaterial {
+export interface PBRMaterialSchema {
   baseColorFactor?: [number, number, number, number],
   baseColorTexture?: TextureInfoSchema,
   metallicFactor?: number,
@@ -90,7 +90,7 @@ export interface MatNormalTexture {
 
 export interface Material {
   name?: string,
-  pbrMetallicRoughness: PBRMaterial,
+  pbrMetallicRoughness: PBRMaterialSchema,
   normalTexture?: MatNormalTexture
 };
 

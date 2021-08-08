@@ -1,5 +1,5 @@
 import { GameContext } from "../../GameContext";
-import { Model } from "../../storage/Model";
+import { Model } from "../../model/Model";
 import { Material } from "../../material/Material";
 import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
 import { RenderContext, RenderPass } from "../../render/RenderContext";

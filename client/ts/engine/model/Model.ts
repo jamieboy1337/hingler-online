@@ -24,11 +24,18 @@ export enum AttributeType {
 }
 
 /**
+ * Model which does not enable binding of attributes. Draw only.
+ */
+export interface DrawOnlyModel {
+  draw() : void;
+}
+
+/**
  * Represents a 3D model.
  * TODO: Create a version of Model which acts like a GLTF model.
  * Probably wrap this class and not import -- draw will use GLTF material w params.
  */
-export interface Model {
+export interface Model extends DrawOnlyModel {
   /**
    * Binds an attribute to a specific location.
    * @param at - The attribute type we are binding.
@@ -38,15 +45,4 @@ export interface Model {
    *                     can be provided via an array.
    */
   bindAttribute(at: AttributeType, ...location: Array<number>) : void;
-  // separate bind out into its own interface
-  // models exported thus far will use that interface
-  // others will not :(
-
-  // pbrmodel should support this workflow... but it should also contain a method
-  // which just draws its pbr shit straight up and out
-
-  /**
-   * Dispatches draw calls for all geometry stored inside this model.
-   */
-  draw() : void;
 }

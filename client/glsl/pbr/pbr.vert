@@ -13,10 +13,16 @@ attribute vec3 normal;
 attribute vec2 texcoord;
 attribute vec3 tangent;
 
+attribute mat4 a_model_matrix;
+attribute mat3 a_normal_matrix;
+
+uniform int is_instanced;
+
 varying vec4 v_pos;
 varying vec2 v_tex;
 varying vec3 v_norm;
 varying mat3 TBN;
+
 
 uniform mat4 model_matrix;
 uniform mat4 vp_matrix;
@@ -28,13 +34,17 @@ uniform int spotlightCount;
 varying vec4 spot_coord[4];
 
 void main() {
-  v_pos = model_matrix * position;
+  float modelstep = step(0.5, float(is_instanced));
+  mat4 model_matrix_active = modelstep * a_model_matrix + (1.0 - modelstep) * model_matrix;
+  mat3 normal_matrix_active = modelstep * a_normal_matrix + (1.0 - modelstep) * normal_matrix;
+
+  v_pos = model_matrix_active * position;
   v_tex = texcoord;
 
   // calculate tbn matrix
-  vec3 T = normalize(normal_matrix * tangent);
-  vec3 B = normalize(normal_matrix * cross(normal, tangent));
-  vec3 N = normalize(normal_matrix * normal);
+  vec3 T = normalize(normal_matrix_active * tangent);
+  vec3 B = normalize(normal_matrix_active * cross(normal, tangent));
+  vec3 N = normalize(normal_matrix_active * normal);
 
   v_norm = N;
 

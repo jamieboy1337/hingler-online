@@ -1,6 +1,6 @@
 import { GLAttribute } from "../../gl/GLAttribute";
 import { GLIndex } from "../../gl/GLIndex";
-import { AttributeType, Model, Triangle, Vertex } from "../../storage/Model";
+import { AttributeType, Model, Triangle, Vertex } from "../../model/Model";
 
 // instanced pathway: draw all instances in one go?
 // if that's the case, then tiling gets a bit weird
@@ -154,61 +154,88 @@ export class ModelImpl implements Model {
     }
   }
 
+  private pointToAttributes(inst: ModelInstance) {
+    if (this.posLocation >= 0) {
+      inst.positions.pointToAttribute(this.posLocation);
+    } else {
+      const err = "position not bound on draw :)";
+      console.error(err);
+      throw Error(err);
+    }
+
+    if (inst.normals && this.normLocation >= 0) {
+      inst.normals.pointToAttribute(this.normLocation);
+    }
+
+    if (inst.texcoords && this.texLocation >= 0) {
+      inst.texcoords.pointToAttribute(this.texLocation);
+    }
+
+    if (inst.tangents && this.tangentLocation >= 0) {
+      inst.tangents.pointToAttribute(this.tangentLocation);
+    }
+
+    for (let i = 0; inst.joints && this.jointLocation && i < this.jointLocation.length && i < inst.joints.length; i++) {
+      inst.joints[i].pointToAttribute(this.jointLocation[i]);
+    }
+
+
+    for (let i = 0; inst.weights && this.weightLocation && i < this.weightLocation.length && i < inst.weights.length; i++) {
+      inst.weights[i].pointToAttribute(this.weightLocation[i]);
+    }
+  }
+
+  private disableIndices(inst: ModelInstance) {
+    inst.positions.disableAttribute();
+    if (inst.normals) {
+      inst.normals.disableAttribute();
+    }
+
+    if (inst.texcoords) {
+      inst.texcoords.disableAttribute();
+    }
+
+    if (inst.tangents) {
+      inst.tangents.disableAttribute();
+    }
+
+    if (inst.joints) {
+      for (let joint of inst.joints) {
+        joint.disableAttribute();
+      }
+    }
+
+    if (inst.weights) {
+      for (let weight of inst.weights) {
+        weight.disableAttribute();
+      }
+    }
+
+    this.posLocation = -1;
+    this.normLocation = -1;
+    this.texLocation = -1;
+    this.tangentLocation = -1;
+    this.jointLocation = [];
+    this.weightLocation = [];
+  }
+
+  drawInstanced(count: number) {
+    // attributes are already bound
+    // just do the same thing
+    for (let inst of this.instances) {
+      this.pointToAttributes(inst);
+      inst.indices.drawInstanced(count);
+      this.disableIndices(inst);
+    }
+
+    // disable only on last, we're enabling the same attribs each time.
+  }
+
   draw() {
     for (let inst of this.instances) {
-      if (this.posLocation >= 0) {
-        inst.positions.pointToAttribute(this.posLocation);
-      } else {
-        console.warn("position not bound :)");
-      }
-
-      if (inst.normals && this.normLocation >= 0) {
-        inst.normals.pointToAttribute(this.normLocation);
-      }
-
-      if (inst.texcoords && this.texLocation >= 0) {
-        inst.texcoords.pointToAttribute(this.texLocation);
-      }
-
-      if (inst.tangents && this.tangentLocation >= 0) {
-        inst.tangents.pointToAttribute(this.tangentLocation);
-      }
-
-      for (let i = 0; inst.joints && this.jointLocation && i < this.jointLocation.length && i < inst.joints.length; i++) {
-        inst.joints[i].pointToAttribute(this.jointLocation[i]);
-      }
-
-
-      for (let i = 0; inst.weights && this.weightLocation && i < this.weightLocation.length && i < inst.weights.length; i++) {
-        inst.weights[i].pointToAttribute(this.weightLocation[i]);
-      }
-      
+      this.pointToAttributes(inst);
       inst.indices.draw();
-
-      inst.positions.disableAttribute();
-      if (inst.normals) {
-        inst.normals.disableAttribute();
-      }
-
-      if (inst.texcoords) {
-        inst.texcoords.disableAttribute();
-      }
-
-      if (inst.tangents) {
-        inst.tangents.disableAttribute();
-      }
-
-      if (inst.joints) {
-        for (let joint of inst.joints) {
-          joint.disableAttribute();
-        }
-      }
-
-      if (inst.weights) {
-        for (let weight of inst.weights) {
-          weight.disableAttribute();
-        }
-      }
+      this.disableIndices(inst);
     }
   }
 }

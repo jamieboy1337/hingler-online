@@ -24,6 +24,14 @@ class BufferStub implements GLBuffer {
     this.elems = 0;
   }
 
+  size() {
+    return this.data.byteLength;
+  }
+
+  bindToInstancedVertexAttribute(...args: any) {
+    // nop
+  }
+
   arrayBuffer() {
     return this.data;
   }
@@ -124,6 +132,10 @@ class BufferStub implements GLBuffer {
     return res;
   }
 
+  drawElementsInstanced(count: number) {
+    
+  }
+
   getInt8(offset: number) {
     return this.view.getInt8(offset);
   }
@@ -150,6 +162,38 @@ class BufferStub implements GLBuffer {
   
   getFloat32(offset: number, littleEndian?: boolean) {
     return this.view.getFloat32(offset, littleEndian);
+  }
+
+  setInt8(offset: number, value: number) {
+    this.view.setInt8(offset, value);
+  }
+
+  setUint8(offset: number, value: number) {
+    this.view.setUint8(offset, value);
+  }
+
+  setInt16(offset: number, value: number, littleEndian?: boolean) {
+    this.view.setInt16(offset, value, littleEndian);
+  }
+
+  setUint16(offset: number, value: number, littleEndian?: boolean) {
+    this.view.setUint16(offset, value, littleEndian);
+  }
+
+  setInt32(offset: number, value: number, littleEndian?: boolean) {
+    this.view.setInt32(offset, value, littleEndian);
+  }
+
+  setUint32(offset: number, value: number, littleEndian?: boolean) {
+    this.view.setUint32(offset, value, littleEndian);
+  }
+
+  setFloat32(offset: number, value: number, littleEndian?: boolean) {
+    this.view.setFloat32(offset, value, littleEndian);
+  }
+
+  disableInstancedVertexAttribute(location: number) {
+    // nop
   }
 }
 

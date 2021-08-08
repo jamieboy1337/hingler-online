@@ -1,10 +1,11 @@
+import { GameObject } from "../../engine/object/game/GameObject";
 import { GamePBRModel } from "../../engine/object/game/GamePBRModel";
 
 /**
  * Represents a single game tile. (note: since we don't have multiple inheritance,
  * model-like behavior will probably be implemented by a nested child)
  */
-export abstract class GameTile extends GamePBRModel {
+export abstract class GameTile extends GameObject { 
   clean: boolean;
 
   /**

@@ -1,14 +1,21 @@
+import { Future } from "../../../../../ts/util/task/Future";
 import { GameContext } from "../../../engine/GameContext";
-import { MatteMaterial } from "../../../engine/material/MatteMaterial";
+import { PBRInstance } from "../../../engine/model/PBRInstance";
 import { RenderContext } from "../../../engine/render/RenderContext";
 import { GameTile } from "../GameTile";
 
 export class CrateTile extends GameTile {
-  mat: MatteMaterial;
-  constructor(ctx: GameContext) {
-    super(ctx, "../res/crate.glb");
-    this.mat = new MatteMaterial(ctx);
-    this.mat.color = [0.8, 0.3, 0.0, 1.0];
+  instance: Future<PBRInstance>;
+  constructor(ctx: GameContext, inst: Future<PBRInstance>) {
+    super(ctx);
+    this.instance = inst;
+  }
+
+  renderMaterial(rc: RenderContext) {
+    if (this.instance.valid()) {
+      this.instance.get().modelMat = this.getTransformationMatrix();
+      this.instance.get().draw(rc);
+    }
   }
 
   destroy() {

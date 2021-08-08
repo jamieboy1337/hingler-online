@@ -8,7 +8,7 @@ export class GameConnectionManagerStub implements GameConnectionManager {
   }
 
   getPlayerList() {
-    return [];
+    return new Map();
   }
 
   getMapTitle() {

@@ -1,7 +1,7 @@
 import { mat4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { GameContext } from "../GameContext";
-import { AttributeType, Model } from "../storage/Model";
+import { AttributeType, Model } from "../model/Model";
 import { Material } from "./Material";
 
 export class ShadowNoTextureMaterial implements Material {

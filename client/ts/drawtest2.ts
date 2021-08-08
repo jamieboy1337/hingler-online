@@ -1,6 +1,6 @@
 import { GameContext } from "./engine/GameContext";
 import { EngineContext } from "./engine/internal/EngineContext";
-import { Model } from "./engine/storage/Model";
+import { Model } from "./engine/model/Model";
 import { MatteMaterial } from "./engine/material/MatteMaterial";
 import { TextureAlbedoMaterial } from "./engine/material/TextureAlbedoMaterial";
 import { GameCamera } from "./engine/object/game/GameCamera";

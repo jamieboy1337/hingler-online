@@ -4,7 +4,7 @@
 
 import { assert, expect } from "chai";
 import { ModelImpl, ModelInstance } from "../client/ts/engine/loaders/internal/ModelImpl";
-import { AttributeType } from "../client/ts/engine/storage/Model";
+import { AttributeType } from "../client/ts/engine/model/Model";
 import { GLAttribute } from "../client/ts/engine/gl/GLAttribute";
 import { GLIndex } from "../client/ts/engine/gl/GLIndex";
 import { DataType } from "../client/ts/engine/gl/internal/GLBuffer";
@@ -25,6 +25,10 @@ class IndexStub implements GLIndex {
 
   getIndex(offset: number) {
     return offset;
+  }
+
+  drawInstanced() {
+    // nop, dont want this either
   }
 
   [Symbol.iterator]() {

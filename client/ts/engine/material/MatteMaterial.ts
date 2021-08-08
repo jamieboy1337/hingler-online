@@ -2,7 +2,7 @@ import { mat3, mat4, vec3, vec4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { GameContext } from "../GameContext";
-import { AttributeType, Model } from "../storage/Model";
+import { AttributeType, Model } from "../model/Model";
 import { Material } from "./Material";
 import { GLProgramWrap } from "../gl/internal/GLProgramWrap";
 

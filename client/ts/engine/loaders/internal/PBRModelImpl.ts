@@ -1,11 +1,12 @@
 import { mat4 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
 import { Material } from "../../material/Material";
-import { PBRMaterial } from "../../material/PBRMaterial";
+import { PBRMaterialImpl } from "../../material/PBRMaterialImpl";
 import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
 import { RenderContext } from "../../render/RenderContext";
-import { AttributeType, Model } from "../../storage/Model";
-import { PBRModel } from "../../storage/PBRModel";
+import { AttributeType, Model } from "../../model/Model";
+import { PBRModel } from "../../model/PBRModel";
+import { PBRMaterial } from "../../material/PBRMaterial";
 
 export class PBRModelImpl implements PBRModel {
   // split instances into individual models

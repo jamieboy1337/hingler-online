@@ -103,7 +103,10 @@ export class GLIndexImpl implements GLIndex {
   }
 
   draw() {
-    // somewhere this index is going oob
     this.buffer.drawElements(this.offset, this.count, this.type, DrawMode.TRIANGLES);
+  }
+
+  drawInstanced(count: number) {
+    this.buffer.drawElementsInstanced(DrawMode.TRIANGLES, this.count, this.type, this.offset, count);
   }
 }

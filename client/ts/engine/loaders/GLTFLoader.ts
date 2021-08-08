@@ -1,4 +1,4 @@
-import { Model } from "../storage/Model";
+import { Model } from "../model/Model";
 import { GLTFScene } from "./GLTFScene";
 
 /**
