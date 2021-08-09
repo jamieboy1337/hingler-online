@@ -65,24 +65,24 @@ export class GLBufferImpl implements GLBuffer {
 
     gl.bindBuffer(targ, this.glBuf);
 
-    if (this.dirty && this.glBufferSize !== this.buf.byteLength) {
+    if (this.dirty && this.glBufferSize < this.buf.byteLength) {
       gl.bufferData(targ, this.buf, this.dataMode);
+      this.glBufferSize = this.buf.byteLength;
     } else if (this.dirty) {
       gl.bufferSubData(targ, 0, this.buf);
     }
-
-    this.target = target;
   }
   
   bindToVertexAttribute(location: number, components: number, type: number, normalize: boolean, stride: number, offset: number) {
     if (this.target === BufferTarget.UNBOUND) {
-      this.bindAndPopulate(BufferTarget.ARRAY_BUFFER);
+      this.target = BufferTarget.ARRAY_BUFFER;
     } else if (this.target !== BufferTarget.ARRAY_BUFFER) {
       let err = `WebGL buffers cannot be multi-purpose!`;
       console.warn(err);
       throw Error(err);
     }
 
+    this.bindAndPopulate(BufferTarget.ARRAY_BUFFER);
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glBuf);
     this.gl.vertexAttribPointer(location, components, type, normalize, stride, offset);
     this.gl.enableVertexAttribArray(location);
@@ -97,14 +97,14 @@ export class GLBufferImpl implements GLBuffer {
     }
 
     if (this.target === BufferTarget.UNBOUND) {
-      this.bindAndPopulate(BufferTarget.ARRAY_BUFFER);
+      this.target = BufferTarget.ARRAY_BUFFER;
     } else if (this.target !== BufferTarget.ARRAY_BUFFER) {
       let err = `WebGL buffers cannot be multi-purpose!`;
       console.warn(err);
       throw Error(err);
     }
 
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glBuf);
+    this.bindAndPopulate(BufferTarget.ARRAY_BUFFER);
     this.gl.enableVertexAttribArray(location);
     this.gl.vertexAttribPointer(location, components, type, normalize, stride, offset);
     ext.vertexAttribDivisorANGLE(location, divisor);
@@ -120,14 +120,6 @@ export class GLBufferImpl implements GLBuffer {
   }
 
   private handleBindingPoints(mode: DrawMode, dataType: DataType) {
-    if (this.target === BufferTarget.UNBOUND) {
-      this.bindAndPopulate(BufferTarget.ELEMENT_ARRAY_BUFFER);
-    } else if (this.target !== BufferTarget.ELEMENT_ARRAY_BUFFER) {
-      let err = `WebGL buffers cannot be multi-purpose!`;
-      console.warn(err);
-      throw Error(err);
-    }
-
     let gl = this.gl;
     let glMode : number;
     if (mode === undefined) {
@@ -176,14 +168,32 @@ export class GLBufferImpl implements GLBuffer {
   }
 
   drawElements(offset: number, count: number, dataType: DataType, mode?: DrawMode) {
+    if (this.target === BufferTarget.UNBOUND) {
+      this.target = BufferTarget.ELEMENT_ARRAY_BUFFER;
+    } else if (this.target !== BufferTarget.ELEMENT_ARRAY_BUFFER) {
+      let err = `WebGL buffers cannot be multi-purpose!`;
+      console.warn(err);
+      throw Error(err);
+    }
+
+    this.bindAndPopulate(BufferTarget.ELEMENT_ARRAY_BUFFER);
+
     let gl = this.gl;
     let [glMode, type] = this.handleBindingPoints(mode, dataType);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.glBuf);
     gl.drawElements(glMode, count, type, offset);
   }
 
   drawElementsInstanced(mode: DrawMode, count: number, type: DataType, offset: number, primCount: number) {
+    if (this.target === BufferTarget.UNBOUND) {
+      this.target = BufferTarget.ELEMENT_ARRAY_BUFFER;
+    } else if (this.target !== BufferTarget.ELEMENT_ARRAY_BUFFER) {
+      let err = `WebGL buffers cannot be multi-purpose!`;
+      console.warn(err);
+      throw Error(err);
+    }
+
+    this.bindAndPopulate(BufferTarget.ELEMENT_ARRAY_BUFFER);
+
     let gl = this.gl;
     let [glMode, dataType] = this.handleBindingPoints(mode, type);
 

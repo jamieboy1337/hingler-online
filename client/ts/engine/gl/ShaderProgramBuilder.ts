@@ -7,6 +7,11 @@ import { Task } from "../../../../ts/util/task/Task";
 import { GameContext } from "../GameContext";
 import { ShaderFileParser } from "./internal/ShaderFileParser";
 
+// TODO:
+// separate local imports and imports from our engine folder
+// first, check the engine folder
+// then, check local directory
+
 const shaderCache : Map<string, WebGLProgram> = new Map();
 const shadersCompiling : Map<string, Promise<void>> = new Map();
 

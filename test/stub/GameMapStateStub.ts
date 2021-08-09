@@ -18,7 +18,7 @@ export class GameMapStateStub implements GameMapState {
     // return zeroes and ones in a cross pattern, with the upper left reserved for players
     let data = new Uint8Array(this.width * this.height);
     for (let i = 0; i < data.length; i++) {
-      data[i] = ((i + Math.floor(i / this.width)) % 2);
+      data[i] = ((i + Math.floor(i / this.width)) % 2) + 1;
     }
 
     return data;

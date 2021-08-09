@@ -26,7 +26,7 @@ struct SpotLight {
 
 // only include all this shader code if we absolutely need it
 #ifndef STRUCT_ONLY
-#define SHADOW_BIAS 0.0000036
+#define SHADOW_BIAS -0.000001
 
 // one solution would be including by default from some engine location (quotes vs angle brackets)
 

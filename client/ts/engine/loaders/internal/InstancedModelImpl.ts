@@ -54,6 +54,15 @@ export class InstancedModelImpl implements InstancedModel {
     return null;
   }
 
+  clearInstances() {
+    for (let record of this.instances.values()) {
+      record.offset = 0;
+    }
+
+    this.enabledAttributes = new Set();
+    this.attributeToBuffer = new Map();
+  }
+
   /**
    * renders all currently stored instances to the screen.
    */
@@ -65,8 +74,9 @@ export class InstancedModelImpl implements InstancedModel {
         try {
           this.mat.prepareAttributes(this, this.instanceCount, rc);
           this.model.drawInstanced(this.instanceCount);
+          this.mat.cleanUpAttributes();
         } catch (e) {
-          console.warn("Skipped draw due to caught error: " + e);
+          console.info("Skipped draw due to caught error: " + e);
         } finally {
           let gl = this.ctx.getGLContext(); 
           if (this.instances.size > 0) {

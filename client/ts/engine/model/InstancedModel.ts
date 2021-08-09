@@ -1,5 +1,6 @@
 import { GLBufferReadOnly } from "../gl/internal/GLBuffer";
 import { InstancedMaterial } from "../material/InstancedMaterial";
+import { RenderContext } from "../render/RenderContext";
 import { Model } from "./Model";
 
 // this should not be our instanced model interface
@@ -13,6 +14,11 @@ export interface InstancedModel extends Model {
    * queues up an additional instanced model draw.
    */
   drawInstanced() : void;
+
+  /**
+   * Destroys all instances which are currently queued on this model.
+   */
+  clearInstances() : void;
 
   // don't worry about matrices, etc. we can consider this to be the low level ver
   // set it up so that we can handle matrices

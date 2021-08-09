@@ -2,7 +2,6 @@ import { mat4 } from "gl-matrix";
 import { GameContext } from "../GameContext";
 import { GLProgramWrap } from "../gl/internal/GLProgramWrap";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
-import { InstancedModelImpl } from "../loaders/internal/InstancedModelImpl";
 import { InstancedModel } from "../model/InstancedModel";
 import { AttributeType } from "../model/Model";
 import { RenderContext } from "../render/RenderContext";
