@@ -13,8 +13,9 @@ export class CrateTile extends GameTile {
 
   renderMaterial(rc: RenderContext) {
     if (this.instance.valid()) {
-      this.instance.get().modelMat = this.getTransformationMatrix();
-      this.instance.get().draw(rc);
+      let inst = this.instance.get();
+      inst.modelMat = this.getTransformationMatrix();
+      inst.draw(rc);
     }
   }
 

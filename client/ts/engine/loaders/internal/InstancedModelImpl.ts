@@ -8,7 +8,7 @@ import { RenderContext } from "../../render/RenderContext";
 import { ModelImpl } from "./ModelImpl";
 
 interface BufferRecord {
-  buf: GLBuffer,
+  buf: GLBufferImpl,
   offset: number;
 }
 
@@ -129,7 +129,7 @@ export class InstancedModelImpl implements InstancedModel {
     let buf = this.instances.get(index);
     if (!buf) {
       buf = {
-        buf: new GLBufferImpl(this.ctx.getGLContext()), 
+        buf: new GLBufferImpl(this.ctx.getGLContext(), 32768), 
         offset: 0
       };
 
@@ -140,10 +140,8 @@ export class InstancedModelImpl implements InstancedModel {
       buf.buf.setFloat32(buf.offset, data, true);
       buf.offset += 4;
     } else {
-      for (let e of data) {
-        buf.buf.setFloat32(buf.offset, e, true);
-        buf.offset += 4;
-      }
+      buf.buf.setFloatArray(buf.offset, data, true);
+      buf.offset += (4 * data.length);
     }
 
     if (args !== undefined) {

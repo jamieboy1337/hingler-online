@@ -25,11 +25,13 @@ export class GLBufferImpl implements GLBuffer {
   // TODO: assign a target on ctor? (array / element array / etc?)
   // we'd have a confusing dependency :( but even then it like won't matter
   // it's just a safeguard for me, so that we have a bit more info instead of just crashing out
-  constructor(gl: WebGLRenderingContext, buffer?: ArrayBuffer, dataMode?: number) {
-    if (!buffer) {
-      this.buf = new ArrayBuffer(16);
-    } else {
+  constructor(gl: WebGLRenderingContext, buffer?: ArrayBuffer | number, dataMode?: number) {
+    if (typeof buffer === "number") {
+      this.buf = new ArrayBuffer(buffer);
+    } else if (buffer instanceof ArrayBuffer) {
       this.buf = buffer;
+    } else {
+      this.buf = new ArrayBuffer(16);
     }
 
     this.glBuf = gl.createBuffer();
@@ -71,6 +73,8 @@ export class GLBufferImpl implements GLBuffer {
     } else if (this.dirty) {
       gl.bufferSubData(targ, 0, this.buf);
     }
+
+    this.dirty = false;
   }
   
   bindToVertexAttribute(location: number, components: number, type: number, normalize: boolean, stride: number, offset: number) {
@@ -262,6 +266,12 @@ export class GLBufferImpl implements GLBuffer {
   setFloat32(offset: number, value: number, littleEndian?: boolean) {
     this.ensureInBounds(offset + 3);
     this.view.setFloat32(offset, value, littleEndian);
+  }
+
+  setFloatArray(offset: number, arr: Array<number> | Float32Array, littleEndian?: boolean) {
+    this.ensureInBounds(offset + (4 * arr.length));
+    let farr = new Float32Array(this.buf, offset, arr.length);
+    farr.set(arr);
   }
 
   private ensureInBounds(offset: number) {

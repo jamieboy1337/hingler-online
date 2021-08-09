@@ -29,10 +29,10 @@ export class ExplosionInstanceFactory implements InstancedModelFactory<Explosion
 
     this.mat.instanceIndices = {
       modelMat: MODEL_MAT_INDEX,
-      threshold: THRESHOLD_INDEX,
-      color: COLOR_INDEX,
-      noise_scale: NOISE_SCALE_INDEX,
-      noise_offset: NOISE_OFFSET_INDEX
+      threshold: MODEL_MAT_INDEX,
+      color: MODEL_MAT_INDEX,
+      noise_scale: MODEL_MAT_INDEX,
+      noise_offset: MODEL_MAT_INDEX
     };
     this.model.setInstancedMaterial(this.mat);
   }
@@ -49,11 +49,11 @@ export class ExplosionInstanceFactory implements InstancedModelFactory<Explosion
       this.model.clearInstances();
     }
 
-    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.modelMat);
-    this.model.appendInstanceData(THRESHOLD_INDEX, inst.threshold);
-    this.model.appendInstanceData(COLOR_INDEX, inst.color);
-    this.model.appendInstanceData(NOISE_SCALE_INDEX, inst.noiseScale);
-    this.model.appendInstanceData(NOISE_OFFSET_INDEX, inst.noiseOffset);
+    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.modelMat); // 64
+    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.threshold); // 68
+    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.color); // 84
+    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.noiseScale); // 96
+    this.model.appendInstanceData(MODEL_MAT_INDEX, inst.noiseOffset); // 108
 
     this.model.drawInstanced();
   }

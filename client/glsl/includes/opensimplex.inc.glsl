@@ -19,14 +19,17 @@ vec3 grad(float hash) {
     // And corresponds to the face of its dual, the rhombic dodecahedron
     vec3 cuboct = cube;
     int zero = int(hash / 16.0);
+    // vec3 cubeprod = vec3(step(0.5, ceil(hash / 16.0)), min(step(hash, 16.0) + step(32.0, hash), 1.0), step(hash, 32.0));
     if (zero == 0) {
         cuboct = vec3(0.0, cuboct.yz);
     } else if (zero == 1) {
         cuboct = vec3(cuboct.x, 0.0, cuboct.z);
-    } else {
-        cuboct = vec3(0.0, cuboct.yz);
+    } else if (zero == 2) {
+        cuboct = vec3(cuboct.xy, 0.0);
     }
     
+    // cuboct = cuboct * cubeprod;
+
     // In a funky way, pick one of the four points on the rhombic face
     float type = mod(floor(hash / 8.0), 2.0);
     vec3 rhomb = (1.0 - type) * cube + type * (cuboct + cross(cube, cuboct));
@@ -44,7 +47,7 @@ vec3 grad(float hash) {
 }
 
 vec3 round(vec3 X) {
-    return X - fract(X);
+    return floor(X + 0.5);
 }
 
 // BCC lattice split up into 2 cube lattices
@@ -80,6 +83,10 @@ vec4 openSimplex2Base(vec3 X) {
     vec4 extrapolations = vec4(dot(d1, g1), dot(d2, g2), dot(d3, g3), dot(d4, g4));
     
     // Derivatives of the noise
+    // mat3x4
+
+    // vec3 derivative = -8.0 * mat4x3(d1, d2, d3, d4) * (aa * a * extrapolations)
+    //     + mat4x3(g1, g2, g3, g4) * aaaa;
     vec4 derivative_f = -8.0 * mat4(vec4(d1, 0.0), vec4(d2, 0.0), vec4(d3, 0.0), vec4(d4, 0.0)) * (aa * a * extrapolations)
         + mat4(vec4(g1, 0.0), vec4(g2, 0.0), vec4(g3, 0.0), vec4(g4, 0.0)) * aaaa;
     
