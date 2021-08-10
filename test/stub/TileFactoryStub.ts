@@ -16,6 +16,7 @@ export class TileFactoryStub implements TileFactory {
   scenePromise: Task<GLTFScene>;
   crateFactory: PBRInstanceFactory;
   explosionFactory: ExplosionInstanceFactory;
+  wallFactory: PBRInstanceFactory;
   constructor(ctx: GameContext) {
     this.ctx = ctx;
     // create instances for all desired tiles
@@ -29,6 +30,7 @@ export class TileFactoryStub implements TileFactory {
     // all factories will exist after scene promise is resolved
     this.crateFactory = scene.getPBRInstanceFactory("Cube");
     this.explosionFactory = new ExplosionInstanceFactory(this.ctx, scene.getInstancedModel("Sphere"));
+    this.wallFactory = scene.getPBRInstanceFactory("Cube.001");
     this.scenePromise.resolve(scene);
   }
 
@@ -43,6 +45,8 @@ export class TileFactoryStub implements TileFactory {
           return this.getCrate();
         case 2:
           return this.getExplosion();
+        case 3:
+          return this.getWall();
       }
     }
 
@@ -73,5 +77,18 @@ export class TileFactoryStub implements TileFactory {
     }
 
     return new ExplosionTile(this.ctx, loadtask.getFuture());
+  }
+
+  private getWall() {
+    let loadtask : Task<PBRInstance> = new Task(); 
+    if (this.scenePromise.getFuture().valid()) {
+      loadtask.resolve(this.wallFactory.getInstance());
+    } else {
+      this.scenePromise.future.wait().then((_) => {
+        loadtask.resolve(this.wallFactory.getInstance());
+      })
+    }
+
+    return new CrateTile(this.ctx, loadtask.getFuture());
   }
 }

@@ -6,6 +6,7 @@ import { GLBuffer, GLBufferReadOnly } from "../gl/internal/GLBuffer";
 import { GLBufferImpl } from "../gl/internal/GLBufferImpl";
 import { GLProgramWrap } from "../gl/internal/GLProgramWrap";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
+import { AmbientLightStruct } from "../gl/struct/AmbientLightStruct";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { Texture } from "../gl/Texture";
 import { InstancedModel } from "../model/InstancedModel";
@@ -23,10 +24,11 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
   private prog: WebGLProgram; 
   private ctx: GameContext;
   private spot: Array<SpotLightStruct>;
+  private amb: Array<AmbientLightStruct>;
   private placeholder: TextureDummy;
 
   private modelMatrixIndex: number;
-  private normalBuffer: GLBuffer;
+  private normalBuffer: GLBufferImpl;
    
   vpMat: mat4;
   modelMat: mat4;
@@ -49,6 +51,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     normalMat: WebGLUniformLocation,
     lightCount: WebGLUniformLocation,
     lightCountNoShadow: WebGLUniformLocation,
+    ambientCount: WebGLUniformLocation,
     cameraPos: WebGLUniformLocation,
 
     texAlbedo: WebGLUniformLocation,
@@ -116,6 +119,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       normalMat: gl.getUniformLocation(prog, "normal_matrix"),
       lightCount: gl.getUniformLocation(prog, "spotlightCount"),
       lightCountNoShadow: gl.getUniformLocation(prog, "spotlightCount_no_shadow"),
+      ambientCount: gl.getUniformLocation(prog, "ambientCount"),
       cameraPos: gl.getUniformLocation(prog, "camera_pos"),
       texAlbedo: gl.getUniformLocation(prog, "tex_albedo"),
       texNorm: gl.getUniformLocation(prog, "tex_norm"),
@@ -145,6 +149,10 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     this.spot = light;
   }
 
+  setAmbientLight(light: Array<AmbientLightStruct>) {
+    this.amb = light;
+  }
+
   setModelMatrixIndex(index: number) {
     this.modelMatrixIndex = index;
   }
@@ -165,6 +173,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     for (let i = 0; i < instances; i++) {
       let mat = new Float32Array(16) as mat4;
       for (let j = 0; j < 16; j++) {
+        // add "getfloatarray" so that we can fetch data a bit more quickly?
         mat[j] = buf.getFloat32(offset, true);
         if (mat[j] === undefined) {
           console.warn(`Reached end of buffer after processing ${i} arrays.`);
@@ -177,10 +186,8 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       mat3.invert(norm, norm);
       mat3.transpose(norm, norm);
 
-      for (let j = 0; j < 9; j++) {
-        this.normalBuffer.setFloat32(offsetBuf, norm[j], true);
-        offsetBuf += 4;
-      }
+      this.normalBuffer.setFloatArray(offsetBuf, norm);
+      offsetBuf += 36;
     } 
   }
 
@@ -197,6 +204,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       gl.useProgram(this.prog);
 
       this.setSpotLight(rc.getSpotLightInfo());
+      this.setAmbientLight(rc.getAmbientLightInfo());
 
       let info = rc.getActiveCameraInfo(); 
       gl.uniformMatrix4fv(this.locs.vpMat, false, info.vpMatrix);
@@ -218,6 +226,16 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
 
       gl.uniform1i(this.locs.lightCount, shadowSpot);
       gl.uniform1i(this.locs.lightCountNoShadow, noShadowSpot);
+
+      if (this.amb) {
+        for (let i = 0; i < this.spot.length && i < 4; i++) {
+          this.amb[i].bindToUniformByName(this.progWrap, `ambient[${i}]`);
+        }
+
+        gl.uniform1i(this.locs.ambientCount, this.amb.length);
+      } else {
+        gl.uniform1i(this.locs.ambientCount, 0);
+      }
 
 
       gl.uniform3fv(this.locs.cameraPos, info.cameraPosition);

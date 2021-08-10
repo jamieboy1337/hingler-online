@@ -3,6 +3,7 @@
  * Contains information on the scene in general.
  */
 
+import { AmbientLightStruct } from "../gl/struct/AmbientLightStruct";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { CameraInfo } from "../object/game/Camera";
 
@@ -23,5 +24,7 @@ export interface RenderContext {
 
   // returns a list of spot lights associated with this render
   getSpotLightInfo() : Array<SpotLightStruct>;
+
+  getAmbientLightInfo() : Array<AmbientLightStruct>; 
 
 }

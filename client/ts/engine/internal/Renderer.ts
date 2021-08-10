@@ -1,14 +1,15 @@
 import { mat4, vec3 } from "gl-matrix";
 import { Framebuffer } from "../gl/Framebuffer";
 import { ColorFramebuffer } from "../gl/internal/ColorFramebuffer";
+import { AmbientLightStruct } from "../gl/struct/AmbientLightStruct";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
-import { Texture } from "../gl/Texture";
 import { ColorDisplay } from "../material/ColorDisplay";
 import { ShadowDisplay } from "../material/ShadowDisplay";
 import { TextureDisplay } from "../material/TextureDisplay";
 import { CameraInfo } from "../object/game/Camera";
 import { GameCamera } from "../object/game/GameCamera";
 import { GameObject } from "../object/game/GameObject";
+import { AmbientLightObject } from "../object/game/light/AmbientLightObject";
 import { SpotLight } from "../object/game/light/SpotLight";
 import { SpotLightObject } from "../object/game/light/SpotLightObject";
 import { Scene } from "../object/scene/Scene";
@@ -31,6 +32,10 @@ class SpotLightRenderContext implements RenderContext {
 
   // something else?
   getSpotLightInfo() {
+    return [];
+  }
+
+  getAmbientLightInfo() {
     return [];
   }
 }
@@ -75,7 +80,10 @@ export class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
     // find lights
     let lights = this.findSpotLights(this.scene.getGameObjectRoot());
+    let ambLights = this.findAmbientLights(this.scene.getGameObjectRoot());
+    console.log(ambLights.length); 
     let spotLightInfo : Array<SpotLightStruct> = [];
+    let ambLightInfo : Array<AmbientLightStruct> = [];
 
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.FRONT);
@@ -87,6 +95,10 @@ export class Renderer {
       }
       
       spotLightInfo.push(new SpotLightStruct(this.ctx, light));
+    }
+
+    for (let light of ambLights) {
+      ambLightInfo.push(new AmbientLightStruct(this.ctx, light));
     }
 
     gl.disable(gl.CULL_FACE);
@@ -123,6 +135,10 @@ export class Renderer {
 
       getSpotLightInfo() {
         return spotLightInfo;
+      },
+
+      getAmbientLightInfo() {
+        return ambLightInfo;
       }
     }
 
@@ -166,6 +182,20 @@ export class Renderer {
 
     for (let child of root.getChildren()) {
       let childLights = this.findSpotLights(child);
+      lights.push.apply(lights, childLights);
+    }
+
+    return lights;
+  }
+
+  private findAmbientLights(root: GameObject) : Array<AmbientLightObject> {
+    let lights = [];
+    if (root instanceof AmbientLightObject) {
+      lights.push(root);
+    }
+
+    for (let child of root.getChildren()) {
+      let childLights = this.findAmbientLights(child);
       lights.push.apply(lights, childLights);
     }
 

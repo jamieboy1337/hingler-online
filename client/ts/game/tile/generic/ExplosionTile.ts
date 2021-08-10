@@ -1,7 +1,7 @@
 import { mat4 } from "gl-matrix";
 import { Future } from "../../../../../ts/util/task/Future";
 import { GameContext } from "../../../engine/GameContext";
-import { RenderContext } from "../../../engine/render/RenderContext";
+import { RenderContext, RenderPass } from "../../../engine/render/RenderContext";
 import { GameTile } from "../GameTile";
 import { ExplosionInstance } from "../instancefactory/instance/ExplosionInstance";
 
@@ -36,7 +36,7 @@ export class ExplosionTile extends GameTile {
   renderMaterial(rc: RenderContext) {
     // three concentric hemispheres
     // slightly different noise offsets, thresholds, and colors
-    if (this.instance.valid()) {
+    if (rc.getRenderPass() === RenderPass.FINAL && this.instance.valid()) {
       let inst = this.instance.get();
       let mat = this.getTransformationMatrix();
 

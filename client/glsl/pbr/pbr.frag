@@ -83,5 +83,13 @@ void main() {
     col += getSpotLightColorPBR(spotlight_no_shadow[i], camera_pos, v_pos.xyz, C, N, rough, metal);
   }
 
+  for (int i = 0; i < 4; i++) {
+    if (i >= ambientCount) {
+      break;
+    }
+
+    col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
+  }
+
   gl_FragColor = vec4(col.xyz, 1.0);
 }
