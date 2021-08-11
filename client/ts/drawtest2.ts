@@ -108,7 +108,6 @@ class TextureTest extends DummyModel {
     let loader = this.getContext().getGLTFLoader();
     let scene = await loader.loadAsGLTFScene("../res/test.glb");
     this.texmat.tex = scene.getTexture("Untitled");
-    console.log(this.texmat.tex);
   }
 
   renderMaterial(rc: RenderContext) {

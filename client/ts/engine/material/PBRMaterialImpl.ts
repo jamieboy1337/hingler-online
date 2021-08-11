@@ -213,8 +213,8 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       let noShadowSpot = 0;
       if (this.spot) {
         for (let i = 0; i < this.spot.length; i++) {
-          this.spot[i].setShadowTextureIndex(i + 16);
           if (this.spot[i].hasShadow() && shadowSpot < 4) {
+            this.spot[i].setShadowTextureIndex(shadowSpot + 8);
             this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${i}]`, true);
             shadowSpot++;
           } else {
@@ -228,7 +228,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       gl.uniform1i(this.locs.lightCountNoShadow, noShadowSpot);
 
       if (this.amb) {
-        for (let i = 0; i < this.spot.length && i < 4; i++) {
+        for (let i = 0; i < this.amb.length && i < 4; i++) {
           this.amb[i].bindToUniformByName(this.progWrap, `ambient[${i}]`);
         }
 
@@ -253,6 +253,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       gl.uniform1i(this.locs.useAttribute, 1);
 
       if (this.normal === null) {
+        console.log("null normal");
         this.placeholder.bindToUniform(this.locs.texNorm, 1);
         gl.uniform1i(this.locs.useNorm, 0);
       } else {

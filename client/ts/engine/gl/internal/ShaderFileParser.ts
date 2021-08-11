@@ -39,8 +39,6 @@ export class ShaderFileParser {
           let relativePath = folder + match[1];
           output.push(await this.parseShaderFile(relativePath));
           continue;
-        } else {
-          console.log(includeExtract.exec(line));
         }
       }
 

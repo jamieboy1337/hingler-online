@@ -76,7 +76,8 @@ export class InstancedModelImpl implements InstancedModel {
           this.model.drawInstanced(this.instanceCount);
           this.mat.cleanUpAttributes();
         } catch (e) {
-          console.info("Skipped draw due to caught error: " + e);
+          console.debug("Skipped draw due to caught error: " + e);
+          console.debug(e);
         } finally {
           let gl = this.ctx.getGLContext(); 
           if (this.instances.size > 0) {

@@ -49,9 +49,12 @@ void main() {
   }
 
   // get albedo map at tex, use as surf color, store in vec3 col;
-  vec3 C = texture2D(tex_albedo, v_tex).rgb * color_factor.xyz;
+  vec4 colAlpha = texture2D(tex_albedo, v_tex);
+  vec3 C = colAlpha.rgb * color_factor.rgb;
   if (use_albedo == 0) {
     C = color_factor.xyz;
+  } else if (colAlpha.a < 0.5) {
+    discard;
   }
 
   // get rough at tex, use as roughness, store in float rough;
@@ -91,5 +94,5 @@ void main() {
     col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
   }
 
-  gl_FragColor = vec4(col.xyz, 1.0);
+  gl_FragColor = vec4(col.rgb, 1.0);
 }

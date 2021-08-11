@@ -81,7 +81,6 @@ export class Renderer {
     // find lights
     let lights = this.findSpotLights(this.scene.getGameObjectRoot());
     let ambLights = this.findAmbientLights(this.scene.getGameObjectRoot());
-    console.log(ambLights.length); 
     let spotLightInfo : Array<SpotLightStruct> = [];
     let ambLightInfo : Array<AmbientLightStruct> = [];
 

@@ -7,8 +7,8 @@ export class GameMapStateStub implements GameMapState {
   width: number;
   height: number;
   constructor() {
-    this.width = 12;
-    this.height = 8;
+    this.width = 16;
+    this.height = 12;
   }
   get dims() {
     return [this.width, this.height] as [number, number];

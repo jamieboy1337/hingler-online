@@ -38,8 +38,9 @@ export class MapSceneTest extends Scene {
   initialize(ctx: GameContext) {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
-    cam.setPosition(0, 36, 60);
+    cam.setPosition(0, 72, 120);
     cam.fov = 18;
+    cam.far = 250.0;
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy
 
@@ -66,30 +67,48 @@ export class MapSceneTest extends Scene {
     spot.atten_const = 1;
     spot.atten_linear = 0;
     spot.atten_quad = 0;
-    spot.intensity = 1.2;
+    spot.intensity = 1.8;
     spot.color = new Float32Array([1, 1, 1, 1]);
+
+    let spotalso = new SpotLightObject(ctx);
+    spotalso.setPosition(-45, 30, -20);
+    spotalso.fov = 43;
+    spotalso.falloffRadius = 0.2;
+    spotalso.atten_const = 1;
+    spotalso.atten_linear = 0;
+    spotalso.atten_quad = 0;
+    spotalso.intensity = 1.1;
+    spotalso.color = new Float32Array([1, 1, 1, 1]);
     
     spot.near = 0.1;
     spot.far = 1000.0;
+
+    spotalso.near = 0.1;
+    spotalso.far = 1000.0;
 
     spot.setShadowDims(2048, 2048);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 
+    spotalso.setShadowDims(2048, 2048);
+    spotalso.setShadows(true);
+    spotalso.lookAt(0, 0, 0);
+
     let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
     chewingcharacter.setPosition(0, 4, 0);
     root.addChild(chewingcharacter);
 
-    let grass = new GamePBRModel(ctx, "../res/grass.glb");
+    let grass = new GamePBRModel(ctx, "../res/mappack.glb");
     grass.setRotationEuler(0, 90, 0);
     root.addChild(grass);
 
     let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];
-    amb.intensity = 0.3;
+    amb.intensity = 0.1;
     root.addChild(amb);
 
     rot_two.addChild(spot);
+    rot_two.addChild(spotalso);
     root.addChild(rot_two);
   }
 }
