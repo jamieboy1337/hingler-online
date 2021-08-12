@@ -41,13 +41,6 @@ uniform float rough_factor;
 uniform float metal_factor;
 
 void main() {
-  vec3 N = v_norm;
-  if (use_norm != 0) {
-    // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
-    vec3 norm_tex = texture2D(tex_norm, v_tex).rgb * 2.0 - 1.0;
-    N = normalize(TBN * norm_tex);
-  }
-
   // get albedo map at tex, use as surf color, store in vec3 col;
   vec4 colAlpha = texture2D(tex_albedo, v_tex);
   vec3 C = colAlpha.rgb * color_factor.rgb;
@@ -55,6 +48,13 @@ void main() {
     C = color_factor.xyz;
   } else if (colAlpha.a < 0.5) {
     discard;
+  }
+
+  vec3 N = v_norm;
+  if (use_norm != 0) {
+    // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+    vec3 norm_tex = normalize(texture2D(tex_norm, v_tex).rgb * 2.0 - 1.0);
+    N = TBN * norm_tex;
   }
 
   // get rough at tex, use as roughness, store in float rough;
@@ -94,5 +94,5 @@ void main() {
     col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
   }
 
-  gl_FragColor = vec4(col.rgb, 1.0);
+  gl_FragColor = vec4(col.xyz, 1.0);
 }

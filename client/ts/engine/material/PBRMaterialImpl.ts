@@ -253,7 +253,6 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       gl.uniform1i(this.locs.useAttribute, 1);
 
       if (this.normal === null) {
-        console.log("null normal");
         this.placeholder.bindToUniform(this.locs.texNorm, 1);
         gl.uniform1i(this.locs.useNorm, 0);
       } else {

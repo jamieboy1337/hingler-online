@@ -102,6 +102,7 @@ export interface GLTFJson {
   images?: Array<ImageSchema>,
   materials?: Array<Material>,
   meshes?: Array<Mesh>,
+  nodes?: Array<Node>,
   samplers?: Array<Sampler>,
   textures?: Array<TextureSchema>
 };

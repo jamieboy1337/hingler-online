@@ -179,7 +179,7 @@ export class GameObject extends EngineObject {
    * @param z - if valid: z rotation.
    */
   setRotationEuler(x: number | vec3, y?: number, z?: number) {
-    if (x instanceof Float32Array && x.length >= 3) {
+    if (!(typeof x === "number") && x.length >= 3) {
       this.setRotationEulerNum_(x[0], x[1], x[2]);
     } else if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
       this.setRotationEulerNum_(x, y, z);
@@ -193,6 +193,21 @@ export class GameObject extends EngineObject {
     this.invalidateTransformCache_();
   }
 
+  setRotationQuat(x: number | quat, y?: number, z?: number, w?: number) {
+    if (!(typeof x === "number") && x.length >= 4) {
+      this.setQuatNum_(x[0], x[1], x[2], x[3]);
+    } else if (typeof x === "number" && typeof y === "number" && typeof z === "number" && typeof w === "number") {
+      this.setQuatNum_(x, y, z, w);
+    } else {
+      console.warn("Parameters to `setRotationQuat` cannot be interpreted.");
+    }
+  }
+
+  private setQuatNum_(x: number, y: number, z: number, w: number) {
+    this.rotation = quat.fromValues(x, y, z, w);
+
+  }
+
   /**
    * Sets the scale of this GameObject.
    * @param x - either the x dimension or our scale, or a vec3 containing the new scale for this object.
@@ -200,7 +215,7 @@ export class GameObject extends EngineObject {
    * @param z - if valid: z scale.
    */
   setScale(x: number | vec3, y?: number, z?: number) {
-    if (x instanceof Float32Array && x.length >= 3) {
+    if (!(typeof x === "number") && x.length >= 3) {
       this.setScaleNum_(x[0], x[1], x[2]);
     } else if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
       this.setScaleNum_(x, y, z);
@@ -227,7 +242,7 @@ export class GameObject extends EngineObject {
   if (typeof x === "number" && typeof y === "number" && typeof z === "number") {
     this.setPositionNum_(x, y, z);
   // this is the best i can do i think
-  } else if (x instanceof Float32Array && x.length >= 3) {
+  } else if (!(typeof x === "number") && x.length >= 3) {
       this.setPositionNum_(x[0], x[1], x[2]);
   } else {
       console.warn("Parameters to `setPosition` cannot be interpreted.")

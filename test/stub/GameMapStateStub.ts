@@ -7,8 +7,8 @@ export class GameMapStateStub implements GameMapState {
   width: number;
   height: number;
   constructor() {
-    this.width = 16;
-    this.height = 12;
+    this.width = 15;
+    this.height = 11;
   }
   get dims() {
     return [this.width, this.height] as [number, number];
@@ -18,7 +18,7 @@ export class GameMapStateStub implements GameMapState {
     // return zeroes and ones in a cross pattern, with the upper left reserved for players
     let data = new Uint8Array(this.width * this.height);
     for (let i = 0; i < data.length; i++) {
-      data[i] = ((i + Math.floor(i / this.width)) % 4); 
+      data[i] = (i % 5); 
     }
 
     return data;

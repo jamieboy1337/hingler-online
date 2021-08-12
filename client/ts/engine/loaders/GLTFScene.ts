@@ -3,6 +3,7 @@ import { InstancedModel } from "../model/InstancedModel";
 import { Model } from "../model/Model";
 import { PBRInstanceFactory } from "../model/PBRInstanceFactory";
 import { PBRModel } from "../model/PBRModel";
+import { GameObject } from "../object/game/GameObject";
 
 /**
  * Represents the data contained inside a GLTF file
@@ -21,6 +22,11 @@ export interface GLTFScene {
    * @returns the model, with no associated materials or textures attached.
    */
   getModel(name: string | number) : Model;
+
+  /**
+   * Returns a game object representing the desired node -- contains no behavior.
+   */
+  getNodeAsGameObject(name: string | number) : GameObject;
 
   /**
    * Returns a new InstancedModel.

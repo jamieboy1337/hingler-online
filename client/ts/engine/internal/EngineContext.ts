@@ -118,7 +118,7 @@ export class EngineContext implements GameContext {
   step() {
     // handle everything in engine
     this.updateDelta();
-    if (this.scene) {
+    if (this.scene && this.scene.isInitialized()) {
       this.scene.getGameObjectRoot().updateChildren();
       this.renderer.renderScene();
       let passCount = this.renderer.getPassCount();

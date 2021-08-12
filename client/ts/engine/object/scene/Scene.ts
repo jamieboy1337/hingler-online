@@ -31,14 +31,15 @@ export abstract class Scene {
    * Creates all objects which participate in the scene.
    * @param ctx - context passed in on init.
    */
-  abstract initialize(ctx: GameContext) : void;
+  abstract initialize(ctx: GameContext) : Promise<void>;
 
   begininit(ctx: GameContext) : void {
     // no async loading in js
     this.ctx = ctx;
     this.gameRoot = new GameObjectRoot(this.ctx);
-    this.initialize(this.ctx);
-    this.initialized = true;
+    this.initialize(this.ctx).then(() => {
+      this.initialized = true;
+    });
   }
 
   isInitialized() : boolean {

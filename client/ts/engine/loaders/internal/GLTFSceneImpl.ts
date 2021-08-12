@@ -1,4 +1,4 @@
-import { vec2, vec3 } from "gl-matrix";
+import { quat, vec2, vec3 } from "gl-matrix";
 import { GLAttribute } from "../../gl/GLAttribute";
 import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
@@ -12,8 +12,10 @@ import { PBRMaterialImpl } from "../../material/PBRMaterialImpl";
 import { InstancedModel } from "../../model/InstancedModel";
 import { Model } from "../../model/Model";
 import { PBRInstanceFactory } from "../../model/PBRInstanceFactory";
+import { GameModel } from "../../object/game/GameModel";
+import { GamePBRModel } from "../../object/game/GamePBRModel";
 import { GLTFScene } from "../GLTFScene";
-import { GLTFJson, ImageSchema, Material, Mesh, Primitive, TextureSchema } from "./gltfTypes";
+import { GLTFJson, ImageSchema, Material, Mesh, Node, Primitive, TextureSchema } from "./gltfTypes";
 import { InstancedModelImpl } from "./InstancedModelImpl";
 import { ModelImpl, ModelInstance } from "./ModelImpl";
 import { PBRModelImpl } from "./PBRModelImpl";
@@ -74,6 +76,47 @@ export class GLTFSceneImpl implements GLTFScene {
       this.modelCache.set(name, model);
       return model;
     }
+  }
+
+  getNodeAsGameObject(name: string | number) {
+    let targNode : Node;
+    if (!this.data.nodes) {
+      return null;
+    }
+    if (typeof name === "string") {
+      for (let node of this.data.nodes) {
+        if (node.name === name) {
+          targNode = node;
+          break;
+        }
+      }
+    } else {
+      if (name < 0 || name >= this.data.nodes.length) {
+        return null;
+      }
+
+      targNode = this.data.nodes[name];
+    }
+
+    if (!targNode.mesh) {
+      console.warn("Attempted to load node which is not a model - i dont want to deal with it right now sorry");
+    }
+
+    let model = this.getPBRModel(targNode.mesh);
+    let res = new GamePBRModel(this.ctx, model);
+    if (targNode.rotation) {
+      res.setRotationQuat(targNode.rotation);
+    }
+
+    if (targNode.translation) {
+      res.setPosition(targNode.translation);
+    }
+
+    if (targNode.scale) {
+      res.setScale(targNode.scale);
+    }
+
+    return res;
   }
 
   getInstancedModel(name: string | number) : InstancedModel {

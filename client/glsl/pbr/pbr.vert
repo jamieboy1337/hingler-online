@@ -42,9 +42,14 @@ void main() {
   v_tex = texcoord;
 
   // calculate tbn matrix
-  vec3 T = normalize(normal_matrix_active * tangent);
-  vec3 B = normalize(normal_matrix_active * cross(normal, tangent));
-  vec3 N = normalize(normal_matrix_active * normal);
+  // note: normalizing a zero-vector leads to undefined behavior
+  vec3 T = normal_matrix_active * tangent;
+  vec3 B = normal_matrix_active * cross(normal, tangent);
+  vec3 N = normal_matrix_active * normal;
+
+  T = (length(T) > 0.0001 ? normalize(T) : T);
+  B = (length(B) > 0.0001 ? normalize(B) : B);
+  N = (length(N) > 0.0001 ? normalize(N) : N);
 
   v_norm = N;
 

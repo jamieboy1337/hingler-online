@@ -121,8 +121,8 @@ class TextureTest extends DummyModel {
 let ctx : EngineContext;
 
 // add findactivecamera to scene
-class TestScene extends Scene {
-  initialize(ctx: GameContext) {
+class TestScene extends Scene { 
+  async initialize(ctx: GameContext) {
     let root = this.getGameObjectRoot();
     let model = new TextureTest(ctx, "../res/test.glb");
     let modelt = new CrapModel(ctx, "../res/crate.glb");

@@ -62,14 +62,17 @@ export class GLTFTexture implements Texture {
     // if either is set to repeat
 
     // if pot: both will be 0, else non 0
-    let npot = (this.dims_[0] & (this.dims_[0] - 1)) || (this.dims_[1] & (this.dims_[1] - 1));
+    let pot = !(this.dims_[0] & (this.dims_[0] - 1)) && !(this.dims_[1] & (this.dims_[1] - 1));
+    if (!pot) {
+      console.warn("Encountered non-POT texture!");
+    }
     // account for potential mipmap generation
-    if ([9984, 9985, 9986, 9987].indexOf(min) !== -1) {
+    if ([9984, 9985, 9986, 9987].indexOf(min) !== -1 && pot) {
       // min filter uses mipmaps -- ensure they are generated
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    if (npot) {
+    if (!pot) {
       wrapS = (wrapS === gl.REPEAT ? gl.CLAMP_TO_EDGE : wrapS);
       wrapT = (wrapT === gl.REPEAT ? gl.CLAMP_TO_EDGE : wrapT);
     }
