@@ -36,7 +36,7 @@ export class ExplosionTile extends GameTile {
       this.markAsClean();
     }
 
-    this.setScale(this.explosionScale, this.explosionScale, this.explosionScale);
+    this.setScale(this.explosionScale, this.explosionScale / 2.0, this.explosionScale);
   }
 
   // update: do something with time, handle lerp shit

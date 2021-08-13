@@ -30,7 +30,7 @@ class DummyEmpty extends GameObject {
 
   update() {
     this.time += this.getContext().getDelta();
-    this.setRotationEuler(0, 50.0 * this.time * (this.rot ? 1 : -0.8502934), 0);
+    // this.setRotationEuler(0, 50.0 * this.time * (this.rot ? 1 : -0.8502934), 0);
   }
 }
 
@@ -38,9 +38,9 @@ export class MapSceneTest extends Scene {
   async initialize(ctx: GameContext) : Promise<void> {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
-    cam.setPosition(0, 100, 120);
-    cam.fov = 11;
-    cam.far = 250.0;
+    cam.setPosition(0, 60, 40);
+    cam.fov = 22;
+    cam.far = 100.0;
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy
 
@@ -87,7 +87,7 @@ export class MapSceneTest extends Scene {
     spotalso.far = 1000.0;
 
     spot.setShadowDims(2048, 2048);
-    spot.setShadows(true);
+    spot.setShadows(false);
     spot.lookAt(0, 0, 0);
 
     spotalso.setShadowDims(2048, 2048);

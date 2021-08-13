@@ -2,6 +2,8 @@ import { TileFactoryStub } from "../../../test/stub/TileFactoryStub";
 import { GameContext } from "../engine/GameContext";
 import { GameObject } from "../engine/object/game/GameObject";
 import { GameConnectionManager } from "./GameConnectionManager";
+import { TileManagerImpl } from "./manager/internal/TileManagerImpl";
+import { TileManager } from "./manager/TileManager";
 import { GameTile } from "./tile/GameTile";
 import { TileFactory } from "./tile/TileFactory";
 
@@ -17,12 +19,16 @@ export class MapManager extends GameObject {
   tilesCurrent: Array<GameTile>;
   tilesDestroying: Set<GameTile>;
   factory: TileFactory;
+  tilemgr: TileManager;
   constructor(ctx: GameContext, conn: GameConnectionManager) {
     super(ctx);
     this.conn = conn;
     this.lastUpdate = null;
     this.tilesCurrent = [];
     this.tilesDestroying = new Set();
+    this.tilemgr = new TileManagerImpl(ctx, this.conn.getMapTitle());
+    this.addChild(this.tilemgr.root);
+    this.tilemgr.root.setPosition(0, 0, 0);
 
     switch(this.conn.getMapTitle()) {
       case "TEST_001":
@@ -33,38 +39,40 @@ export class MapManager extends GameObject {
   }
 
   protected update() {
+    this.tilemgr.updateTiles(this.conn.getMapState());
     // poll connectionmanager for state
-    let newState = this.conn.getMapState();
-    let nextUpdate = newState.tiles;
-    for (let i = 0; i < nextUpdate.length; i++) {
-      if (this.lastUpdate === null || nextUpdate[i] !== this.lastUpdate[i]) {
-        if (this.tilesCurrent[i]) {
-          this.tilesCurrent[i].destroyTile();
-          // destroy elements that were removed in this update
-          this.tilesDestroying.add(this.tilesCurrent[i]);
-        }
+    // let newState = this.conn.getMapState();
+    // let nextUpdate = newState.tiles;
+    // for (let i = 0; i < nextUpdate.length; i++) {
+    //   if (this.lastUpdate === null || nextUpdate[i] !== this.lastUpdate[i]) {
+    //     if (this.tilesCurrent[i]) {
+    //       this.tilesCurrent[i].destroyTile();
+    //       // destroy elements that were removed in this update
+    //       this.tilesDestroying.add(this.tilesCurrent[i]);
+    //     }
         
-        // create elements which are new in this update
-        // TODO: use a map with some coord hash function (65536 x 65536? or stretch out one side for shits)
-        // ensures that we have more flexibility in stretching out our map
-        this.addTileAtCoordinate(i % newState.dims[0], Math.floor(i / newState.dims[0]), nextUpdate[i]);
-      }
-    }
+    //     // create elements which are new in this update
+    //     // TODO: use a map with some coord hash function (65536 x 65536? or stretch out one side for shits)
+    //     // ensures that we have more flexibility in stretching out our map
+    //     this.addTileAtCoordinate(i % newState.dims[0], Math.floor(i / newState.dims[0]), nextUpdate[i]);
+    //   }
+    // }
 
-    this.lastUpdate = nextUpdate;
+    // this.lastUpdate = nextUpdate;
 
-    // remove tiles which are already destroyed
-    let deadTiles = [];
-    for (let tile of this.tilesDestroying) {
-      if (tile.isClean()) {
-        this.removeChild(tile.getId());
-        deadTiles.push(tile);
-      }
-    }
+    // // remove tiles which are already destroyed
+    // let deadTiles = [];
+    // for (let tile of this.tilesDestroying) {
+    //   if (tile.isClean()) {
+    //     this.removeChild(tile.getId());
+    //     deadTiles.push(tile);
+    //   }
+    // }
 
-    for (let tile of deadTiles) {
-      this.tilesDestroying.delete(tile);
-    }
+    // for (let tile of deadTiles) {
+    //   this.tilesDestroying.delete(tile);
+    // }
+
   }
 
   private addTileAtCoordinate(x: number, y: number, id: number) {
