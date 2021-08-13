@@ -6,9 +6,11 @@ import { GameMapState } from "../../client/ts/game/GameMapState";
 export class GameMapStateStub implements GameMapState {
   width: number;
   height: number;
+  getCount: number;
   constructor() {
     this.width = 15;
     this.height = 11;
+    this.getCount = 0;
   }
   get dims() {
     return [this.width, this.height] as [number, number];
@@ -18,8 +20,13 @@ export class GameMapStateStub implements GameMapState {
     // return zeroes and ones in a cross pattern, with the upper left reserved for players
     let data = new Uint8Array(this.width * this.height);
     for (let i = 0; i < data.length; i++) {
-      data[i] = (i % 5); 
+      data[i] = (i % 4);
+      if (((this.getCount % 144) > 72)) {
+        data[i] = 0;
+      }
     }
+
+    this.getCount++;
 
     return data;
   }

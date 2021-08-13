@@ -6,11 +6,12 @@ let depthtex: WEBGL_depth_texture = undefined;
 // TODO: come up with a debug view that lets you view shadows :)
 // probably engine side
 // grab framebuffers after every render pass, just return the moment the desired fb is complete
-export class DepthTexture implements Texture {
+export class DepthTexture extends Texture {
   dims: [number, number];
   gl: WebGLRenderingContext;
   private tex: WebGLTexture;
   constructor(ctx: GameContext, dims: [number, number]) {
+    super();
     this.gl = ctx.getGLContext();
     this.tex = null;
     if (depthtex === undefined) {

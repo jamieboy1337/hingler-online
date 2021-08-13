@@ -100,7 +100,8 @@ export class Renderer {
       ambLightInfo.push(new AmbientLightStruct(this.ctx, light));
     }
 
-    gl.disable(gl.CULL_FACE);
+    // gl.disable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
 
     let cam = this.findActiveCamera(this.scene.getGameObjectRoot());
     let info : CameraInfo;
@@ -150,6 +151,8 @@ export class Renderer {
       model.flush(rc);
     }
     this.renderPasses.push(new ColorDisplay(this.ctx, this.primaryFB.getColorTexture()));
+
+    gl.disable(gl.CULL_FACE);
   }
 
   /**

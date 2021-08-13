@@ -3,8 +3,13 @@ import { PlayerInputState } from "../../client/ts/game/PlayerInputState";
 import { GameMapStateStub } from "./GameMapStateStub";
 
 export class GameConnectionManagerStub implements GameConnectionManager {
+  state : GameMapStateStub;
+  constructor() {
+    this.state = new GameMapStateStub();
+  }
+
   getMapState() {
-    return new GameMapStateStub();
+    return this.state;
   }
 
   getPlayerList() {

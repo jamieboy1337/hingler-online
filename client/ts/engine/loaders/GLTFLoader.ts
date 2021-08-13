@@ -1,3 +1,4 @@
+import { Texture } from "../gl/Texture";
 import { Model } from "../model/Model";
 import { GLTFScene } from "./GLTFScene";
 
@@ -12,4 +13,5 @@ import { GLTFScene } from "./GLTFScene";
 export interface GLTFLoader {
   loadGLTFModel(path: string) : Promise<Array<Model>>;
   loadAsGLTFScene(path: string) : Promise<GLTFScene>;
+  loadTexture(path: string) : Promise<Texture>;
 }

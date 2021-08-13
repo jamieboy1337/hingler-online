@@ -4,6 +4,7 @@ import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
 import { GLBufferImpl } from "../../gl/internal/GLBufferImpl";
 import { GLIndexImpl } from "../../gl/internal/GLIndexImpl";
+import { ImageTexture } from "../../gl/internal/ImageTexture";
 import { EngineContext } from "../../internal/EngineContext";
 import { InstancedModel } from "../../model/InstancedModel";
 import { Model } from "../../model/Model";
@@ -83,6 +84,12 @@ export class GLTFLoaderImpl implements GLTFLoader {
     }
 
     return res;
+  }
+
+  async loadTexture(path: string) {
+    let tex = new ImageTexture(this.gl, path);
+    await tex.waitUntilLoaded();
+    return tex;
   }
 
   async loadGLTFModel(path: string) : Promise<Array<Model>> {

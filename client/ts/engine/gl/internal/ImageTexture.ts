@@ -1,26 +1,24 @@
-import { GameContext } from "../../GameContext";
-import { Sampler } from "../../loaders/internal/gltfTypes";
+import { Task } from "../../../../../ts/util/task/Task";
 import { Texture, TextureFormat } from "../Texture";
 
-export class GLTFTexture extends Texture {
+export class ImageTexture extends Texture {
   private dims_: [number, number];
 
   private tex: WebGLTexture;
   private gl: WebGLRenderingContext;
   private img: HTMLImageElement;
-  private sampler: Sampler;
 
-  constructor(gl: WebGLRenderingContext, buf: ArrayBuffer, sampler: Sampler, mime: string) {
+  private loadTask: Task<void>;
+
+  constructor(gl: WebGLRenderingContext, href: string) {
     super();
     this.gl = gl;
-    // https://gist.github.com/candycode/f18ae1767b2b0aba568e
-    let urlCreator = window.URL || window.webkitURL;
-    let url = urlCreator.createObjectURL(new Blob([buf], {type: mime}));
     this.img = new Image();
-    this.img.src = url;
-    this.sampler = sampler;
-
+    this.img.src = href;
     this.tex = null;
+
+    this.loadTask = new Task();
+
     this.img.addEventListener("load", this.loadTexture.bind(this));
   }
 
@@ -28,10 +26,7 @@ export class GLTFTexture extends Texture {
     return this.dims_;
   }
 
-  getTextureFormat() {
-    return TextureFormat.RGBA;
-  }
-
+  // TODO: redundant code
   bindToUniform(location: WebGLUniformLocation, index: number) {
     let gl = this.gl;
     if (index > 31 || index < 0) {
@@ -47,7 +42,16 @@ export class GLTFTexture extends Texture {
     }
   }
 
+  getTextureFormat() {
+    return TextureFormat.RGBA;
+  }
+
+  async waitUntilLoaded() {
+    await this.loadTask.getFuture().wait();
+  }
+
   private loadTexture() {
-    [this.dims_, this.tex] = Texture.createTextureFromImage(this.gl, this.img, this.sampler);
+    [this.dims_, this.tex] = Texture.createTextureFromImage(this.gl, this.img);
+    this.loadTask.resolve();
   }
 }

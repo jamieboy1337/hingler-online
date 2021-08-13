@@ -1,11 +1,12 @@
 import { GameContext } from "../../GameContext";
 import { Texture, TextureFormat } from "../Texture";
 
-export class ColorTexture implements Texture {
+export class ColorTexture extends Texture {
   dims: [number, number];
   gl: WebGLRenderingContext;
   private tex: WebGLTexture;
   constructor(ctx: GameContext, dims: [number, number]) {
+    super();
     this.gl = ctx.getGLContext();
     this.tex = null;
     this.setDimensions(dims);

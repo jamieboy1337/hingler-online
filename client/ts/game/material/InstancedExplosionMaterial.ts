@@ -1,8 +1,10 @@
 import { GameContext } from "../../engine/GameContext";
 import { GLProgramWrap } from "../../engine/gl/internal/GLProgramWrap";
 import { ShaderProgramBuilder } from "../../engine/gl/ShaderProgramBuilder";
+import { Texture } from "../../engine/gl/Texture";
 import { InstancedModelImpl } from "../../engine/loaders/internal/InstancedModelImpl";
 import { InstancedMaterial } from "../../engine/material/InstancedMaterial";
+import { TextureDummy } from "../../engine/material/TextureDummy";
 import { AttributeType } from "../../engine/model/Model";
 import { RenderContext } from "../../engine/render/RenderContext";
 
@@ -10,13 +12,18 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
   private ctx: GameContext;
   private prog: WebGLProgram;
   private progWrap: GLProgramWrap;
+
+  private tex: Texture;
+  private placeholder: Texture;
   
   private locs: {
     camera_matrix: WebGLUniformLocation;
+    noise_texture: WebGLUniformLocation;
   };
 
   private attribs: {
     position: number,
+    texcoord: number,
     model_matrix: number,
     threshold: number,
     color: number,
@@ -47,6 +54,15 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     this.prog = null;
     this.progWrap = null;
 
+    this.placeholder = new TextureDummy(ctx);
+    this.tex = null;
+    ctx.getGLTFLoader().loadTexture("../res/explosiontex.png").then((tex) => {
+      this.tex = tex;
+    });
+
+
+    // no way to load textures yet lol
+
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/explosion/explosion.vert")
       .withFragmentShader("../glsl/explosion/explosion.frag")
@@ -61,11 +77,13 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     this.progWrap = new GLProgramWrap(gl, this.prog);
 
     this.locs = {
-      camera_matrix: gl.getUniformLocation(prog, "camera_matrix")
+      camera_matrix: gl.getUniformLocation(prog, "camera_matrix"),
+      noise_texture: gl.getUniformLocation(prog, "noise_texture")
     };
 
     this.attribs = {
       position: gl.getAttribLocation(prog, "position"),
+      texcoord: gl.getAttribLocation(prog, "texcoord"),
       model_matrix: gl.getAttribLocation(prog, "model_matrix"),
       threshold: gl.getAttribLocation(prog, "threshold"),
       color: gl.getAttribLocation(prog, "color"),
@@ -86,6 +104,14 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
 
       gl.uniformMatrix4fv(this.locs.camera_matrix, false, rc.getActiveCameraInfo().vpMatrix);
       model.bindAttribute(AttributeType.POSITION, this.attribs.position);
+      model.bindAttribute(AttributeType.TEXCOORD, this.attribs.texcoord);
+
+      if (this.tex !== null) {
+        this.tex.bindToUniform(this.locs.noise_texture, 6);
+      } else {
+        this.placeholder.bindToUniform(this.locs.noise_texture, 6);
+      }
+      
       for (let i = 0; i < 4; i++) {
         let loc = this.attribs.model_matrix + i;
         let byteOffset = i * 16;

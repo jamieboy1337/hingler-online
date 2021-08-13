@@ -38,8 +38,8 @@ export class MapSceneTest extends Scene {
   async initialize(ctx: GameContext) : Promise<void> {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
-    cam.setPosition(0, 72, 120);
-    cam.fov = 18;
+    cam.setPosition(0, 100, 120);
+    cam.fov = 11;
     cam.far = 250.0;
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy

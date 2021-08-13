@@ -45,6 +45,8 @@ export class MapManager extends GameObject {
         }
         
         // create elements which are new in this update
+        // TODO: use a map with some coord hash function (65536 x 65536? or stretch out one side for shits)
+        // ensures that we have more flexibility in stretching out our map
         this.addTileAtCoordinate(i % newState.dims[0], Math.floor(i / newState.dims[0]), nextUpdate[i]);
       }
     }

@@ -10,25 +10,33 @@ export class ExplosionTile extends GameTile {
   // after destroy: lerp to 1.2 1.1 1.05
   // move noise consistently upward so that it doesn't sit in an odd state
   time: number;
-  isDestroyed: boolean;
+  startDestroy: boolean;
   instance: Future<ExplosionInstance>;
   thresh: number;
+  explosionScale: number;
   constructor(ctx: GameContext, inst: Future<ExplosionInstance>) {
     super(ctx);
     this.instance = inst;
     this.time = 0;
-    this.thresh = 0.2;
-    this.isDestroyed = false;
+    this.thresh = 0.45;
+    this.explosionScale = 0.65;
+    this.startDestroy = false;
   }
 
   protected update() {
     let delta = this.getContext().getDelta();
     this.time += delta;
-    // // update time
-    // let targetValue = (this.isDestroyed ? 1.05 : 0.5);
-    // let t = 1.0 - Math.pow(0.001, delta);
-    // this.thresh += (targetValue - this.thresh) * t;
-    this.thresh = (Math.sin(this.time) + 1.0) / 2.0;
+    // update time
+    let targetValue = (this.startDestroy ? 1.05 : 0.705);
+    let t = 1.0 - Math.pow(0.1, delta);
+    let tScale = 1.0 - Math.pow(0.01, delta);
+    this.explosionScale += (1.0 - this.explosionScale) * tScale;
+    this.thresh += (targetValue - this.thresh) * t;
+    if (this.thresh > 1.00) {
+      this.markAsClean();
+    }
+
+    this.setScale(this.explosionScale, this.explosionScale, this.explosionScale);
   }
 
   // update: do something with time, handle lerp shit
@@ -41,29 +49,33 @@ export class ExplosionTile extends GameTile {
       let mat = this.getTransformationMatrix();
 
       inst.modelMat = mat;
-      inst.threshold = this.thresh + 0.15;
+      inst.threshold = this.thresh + 0.075;
       inst.color = [1.0, 0.0, 0.0, 1.0];
-      inst.noiseOffset = [0.0, this.time * 2.0, 0.0];
+      inst.noiseOffset = [0.0, this.time * 3.1, 0.0];
       inst.noiseScale = [1.5, 1.5, 1.5];
+
       inst.draw(rc);
 
       mat4.scale(mat, mat, [0.96, 0.96, 0.96]);
-      inst.modelMat = mat;
-      inst.threshold -= 0.1;
-      inst.color = [1.0, 0.5, 0.0, 1.0];
-      inst.noiseOffset[1] += 1.0;
-      inst.draw(rc);
-
-      mat4.scale(mat, mat, [0.96, 0.96, 0.96]);
+      mat4.rotateY(mat, mat, 2.0941);
       inst.modelMat = mat;
       inst.threshold -= 0.05;
-      inst.color = [1.0, 1.0, 0.0, 1.0];
+      inst.color = [1.0, 0.5, 0.0, 1.0];
       inst.noiseOffset[1] += 1.0;
+      inst.noiseOffset[1] *= 0.7;
       inst.draw(rc);
+
+      // mat4.scale(mat, mat, [0.96, 0.96, 0.96]);
+      // inst.modelMat = mat;
+      // inst.threshold -= 0.025;
+      // inst.color = [1.0, 1.0, 0.0, 1.0];
+      // inst.noiseOffset[1] += 1.0;
+      // inst.noiseOffset[1] *= 2.1;
+      // inst.draw(rc);
     }
   }
 
   destroy() {
-    // start getting rid of the explosion
+    this.startDestroy = true;
   }
 }
