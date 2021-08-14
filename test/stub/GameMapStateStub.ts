@@ -1,4 +1,5 @@
 import { GameMapState } from "../../client/ts/game/GameMapState";
+import { TileAtlas } from "../../client/ts/game/TileAtlas";
 
 // TODO: loading a model over and over sucks
 // create a cache for gltf scenes and models
@@ -29,6 +30,37 @@ export class GameMapStateStub implements GameMapState {
     this.getCount++;
 
     return data;
+  }
+
+  fetchTiles(x: number, y: number, dx: number, dy: number) {
+    let xActual = Math.min(Math.max(x, 0), this.width - 1);
+    let yActual = Math.min(Math.max(y, 0), this.height - 1);
+    let origin : [number, number] = [xActual, yActual];
+
+    let xDim = Math.min(this.width - xActual, dx);
+    let yDim = Math.min(this.height - yActual, dy);
+    let dims : [number, number] = [xDim, yDim];
+
+    let data = new Uint8Array(xDim * yDim);
+    let yCursor = yActual;
+    for (let i = 0; i < yDim; i++) {
+      let xCursor = xActual;
+      for (let j = 0; j < xDim; j++) {
+        let ind = i * xDim + j;
+        data[ind] = ((yCursor * this.width + xCursor) % 4);
+        if ((this.getCount % 144) > 72) {
+          data[ind] = 0;
+        }
+
+        xCursor++;
+      }
+      yCursor++;
+    }
+
+    this.getCount++;
+    
+
+    return new TileAtlas(origin, dims, data);
   }
 
 }

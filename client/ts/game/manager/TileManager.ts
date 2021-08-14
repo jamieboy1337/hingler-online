@@ -9,4 +9,10 @@ export interface TileManager {
    * @param state - the most recently updated map state.
    */
   updateTiles(state: GameMapState) : void;
+
+  /**
+   * Sets the X/Y coordinates of tile [0, 0].
+   * @param dims - the point at which tile [0, 0] should appear.
+   */
+  setTileOrigin(dims: [number, number]) : void;
 }
