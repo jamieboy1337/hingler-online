@@ -210,7 +210,9 @@ export class ModelImpl implements Model {
         weight.disableAttribute();
       }
     }
+  }
 
+  private resetAttributes() {
     this.posLocation = -1;
     this.normLocation = -1;
     this.texLocation = -1;
@@ -229,6 +231,7 @@ export class ModelImpl implements Model {
     }
 
     // disable only on last, we're enabling the same attribs each time.
+    this.resetAttributes();
   }
 
   draw() {

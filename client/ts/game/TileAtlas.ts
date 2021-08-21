@@ -25,7 +25,7 @@ export class TileAtlas {
    */
   getTile(x: number, y: number) {
     if (x >= this.origin[0] && y >= this.origin[1] && x - this.origin[0] < this.dims[0] && y - this.origin[1] < this.dims[1]) {
-      return this.data[y * this.dims[0] + x];
+      return this.data[(y - this.origin[1]) * this.dims[0] + (x - this.origin[0])];
     }
 
     return null;

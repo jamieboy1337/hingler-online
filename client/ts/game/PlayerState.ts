@@ -4,9 +4,6 @@ export interface PlayerState {
   // name associated with this player
   name: string;
 
-  // unique id which separates this player from others
-  id: number;
-
   // position of our player, relative to the map dimensions.
   position: [number, number];
 

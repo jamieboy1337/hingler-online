@@ -1,5 +1,3 @@
-import { TileAtlas } from "./TileAtlas";
-
 /**
  * Stores a read/write record of tiles which currently exist.
  */
@@ -10,9 +8,16 @@ export class TileGrid<T> {
   // use a resizing array to store entities
   private store: Array<Array<T>>;
   private origin: [number, number];
+
+  private dims_: [number, number];
   constructor() {
     this.store = [];
     this.origin = [0, 0];
+    this.dims_ = [0, 0];
+  }
+
+  get dims() {
+    return this.dims_;
   }
 
   getTile(x: number, y: number) {
@@ -30,6 +35,9 @@ export class TileGrid<T> {
    * @param value - the value which should be assigned to this tile.
    */
   setTile(x: number, y: number, value: T) {
+    x = Math.floor(x);
+    y = Math.floor(y);
+
     if (y < this.origin[1]) {
       this.setOriginY(y);
     }
@@ -42,16 +50,31 @@ export class TileGrid<T> {
       this.store[y] = [];
     }
     this.store[y][x] = value;
+
+    this.dims_[0] = Math.max(this.dims_[0], x - this.origin[0]);
+    this.dims_[1] = Math.max(this.dims_[1], y - this.origin[1]);
   }
 
   private setOriginX(x: number) {
     for (let i = 0; i < this.store.length; i++) {
-      if (this.store[i] !== undefined ){
+      if (this.store[i] !== undefined) {
         this.store[i] = this.adjustOrigin(this.store[i], x - this.origin[0]);
       }
     }
 
     this.origin[0] = x;
+  }
+
+  private setDimsX(x: number) {
+    for (let i = 0; i < this.store.length; i++) {
+      if (this.store[i] !== undefined) {
+        this.store[i] = this.store[i].slice(0, x);
+      }
+    }
+  }
+
+  private setDimsY(y: number) {
+    this.store = this.store.slice(0, y);
   }
 
   private setOriginY(y: number) {
@@ -74,18 +97,29 @@ export class TileGrid<T> {
     return Array.from(this.origin) as [number, number];
   }
 
+  setDims(x: number, y: number) {
+    this.setDimsY(y);
+    this.setDimsX(x);
+  }
+
   /**
    * @param a - array we are adjusting 
    * @param shift - number of values to shift origin forward (+) or backward (-)
    */
   private adjustOrigin<U>(a: Array<U>, shift: number) : Array<U> {
     if (shift > 0) {
+      console.log(a.slice(shift));
       return a.slice(shift);
     } else if (shift < 0) {
       let res = [];
-      res.fill(undefined, 0, shift);
-      res.concat(a);
+      console.log(res);
+      res = res.fill(undefined, 0, -shift);
+      res = res.concat(a);
+      console.log(res);
       return res;
     }
+
+    // shift === 0
+    return a;
   }
 }

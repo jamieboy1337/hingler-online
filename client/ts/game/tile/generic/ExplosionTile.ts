@@ -28,6 +28,7 @@ export class ExplosionTile extends GameTile {
     this.time += delta;
     // update time
     let targetValue = (this.startDestroy ? 1.05 : 0.705);
+    // current approach looks like shit when we drop frames
     let t = 1.0 - Math.pow(0.1, delta);
     let tScale = 1.0 - Math.pow(0.01, delta);
     this.explosionScale += (1.0 - this.explosionScale) * tScale;

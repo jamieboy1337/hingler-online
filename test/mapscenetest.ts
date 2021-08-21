@@ -38,7 +38,7 @@ export class MapSceneTest extends Scene {
   async initialize(ctx: GameContext) : Promise<void> {
     // create a camera and point it at 0
     let cam = new DummyCamera(ctx);
-    cam.setPosition(0, 60, 40);
+    cam.setPosition(0, 70, 32);
     cam.fov = 22;
     cam.far = 100.0;
     cam.lookAt(0, 0, 0);
@@ -95,25 +95,8 @@ export class MapSceneTest extends Scene {
     spotalso.lookAt(0, 0, 0);
 
     let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
-    chewingcharacter.setPosition(0, 4, 0);
+    chewingcharacter.setPosition(0, 0, 0);
     root.addChild(chewingcharacter);
-
-    let map = await ctx.getGLTFLoader().loadAsGLTFScene("../res/mappack.glb");
-
-    let fence = map.getNodeAsGameObject("fence");
-    let board = map.getNodeAsGameObject("board");
-    let floor = map.getNodeAsGameObject("floor");
-    let seats = map.getNodeAsGameObject("seats");
-    let walls = map.getNodeAsGameObject("walls");
-
-
-    root.addChild(fence);
-    root.addChild(board);
-    root.addChild(floor);
-    root.addChild(seats);
-    root.addChild(walls);
-    // grass.setRotationEuler(0, 90, 0);
-    // root.addChild(grass);
 
     let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];

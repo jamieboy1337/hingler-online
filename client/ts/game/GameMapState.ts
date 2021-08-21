@@ -3,7 +3,6 @@ import { TileAtlas } from "./TileAtlas";
 // modify a good bit -- this "tiles" field doesn't work yet
 export interface GameMapState {
   readonly dims: [number, number];
-  readonly tiles: Uint8Array;
 
   /**
    * Fetches a range of tiles from this GameMapState.
