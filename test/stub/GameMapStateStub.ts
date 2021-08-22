@@ -9,8 +9,8 @@ export class GameMapStateStub implements GameMapState {
   height: number;
   getCount: number;
   constructor() {
-    this.width = 64;
-    this.height = 12;
+    this.width = 512;
+    this.height = 11;
     this.getCount = 0;
   }
   get dims() {
@@ -30,14 +30,14 @@ export class GameMapStateStub implements GameMapState {
     let yDim = Math.min(this.height - yActual, dy);
     let dims : [number, number] = [xDim, yDim];
 
-    let data = new Uint8Array(xDim * yDim);
+    let data = new Array(xDim * yDim);
     let yCursor = yActual;
     for (let i = 0; i < yDim; i++) {
       let xCursor = xActual;
       for (let j = 0; j < xDim; j++) {
         let ind = i * xDim + j;
-        data[ind] = ((yCursor * this.width + xCursor) % 4);
-        if ((this.getCount % 288) > 144) {
+        data[ind] = ((yCursor * this.width + xCursor + yCursor) % 4);
+        if ((this.getCount % 576) > 288) {
           data[ind] = 0;
         }
 
@@ -49,7 +49,7 @@ export class GameMapStateStub implements GameMapState {
     this.getCount++;
     
 
-    return new TileAtlas(origin, dims, data);
+    return new TileAtlas<number>(origin, dims, data);
   }
 
 }

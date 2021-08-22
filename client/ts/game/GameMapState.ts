@@ -13,5 +13,5 @@ export interface GameMapState {
    * @param dx - the maximum number of tiles we want to fetch along the x direction.
    * @param dy - the maximum number of tiles we want to fetch along the y direction.
    */
-  fetchTiles(x: number, y: number, dx: number, dy: number) : TileAtlas;
+  fetchTiles(x: number, y: number, dx: number, dy: number) : TileAtlas<number>;
 }

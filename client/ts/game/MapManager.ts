@@ -94,19 +94,5 @@ export class MapManager extends GameObject {
     }
 
     this.conn.sendInput(inputValue);
-    // send current input state to the thing
-
-    // let players = this.conn.getPlayerList();
-    // for (let id of players.keys()) {
-    //   if (!this.players.has(id)) {
-    //     let guy = new GamePBRModel(this.getContext(), "../res/chewingcharacter.glb");
-    //     this.players.set(id, guy);
-    //     this.addChild(guy);
-    //   }
-
-    //   let player = this.players.get(id);
-    //   let playerInfo = players.get(id);
-    //   player.setPosition((2 * playerInfo.position[0]) - state.dims[0] + 1, 0, (2 * playerInfo.position[1]) - state.dims[1] + 1)
-    // }
   }
 }

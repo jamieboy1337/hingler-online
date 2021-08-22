@@ -1,4 +1,6 @@
 import { GameConnectionManager } from "../../client/ts/game/GameConnectionManager";
+import { GameMapState } from "../../client/ts/game/GameMapState";
+import { SinglePlayerMapState } from "../../client/ts/game/manager/internal/SinglePlayerMapState";
 import { PlayerInputState } from "../../client/ts/game/PlayerInputState";
 import { PlayerState } from "../../client/ts/game/PlayerState";
 import { perf } from "../../ts/performance";
@@ -10,12 +12,12 @@ import { GameMapStateStub } from "./GameMapStateStub";
 // and then the multiplayer ones don't have to be
 
 export class GameConnectionManagerStub implements GameConnectionManager {
-  state : GameMapStateStub;
+  state : GameMapState;
   private playerpos: [number, number];
   private playerinput: PlayerInputState;
   private perflast: number;
   constructor() {
-    this.state = new GameMapStateStub();
+    this.state = new SinglePlayerMapState(11);
     this.playerpos = [0, 0];
     this.perflast = perf.now();
   }
@@ -66,11 +68,7 @@ export class GameConnectionManagerStub implements GameConnectionManager {
         this.playerinput = i;
     }
 
-    // conform back to form
     let playerTile = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1])];
-    // playertile is the tile we think they're going to
-    // we want to detect if there are objects in the tile(s) they're overlapping with
-    // at most, this would be two tiles (we ignore the corner piece since the others should handle it)
     let tile = this.state.fetchTiles(playerTile[0] - 1, playerTile[1] - 1, 3, 3);
     // we want to look in the direction of the sign of (playertile - playerpos)
     let sign = [playerTile[0] - this.playerpos[0], playerTile[1] - this.playerpos[1]];

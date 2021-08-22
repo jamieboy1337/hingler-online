@@ -65,7 +65,7 @@ export class TileManagerSinglePlayer implements TileManager {
     // update those
     // drop the rest on some even ratio
     let offset : vec2 = vec2.create();
-    let player = players.get(1);
+    let playerInfo = players.get(1);
     if (!players.has(1)) {
       throw Error("Single player not available :(");
     }
@@ -77,27 +77,26 @@ export class TileManagerSinglePlayer implements TileManager {
     }
 
     let playerObject = this.players.get(1);
-    let playerInfo = players.get(1);
     offset[0] = (2 * playerInfo.position[0]) + this.origin[0];
     offset[1] = (2 * playerInfo.position[1]) + this.origin[1];
     playerObject.setPosition(offset[0], 0, offset[1]);
 
-    // read around player
-    let tiles = state.fetchTiles(playerInfo.position[0] - 25, playerInfo.position[1] - 25, 50, 50);
-    
-    // fetch only around the player
-    // clear outside of a range
+    // // read around player
+    let tiles = state.fetchTiles(Math.floor(playerInfo.position[0] - 25), Math.floor(playerInfo.position[1] - 25), 50, 50);
+    // // fetch only around the player
+    // // clear outside of a range
     let xOrigin = tiles.origin[0];
     let yOrigin = tiles.origin[1];
     let xDims = tiles.dims[0] + xOrigin;
     let yDims = tiles.dims[1] + yOrigin;
-
+    
     for (let i = xOrigin; i < xDims; i++) {
       for (let j = yOrigin; j < yDims; j++) {
         let tileID = tiles.getTile(i, j);
         if (tileID !== this.lastUpdateGrid.getTile(i, j)) {
           let tile = this.tilesCurrentGrid.getTile(i, j);
           if (tile) {
+            console.log("the moment");
             tile.destroyTile();
             this.tilesDestroying.add(tile);
           }
@@ -117,11 +116,10 @@ export class TileManagerSinglePlayer implements TileManager {
       }
     }
 
-    // purging tiles
-    // purge tiles which are before the origin of our fetchtile call,
-    // or which are past the dims of our fetchtile call
     let clearOrigin = this.tilesCurrentGrid.getOrigin();
-    for (let i = clearOrigin[0]; i < tiles.origin[0]; i++) {
+
+
+    for (let i = clearOrigin[0]; i < xOrigin; i++) {
       for (let j = 0; j < tiles.dims[1]; j++) {
         let tileCur = this.tilesCurrentGrid.getTile(i, j);
         if (tileCur) {
@@ -129,6 +127,7 @@ export class TileManagerSinglePlayer implements TileManager {
         }
 
         this.tilesCurrentGrid.setTile(i, j, null);
+        this.lastUpdateGrid.setTile(i, j, 0);
       }
     }
 
@@ -136,19 +135,28 @@ export class TileManagerSinglePlayer implements TileManager {
     // the issue right now is that we're clearing things which we don't expect to i think
     // on set, the size of our game field is increased
 
-    let gridMax = this.tilesCurrentGrid.dims[0] + this.tilesCurrentGrid.getOrigin()[0];
-    for (let i = xDims; i <= gridMax; i++) {
-      for (let j = 0; j <= this.tilesCurrentGrid.dims[1]; j++) {
+    let gridMax = this.tilesCurrentGrid.dims[0] + clearOrigin[0];
+    // console.log("far deletion");
+    // console.log(xDims);
+    // console.log(gridMax);
+    for (let i = xDims; i < gridMax; i++) {
+      for (let j = 0; j < this.tilesCurrentGrid.dims[1]; j++) {
         let tileCurFar = this.tilesCurrentGrid.getTile(i, j);
         if (tileCurFar) {
           this.root.removeChild(tileCurFar.getId());
         }
 
         this.tilesCurrentGrid.setTile(i, j, null);
+        this.lastUpdateGrid.setTile(i, j, 0);
       }
     }
 
-    this.tilesCurrentGrid.setOrigin(clearOrigin[0], clearOrigin[1]);
+    this.tilesCurrentGrid.setOrigin(xOrigin, yOrigin);
+    this.lastUpdateGrid.setOrigin(xOrigin, yOrigin);
+    this.tilesCurrentGrid.setDims(tiles.dims[0], tiles.dims[1]);
+    this.lastUpdateGrid.setDims(tiles.dims[0], tiles.dims[1]);
+    // i want to set the origin on these to something more reasonable
+    // because its too fucking many tiles to sort through lol
     
     let deadTiles = [];
     for (let tile of this.tilesDestroying) {
@@ -180,33 +188,9 @@ export class TileManagerSinglePlayer implements TileManager {
   }
 
   private handleFloorTiles(playerPos: vec2) {
-    // we're given the player position in tile space
-    // create floor tiles two to the left
-    // we'll reuse the same floor tiles over and over (let's create five)
-    // add two tiles to their left and right if they're not already there
-    // use the origin as an anchor point
-
-    // find the offset of a particular tile
-    // note: how do we swap out floor tiles on the fly?
-    // use a special object which just lets us swap out the floor tiles as needed
-    // store current tile
-    // swap to a new tile if it's told to
-
-    // let's just do grass tiles for now
-
-    // write a function which determines which floor tile we should display by offset
-    // one for each "biome" + some odd ones
-
-    // eventually we'll also want some "background" tiles
-    // probably 2x width of floor tiles and we'll do something similar
-    // with special cases for transitional tiles, as well as the first tile.
-    
-    // place tiles at corner of (5, 5) and (6, 6)
-    // origin + 11
-    // represent min tile location as index
     let minTile = Math.max(Math.floor((playerPos[0] - 24) / 12), 0);
     for (let i = 0; i < 5; i++) {
-      this.floorPieces[i].setPosition(this.origin[0] + 11 + (minTile * 24), 0, this.origin[1] + 11);
+      this.floorPieces[i].setPosition(this.origin[0] + 11 + (minTile * 24), 0, this.origin[1] + 10);
       minTile++;
     }
   }

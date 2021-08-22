@@ -1,3 +1,5 @@
+import { TileAtlas } from "./TileAtlas";
+
 /**
  * Stores a read/write record of tiles which currently exist.
  */
@@ -7,12 +9,12 @@ export class TileGrid<T> {
   // add a "clear" function so that we can purge ranges of tiles from memory
   // use a resizing array to store entities
   private store: Array<Array<T>>;
-  private origin: [number, number];
+  private origin_: [number, number];
 
   private dims_: [number, number];
   constructor() {
     this.store = [];
-    this.origin = [0, 0];
+    this.origin_ = [0, 0];
     this.dims_ = [0, 0];
   }
 
@@ -20,12 +22,16 @@ export class TileGrid<T> {
     return this.dims_;
   }
 
+  get origin() {
+    return this.origin_;
+  }
+
   getTile(x: number, y: number) {
-    if (x < this.origin[0] || y < this.origin[1] || this.store[y] === undefined) {
+    if (x < this.origin_[0] || y < this.origin_[1] || this.store[y - this.origin_[1]] === undefined) {
       return undefined;
     }
 
-    return this.store[y][x];
+    return this.store[y - this.origin_[1]][x - this.origin_[0]];
   }
 
   /**
@@ -38,31 +44,33 @@ export class TileGrid<T> {
     x = Math.floor(x);
     y = Math.floor(y);
 
-    if (y < this.origin[1]) {
+    if (y < this.origin_[1]) {
+      this.dims_[1] += (this.origin_[1] - y);
       this.setOriginY(y);
     }
 
-    if (x < this.origin[0]) {
+    if (x < this.origin_[0]) {
+      this.dims_[0] += (this.origin_[0] - x);
       this.setOriginX(x);
     }
 
     if (this.store[y] === undefined) {
       this.store[y] = [];
     }
-    this.store[y][x] = value;
+    this.store[y - this.origin_[1]][x - this.origin_[0]] = value;
 
-    this.dims_[0] = Math.max(this.dims_[0], x - this.origin[0]);
-    this.dims_[1] = Math.max(this.dims_[1], y - this.origin[1]);
+    this.dims_[0] = Math.max(this.dims_[0], (x - this.origin_[0]) + 1);
+    this.dims_[1] = Math.max(this.dims_[1], (y - this.origin_[1]) + 1);
   }
 
   private setOriginX(x: number) {
     for (let i = 0; i < this.store.length; i++) {
       if (this.store[i] !== undefined) {
-        this.store[i] = this.adjustOrigin(this.store[i], x - this.origin[0]);
+        this.store[i] = this.adjustOrigin(this.store[i], x - this.origin_[0]);
       }
     }
 
-    this.origin[0] = x;
+    this.origin_[0] = x;
   }
 
   private setDimsX(x: number) {
@@ -78,8 +86,8 @@ export class TileGrid<T> {
   }
 
   private setOriginY(y: number) {
-    this.store = this.adjustOrigin(this.store, (y - this.origin[1]));
-    this.origin[1] = y;
+    this.store = this.adjustOrigin(this.store, (y - this.origin_[1]));
+    this.origin_[1] = y;
   }
 
   /**
@@ -89,17 +97,26 @@ export class TileGrid<T> {
    * @param y - new Y origin.
    */
   setOrigin(x: number, y: number) {
+    let newDims = [this.dims_[0] - (x - this.origin_[0]), this.dims_[1] - (y - this.origin_[1])];
     this.setOriginY(y); 
     this.setOriginX(x);
+    this.dims_[0] = Math.max(newDims[0], this.dims_[0]);
+    this.dims_[1] = Math.max(newDims[1], this.dims_[1]);
+    
   }
 
   getOrigin() : [number, number] {
-    return Array.from(this.origin) as [number, number];
+    return Array.from(this.origin_) as [number, number];
   }
 
   setDims(x: number, y: number) {
-    this.setDimsY(y);
-    this.setDimsX(x);
+    if (y < this.dims_[1]) {
+      this.setDimsY(y);
+    }
+
+    if (x < this.dims_[0]) {
+      this.setDimsX(x);
+    }
   }
 
   /**
@@ -108,18 +125,42 @@ export class TileGrid<T> {
    */
   private adjustOrigin<U>(a: Array<U>, shift: number) : Array<U> {
     if (shift > 0) {
-      console.log(a.slice(shift));
       return a.slice(shift);
     } else if (shift < 0) {
-      let res = [];
-      console.log(res);
-      res = res.fill(undefined, 0, -shift);
+      let res = new Array(-shift);
+      res = res.fill(null, 0, -shift);
       res = res.concat(a);
-      console.log(res);
       return res;
     }
 
     // shift === 0
     return a;
+  }
+
+  /**
+   * Returns a slice of this TileGrid as a read-only TileAtlas.
+   * @param x - init x coord
+   * @param y - init y coord
+   * @param dx - width
+   * @param dy - height
+   */
+  slice(x: number, y: number, dx: number, dy: number) {
+    x  = Math.floor(Math.min(Math.max(this.origin_[0], x), this.dims_[0] + this.origin_[0]));
+    y  = Math.floor(Math.min(Math.max(this.origin_[1], y), this.dims_[1] + this.origin_[1]));
+    
+    dx = Math.floor(Math.max(Math.min(this.dims_[0] - (x - this.origin_[0]), dx), 0));
+    dy = Math.floor(Math.max(Math.min(this.dims_[1] - (y - this.origin_[1]), dy), 0));
+
+    let originRes : [number, number] = [x, y];
+    let dimsRes : [number, number] = [dx, dy];
+    let dataRes = new Array(dx * dy);
+
+    for (let j = 0; j < dy; j++) {
+      for (let i = 0; i < dx; i++) {
+        dataRes[j * dx + i] = this.store[j + y - this.origin_[1]][i + x - this.origin_[0]];
+      }
+    }
+
+    return new TileAtlas<T>(originRes, dimsRes, dataRes);
   }
 }
