@@ -48,6 +48,7 @@ export class MapManager extends GameObject {
     this.inputmgr.setKey(PlayerInputState.MOVE_RIGHT, "KeyD");
     this.inputmgr.setKey(PlayerInputState.MOVE_DOWN, "KeyS");
     this.inputmgr.setKey(PlayerInputState.BOMB_PLACE, "KeyJ");
+    this.inputmgr.setKey(PlayerInputState.BOMB_DETONATE, "Space");
 
     switch(this.conn.getMapTitle()) {
       case "TEST_001":
@@ -65,8 +66,13 @@ export class MapManager extends GameObject {
     // get input manager state
     let inputs = this.inputmgr.getInputState();
 
+    // optimize more generally, later :)
     if (inputs.has(PlayerInputState.BOMB_PLACE) && !this.inputMap.has(PlayerInputState.BOMB_PLACE)) {
       this.conn.sendInput(PlayerInputState.BOMB_PLACE);
+    }
+
+    if (inputs.has(PlayerInputState.BOMB_DETONATE) && !this.inputMap.has(PlayerInputState.BOMB_DETONATE)) {
+      this.conn.sendInput(PlayerInputState.BOMB_DETONATE);
     }
 
     for (let input of inputs) {

@@ -10,7 +10,14 @@ import { LayerInstance } from "./tile/LayerInstance";
 
 const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
+interface ExplosionRecord {
+  time: number;
+  x: number;
+  y: number;
+}
+
 const MAX_BOMB_COUNT = 8;
+const EXPLOSION_DUR = 0.4
 // implement as game object so that we can receive update from root object
 // alternatively: we give it to some manager component which promises to update it
 // the manager component can handle dialogue, etc.
@@ -22,6 +29,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private layer: Map<number, LayerInstance>;
   private currentLayerInstanceID: number;
   private bombCount: number;
+  private detonations: Set<ExplosionRecord>;
+  private time: number;
   constructor(ctx: GameContext) {
     super(ctx);
     this.state = new SinglePlayerMapState(11);
@@ -29,6 +38,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.layer = new Map();
     this.currentLayerInstanceID = 0;
     this.bombCount = 0;
+
+    this.detonations = new Set();
+    this.time = 0;
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < this.state.dims[1]; j++) {
+        this.state.setTile(i, j, TileID.EMPTY);
+      }
+    }
   }
 
   getMapState() {
@@ -55,6 +73,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   update() {
     let delta = this.getContext().getDelta();
+    this.time += delta;
     // with bombs they have just placed down.
     let collisionIgnoreList : Array<vec2> = [];
     for (let inst of this.layer.values()) {
@@ -65,6 +84,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         collisionIgnoreList.push([pos[0], pos[1]]);
       }
     }
+
+    // clear explosions
+    this.clearExplosions();
 
     // snag current motion state
     switch (this.playermotion) {
@@ -79,6 +101,18 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         break;
       case PlayerInputState.MOVE_DOWN:
         this.playerpos[1] += 6.0 * delta;
+    }
+
+    if (this.playerpos[0] < 0) {
+      this.playerpos[0] = 0;
+    }
+
+    if (this.playerpos[1] < 0) {
+      this.playerpos[1] = 0;
+    }
+
+    if (this.playerpos[1] > this.state.dims[1] - 1) {
+      this.playerpos[1] = this.state.dims[1] - 1;
     }
 
     // don't do oob check yet!
@@ -150,6 +184,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     // if so: stop the player from moving there!
   }
 
+  private clearExplosions() {
+    for (let det of this.detonations) {
+      if (this.time - det.time > EXPLOSION_DUR) {
+        this.state.setTile(det.x, det.y, TileID.EMPTY);
+        this.detonations.delete(det);
+      }
+    }
+  }
+
   sendInput(i: PlayerInputState) {
     // if i is a movement command: log it as such
     if (PLAYER_MOTION_STATES.indexOf(i) !== -1) {
@@ -159,6 +202,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         case PlayerInputState.BOMB_PLACE:
           // place a bomb at the player's location
           this.handleBombPlace();
+          break;
+        case PlayerInputState.BOMB_DETONATE:
+          this.handleBombDetonate();
           break;
       }
     }
@@ -207,5 +253,54 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     this.layer.set(id, layer);
     this.bombCount++;
+  }
+
+  private handleBombDetonate() {
+    // check the layer instance set for all bombs
+    // bombs detonate, producing explosion tiles in a 3x3 radius wherever walls are not present
+    // create a record of the detonation, so that we can revert it
+    // add a snippet in update which deletes explosions left by bombs some amount of time after they're generated
+    // tilemanager will make it transition smoothly :)
+
+    // place explosion tiles in a set
+    // on each update, we'll go through the set and see if any of them need to be cleared
+    // if they do, set the tile to a blank
+
+    let bombIDs = [];
+    for (let id of this.layer.keys()) {
+      let inst = this.layer.get(id);
+      if (inst.type === TileID.BOMB) {
+        bombIDs.push(id);
+      }
+    }
+
+    for (let id of bombIDs) {
+      // get the bomb's position
+      // for every tile in its vicinity which is not a wall, place an explosion
+      // place a record of each explosion, so that we can clear them all
+      let pos = this.layer.get(id).position;
+      let minX = (Math.max(0, pos[0] - 1));
+      let maxX = pos[0] + 1;
+      let minY = Math.max(0, pos[1] - 1);
+      let maxY = Math.min(pos[1] + 1, this.state.dims[1] - 1)
+
+      for (let i = minX; i <= maxX; i++) {
+        for (let j = minY; j <= maxY; j++) {
+          let tile = this.state.getTile(i, j);
+          if (tile !== TileID.WALL) {
+            this.state.setTile(i, j, TileID.EXPLOSION);
+            this.detonations.add({
+              time: this.time,
+              x: i,
+              y: j
+            });
+          }
+        }
+      }
+
+      this.layer.delete(id);
+    }
+
+    this.bombCount = 0;
   }
 }
