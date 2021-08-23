@@ -3,12 +3,13 @@ import { GLTFScene } from "../../client/ts/engine/loaders/GLTFScene";
 import { PBRInstance } from "../../client/ts/engine/model/PBRInstance";
 import { PBRInstanceFactory } from "../../client/ts/engine/model/PBRInstanceFactory";
 import { GameTile } from "../../client/ts/game/tile/GameTile";
+import { BombTile } from "../../client/ts/game/tile/generic/BombTile";
 import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
 import { ExplosionTile } from "../../client/ts/game/tile/generic/ExplosionTile";
 import { ExplosionInstanceFactory } from "../../client/ts/game/tile/instancefactory/ExplosionInstanceFactory";
 import { ExplosionInstance } from "../../client/ts/game/tile/instancefactory/instance/ExplosionInstance";
 import { TileFactory } from "../../client/ts/game/tile/TileFactory";
-import { Future } from "../../ts/util/task/Future";
+import { TileID } from "../../client/ts/game/tile/TileID";
 import { Task } from "../../ts/util/task/Task";
 
 export class TileFactoryStub implements TileFactory {
@@ -17,6 +18,7 @@ export class TileFactoryStub implements TileFactory {
   crateFactory: PBRInstanceFactory;
   explosionFactory: ExplosionInstanceFactory;
   wallFactory: PBRInstanceFactory;
+  bombFactory: PBRInstanceFactory;
   constructor(ctx: GameContext) {
     this.ctx = ctx;
     // create instances for all desired tiles
@@ -31,6 +33,7 @@ export class TileFactoryStub implements TileFactory {
     this.crateFactory = scene.getPBRInstanceFactory("Cube");
     this.explosionFactory = new ExplosionInstanceFactory(this.ctx, scene.getInstancedModel("Sphere"));
     this.wallFactory = scene.getPBRInstanceFactory("Cube.001");
+    this.bombFactory = scene.getPBRInstanceFactory("Bomb");
     this.scenePromise.resolve(scene);
   }
 
@@ -41,12 +44,14 @@ export class TileFactoryStub implements TileFactory {
       return null;
     } else {
       switch (id) {
-        case 1:
+        case TileID.CRATE:
           return this.getCrate();
-        case 2:
+        case TileID.EXPLOSION:
           return this.getExplosion();
-        case 3:
+        case TileID.WALL:
           return this.getWall();
+        case TileID.BOMB:
+          return this.getBomb();
       }
     }
 
@@ -90,5 +95,18 @@ export class TileFactoryStub implements TileFactory {
     }
 
     return new CrateTile(this.ctx, loadtask.getFuture());
+  }
+
+  private getBomb() {
+    let loadtask : Task<PBRInstance> = new Task();
+    if (this.scenePromise.getFuture().valid()) {
+      loadtask.resolve(this.bombFactory.getInstance());
+    } else {
+      this.scenePromise.future.wait().then((_) => {
+        loadtask.resolve(this.bombFactory.getInstance());
+      });
+    }
+
+    return new BombTile(this.ctx, loadtask.getFuture());
   }
 }

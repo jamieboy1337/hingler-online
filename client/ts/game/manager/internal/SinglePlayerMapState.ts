@@ -1,6 +1,7 @@
 // how to construct
 
 import { GameMapState } from "../../GameMapState";
+import { LayerInstance } from "../../tile/LayerInstance";
 import { TileAtlas } from "../../TileAtlas";
 import { GridTileGenerator } from "../../tilegen/GridTileGenerator";
 import { TileGrid } from "../../TileGrid";
@@ -8,6 +9,7 @@ import { TileGrid } from "../../TileGrid";
 export class SinglePlayerMapState implements GameMapState {
   gen: GridTileGenerator;
   cache: TileGrid<number>;
+  layer: Map<number, LayerInstance>;
   len: number;
   constructor(len: number) {
     this.gen = new GridTileGenerator(len);
@@ -18,7 +20,11 @@ export class SinglePlayerMapState implements GameMapState {
   }
 
   get dims() {
-    return [14285714, this.len] as [number, number];
+    return [Number.MAX_SAFE_INTEGER, this.len] as [number, number];
+  }
+
+  setLayer(layer: Map<number, LayerInstance>) {
+    this.layer = layer;
   }
 
   fetchTiles(x: number, y: number, dx: number, dy: number) {

@@ -69,9 +69,9 @@ export class EngineContext implements GameContext {
     }
 
     addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "a") {
+      if (e.code === "PageUp") {
         this.passOffset--;
-      } else if (e.key.toLowerCase() === "d") {
+      } else if (e.code === "PageDown") {
         this.passOffset++;
       }
     })

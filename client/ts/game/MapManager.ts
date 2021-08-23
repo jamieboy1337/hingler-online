@@ -43,10 +43,11 @@ export class MapManager extends GameObject {
     this.addChild(this.tilemgr.root);
     this.tilemgr.root.setPosition(0, 0, 0);
 
-    this.inputmgr.setKey(PlayerInputState.MOVE_UP, "ArrowUp");
-    this.inputmgr.setKey(PlayerInputState.MOVE_LEFT, "ArrowLeft");
-    this.inputmgr.setKey(PlayerInputState.MOVE_RIGHT, "ArrowRight");
-    this.inputmgr.setKey(PlayerInputState.MOVE_DOWN, "ArrowDown");
+    this.inputmgr.setKey(PlayerInputState.MOVE_UP, "KeyW");
+    this.inputmgr.setKey(PlayerInputState.MOVE_LEFT, "KeyA");
+    this.inputmgr.setKey(PlayerInputState.MOVE_RIGHT, "KeyD");
+    this.inputmgr.setKey(PlayerInputState.MOVE_DOWN, "KeyS");
+    this.inputmgr.setKey(PlayerInputState.BOMB_PLACE, "KeyJ");
 
     switch(this.conn.getMapTitle()) {
       case "TEST_001":
@@ -63,6 +64,11 @@ export class MapManager extends GameObject {
     this.tilemgr.updateTiles(this.conn.getMapState(), this.conn.getPlayerList());
     // get input manager state
     let inputs = this.inputmgr.getInputState();
+
+    if (inputs.has(PlayerInputState.BOMB_PLACE) && !this.inputMap.has(PlayerInputState.BOMB_PLACE)) {
+      this.conn.sendInput(PlayerInputState.BOMB_PLACE);
+    }
+
     for (let input of inputs) {
       if (this.inputMap.has(input)) {
         continue;
@@ -70,6 +76,7 @@ export class MapManager extends GameObject {
 
       this.inputMap.set(input, this.time);
     }
+
 
     let deletedInputs = [];
     for (let input of this.inputMap.keys()) {

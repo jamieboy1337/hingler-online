@@ -1,8 +1,11 @@
+import { LayerInstance } from "./tile/LayerInstance";
 import { TileAtlas } from "./TileAtlas";
 
 // modify a good bit -- this "tiles" field doesn't work yet
 export interface GameMapState {
   readonly dims: [number, number];
+  // record of all layer objects
+  readonly layer: Map<number, LayerInstance>;
 
   /**
    * Fetches a range of tiles from this GameMapState.

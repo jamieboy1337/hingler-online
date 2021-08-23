@@ -5,6 +5,7 @@ import { GamePBRModel } from "../client/ts/engine/object/game/GamePBRModel";
 import { AmbientLightObject } from "../client/ts/engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../client/ts/engine/object/game/light/SpotLightObject";
 import { Scene } from "../client/ts/engine/object/scene/Scene";
+import { GameConnectionManagerSinglePlayer } from "../client/ts/game/GameConnectionManagerSinglePlayer";
 import { MapManager } from "../client/ts/game/MapManager";
 import { GameConnectionManagerStub } from "./stub/GameConnectionManagerStub";
 
@@ -44,13 +45,14 @@ export class MapSceneTest extends Scene {
     cam.lookAt(0, 0, 0);
     // create our map manager, construct w a dummy
 
-    let conn = new GameConnectionManagerStub();
+    let conn = new GameConnectionManagerSinglePlayer(ctx);
     let mapmgr = new MapManager(ctx, conn);
     let rot = new DummyEmpty(ctx, true);
     rot.setPosition(0, 0, 0);
     cam.lookAt(0, 0, 0);
     let root = this.getGameObjectRoot();
 
+    root.addChild(conn);
     root.addChild(mapmgr);
     rot.addChild(cam);
     root.addChild(rot);

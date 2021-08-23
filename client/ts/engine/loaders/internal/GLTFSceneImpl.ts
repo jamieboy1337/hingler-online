@@ -249,6 +249,16 @@ export class GLTFSceneImpl implements GLTFScene {
           break;
         }
       }
+
+      // check node names -- sometimes they get mixed up
+      if (meshID === -1 && this.data.nodes) {
+        for (let i = 0; i < this.data.nodes.length; i++) {
+          if (this.data.nodes[i].name === model && this.data.nodes[i].mesh) {
+            meshID = this.data.nodes[i].mesh;
+            break;
+          }
+        }
+      }
     }
 
     if (meshID < 0 || meshID >= this.data.meshes.length) {

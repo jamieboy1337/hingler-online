@@ -1,7 +1,6 @@
 import { vec2 } from "gl-matrix";
 import { TileFactoryStub } from "../../../../../test/stub/TileFactoryStub";
 import { GameContext } from "../../../engine/GameContext";
-import { GLTFScene } from "../../../engine/loaders/GLTFScene";
 import { GameObject } from "../../../engine/object/game/GameObject";
 import { GamePBRModel } from "../../../engine/object/game/GamePBRModel";
 import { GameMapState } from "../../GameMapState";
@@ -24,7 +23,9 @@ export class TileManagerSinglePlayer implements TileManager {
   private players: Map<number, GameObject>;
 
   private floorPieces : Array<GamePBRModel>;
-  // private floorPromise : Promise<GLTFScene>;
+
+  // if a layer is removed, drop it.
+  private layerInstances: Map<number, GameTile>;
 
   readonly root: GameObject;
 
@@ -33,6 +34,9 @@ export class TileManagerSinglePlayer implements TileManager {
     this.root = new GameObject(ctx);
     this.tilesDestroying = new Set();
     this.floorPieces = [];
+
+    // bombs should probably be instanced but i dont care right now
+
     for (let i = 0; i < 5; i++) {
       this.floorPieces[i] = new GamePBRModel(ctx, "../res/grassworld.glb");
       this.root.addChild(this.floorPieces[i]);
@@ -44,6 +48,7 @@ export class TileManagerSinglePlayer implements TileManager {
     this.xOffset = 0;
 
     this.players = new Map();
+    this.layerInstances = new Map();
 
     switch (mapTitle) {
       case "TEST_001":
@@ -81,10 +86,10 @@ export class TileManagerSinglePlayer implements TileManager {
     offset[1] = (2 * playerInfo.position[1]) + this.origin[1];
     playerObject.setPosition(offset[0], 0, offset[1]);
 
-    // // read around player
+    // read around player
     let tiles = state.fetchTiles(Math.floor(playerInfo.position[0] - 25), Math.floor(playerInfo.position[1] - 25), 50, 50);
-    // // fetch only around the player
-    // // clear outside of a range
+    // fetch only around the player
+    // clear outside of a range
     let xOrigin = tiles.origin[0];
     let yOrigin = tiles.origin[1];
     let xDims = tiles.dims[0] + xOrigin;
@@ -136,9 +141,6 @@ export class TileManagerSinglePlayer implements TileManager {
     // on set, the size of our game field is increased
 
     let gridMax = this.tilesCurrentGrid.dims[0] + clearOrigin[0];
-    // console.log("far deletion");
-    // console.log(xDims);
-    // console.log(gridMax);
     for (let i = xDims; i < gridMax; i++) {
       for (let j = 0; j < this.tilesCurrentGrid.dims[1]; j++) {
         let tileCurFar = this.tilesCurrentGrid.getTile(i, j);
@@ -155,6 +157,34 @@ export class TileManagerSinglePlayer implements TileManager {
     this.lastUpdateGrid.setOrigin(xOrigin, yOrigin);
     this.tilesCurrentGrid.setDims(tiles.dims[0], tiles.dims[1]);
     this.lastUpdateGrid.setDims(tiles.dims[0], tiles.dims[1]);
+
+    for (let layerID of state.layer.keys()) {
+      let inst = state.layer.get(layerID);
+      if (!this.layerInstances.has(layerID)) {
+        let tile = this.factory.getTileFromID(inst.type);
+        this.layerInstances.set(layerID, tile);
+        this.root.addChild(tile);
+      }
+
+      let obj = this.layerInstances.get(layerID);
+      let offset = [inst.position[0] * 2 + this.origin[0], inst.position[1] * 2 + this.origin[1]];
+      obj.setPosition(offset[0], inst.position[2], offset[1])
+    }
+
+    let delID = [];
+    for (let id of this.layerInstances.keys()) {
+      if (!state.layer.has(id)) {
+        delID.push(id);
+      }
+    }
+
+    for (let id of delID) {
+      let inst = this.layerInstances.get(id);
+      this.tilesDestroying.add(inst);
+      this.layerInstances.delete(id);
+      this.root.removeChild(inst.getId());
+    }
+
     // i want to set the origin on these to something more reasonable
     // because its too fucking many tiles to sort through lol
     
