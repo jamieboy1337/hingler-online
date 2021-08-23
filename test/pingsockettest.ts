@@ -31,8 +31,8 @@ function setUp() {
 const server = app.listen(port, () => {})
 
 server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    wss.emit("connection", ws, request);
+  wss.handleUpgrade(request, socket, head, (websock) => {
+    wss.emit("connection", websock, request);
   });
 });
 
