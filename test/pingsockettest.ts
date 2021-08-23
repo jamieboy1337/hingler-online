@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import * as express from "express";
 import * as WebSocket from "ws";
+import { Socket } from "net";
 import { ServerSocket } from "../server/ts/net/ServerSocket";
 import { PingSocket } from "../ts/net/PingSocket";
 import { ReadyState } from "../ts/net/SocketLike";
@@ -31,7 +32,7 @@ function setUp() {
 const server = app.listen(port, () => {})
 
 server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (websock) => {
+  wss.handleUpgrade(request, (socket as Socket), head, (websock) => {
     wss.emit("connection", websock, request);
   });
 });
