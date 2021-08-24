@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import * as express from "express";
-import * as ws from "ws";
+import * as WebSocket from "ws";
+import { Socket } from "net";
 import { ServerSocket } from "../server/ts/net/ServerSocket";
 import { PingSocket } from "../ts/net/PingSocket";
 import { ReadyState } from "../ts/net/SocketLike";
@@ -14,7 +15,7 @@ let reject: (value: PingSocket | PromiseLike<PingSocket>) => void;
 const app = express();
 const port = process.env.PORT || 8080;
 
-const wss = new ws.Server({ noServer: true });
+const wss = new WebSocket.Server({ noServer: true });
 wss.on("connection", (socket, req) => {
 
   // resolves conn once the connection is opened
@@ -31,7 +32,7 @@ function setUp() {
 const server = app.listen(port, () => {})
 
 server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (websock) => {
+  wss.handleUpgrade(request, (socket as Socket), head, (websock) => {
     wss.emit("connection", websock, request);
   });
 });
@@ -39,7 +40,7 @@ server.on("upgrade", (request, socket, head) => {
 describe("PingSocket", function() {
   it("Should calculate ping properly", async () => {
     setUp();
-    let test = new PingSocket(new ServerSocket(new ws("ws://localhost:" + port)));
+    let test = new PingSocket(new ServerSocket(new WebSocket("ws://localhost:" + port)));
     test.on("error", (e: Event) => {
       throw "Socket did not connect :(";
     });
@@ -73,7 +74,7 @@ describe("PingSocket", function() {
 
   it("Should handle closure properly", async function() {
     setUp();
-    let test = new PingSocket(new ServerSocket(new ws("ws://localhost:" + port)));
+    let test = new PingSocket(new ServerSocket(new WebSocket("ws://localhost:" + port)));
     test.on("error", (e: Event) => {
       throw "Socket did not connect :(";
     });
@@ -96,7 +97,7 @@ describe("PingSocket", function() {
 
   it("Should not alter the content of the message itself", async function() {
     setUp();
-    let test = new PingSocket(new ServerSocket(new ws("ws://localhost:" + port)));
+    let test = new PingSocket(new ServerSocket(new WebSocket("ws://localhost:" + port)));
     test.on("error", (e: Event) => {
       throw "Socket did not connect :(";
     });

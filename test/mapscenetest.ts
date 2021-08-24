@@ -96,10 +96,6 @@ export class MapSceneTest extends Scene {
     spotalso.setShadows(true);
     spotalso.lookAt(0, 0, 0);
 
-    let chewingcharacter = new GamePBRModel(ctx, "../res/chewingcharacter.glb");
-    chewingcharacter.setPosition(0, 0, 0);
-    root.addChild(chewingcharacter);
-
     let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];
     amb.intensity = 0.1;
