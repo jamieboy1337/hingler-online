@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/jamieboy1337/hingler-online#readme",
   "dependencies": {
-    "draco3d": "^1.4.1",
     "express": "^4.17.1",
     "gl-matrix": "^3.3.0",
     "ws": "^7.4.6"
@@ -42,6 +41,7 @@
     "@types/ws": "^7.4.4",
     "chai": "^4.3.4",
     "cypress": "^7.5.0",
+    "draco3d": "^1.4.1",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "start-server-and-test": "^1.12.5",
