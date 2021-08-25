@@ -35,7 +35,7 @@ export interface DrawOnlyModel {
  * TODO: Create a version of Model which acts like a GLTF model.
  * Probably wrap this class and not import -- draw will use GLTF material w params.
  */
-export interface Model extends DrawOnlyModel {
+export abstract class Model implements DrawOnlyModel {
   /**
    * Binds an attribute to a specific location.
    * @param at - The attribute type we are binding.
@@ -44,5 +44,7 @@ export interface Model extends DrawOnlyModel {
    *                   In cases such as joints and weights where multiple attributes may be specified, these
    *                     can be provided via an array.
    */
-  bindAttribute(at: AttributeType, ...location: Array<number>) : void;
+  abstract bindAttribute(at: AttributeType, ...location: Array<number>) : void;
+
+  abstract draw() : void;
 }

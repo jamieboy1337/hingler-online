@@ -8,7 +8,9 @@ import { PlayerState } from "../../PlayerState";
 import { GameTile } from "../../tile/GameTile";
 import { TileFactory } from "../../tile/TileFactory";
 import { TileGrid } from "../../TileGrid";
+import { FieldManager } from "../FieldManager";
 import { TileManager } from "../TileManager";
+import { FieldManagerSinglePlayer } from "./FieldManagerSinglePlayer";
 
 export class TileManagerSinglePlayer implements TileManager {
   private ctx: GameContext;
@@ -16,13 +18,18 @@ export class TileManagerSinglePlayer implements TileManager {
   private factory: TileFactory;
   private tilesCurrentGrid: TileGrid<GameTile>;
   private lastUpdateGrid: TileGrid<number>;
+  private fieldIndex: number;
+
+  private fieldmgr: FieldManager;
   private origin: [number, number];
 
   private xOffset: number;
 
   private players: Map<number, GameObject>;
 
-  private floorPieces : Array<GamePBRModel>;
+  private floorPieces : Array<GameObject>;
+  private fieldPieces : Array<GameObject>;
+  private fieldPiecesBot : Array<GameObject>;
 
   // if a layer is removed, drop it.
   private layerInstances: Map<number, GameTile>;
@@ -31,15 +38,27 @@ export class TileManagerSinglePlayer implements TileManager {
 
   constructor(ctx: GameContext, mapTitle: string) {
     this.ctx = ctx;
+    this.fieldmgr = new FieldManagerSinglePlayer(ctx);
     this.root = new GameObject(ctx);
     this.tilesDestroying = new Set();
     this.floorPieces = [];
+    this.fieldPieces = [];
+    this.fieldPiecesBot = [];
+    this.fieldIndex = -1;
 
     // bombs should probably be instanced but i dont care right now
 
     for (let i = 0; i < 5; i++) {
       this.floorPieces[i] = new GamePBRModel(ctx, "../res/grassworld.glb");
       this.root.addChild(this.floorPieces[i]);
+    }
+
+    // on an update: if the number changes, reload the model
+    for (let i = 0; i < 3; i++) {
+      this.fieldPieces[i] = this.fieldmgr.getFieldModel(i);
+      this.fieldPiecesBot[i] = this.fieldmgr.getFieldModel(i);
+      this.root.addChild(this.fieldPieces[i]);
+      this.root.addChild(this.fieldPiecesBot[i]);
     }
 
     this.lastUpdateGrid = new TileGrid();
@@ -215,6 +234,30 @@ export class TileManagerSinglePlayer implements TileManager {
     }
 
     this.handleFloorTiles(playerInfo.position);
+    this.handleFieldTiles(playerInfo.position, -tiles.dims[1], tiles.dims[1]);
+  }
+
+  private handleFieldTiles(playerPos: vec2, yTop: number, yBottom: number) {
+    let fieldIndex = Math.max(Math.round(playerPos[0] / 24) - 1, 0);
+    if (fieldIndex !== this.fieldIndex) {
+      // update models, update positions
+      for (let i = 0; i < this.fieldPieces.length; i++) {
+        let piece = this.fieldmgr.getFieldModel(fieldIndex + i);
+        this.root.removeChild(this.fieldPieces[i].getId());
+        this.root.addChild(piece);
+        this.fieldPieces[i] = piece;
+        piece.setPosition((fieldIndex + i) * (48.0), 0, yTop);
+
+        let pieceBot = this.fieldmgr.getFieldModel(fieldIndex + i);
+        this.root.removeChild(this.fieldPiecesBot[i].getId());
+        this.root.addChild(pieceBot);
+        this.fieldPiecesBot[i] = pieceBot;
+        pieceBot.setPosition((fieldIndex + i) * (48.0), 0, yBottom);
+        pieceBot.setRotationEuler(0, 180, 0);
+      }
+    }
+
+    this.fieldIndex = fieldIndex;
   }
 
   private handleFloorTiles(playerPos: vec2) {

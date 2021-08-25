@@ -29,12 +29,14 @@
   },
   "homepage": "https://github.com/jamieboy1337/hingler-online#readme",
   "dependencies": {
+    "draco3d": "^1.4.1",
     "express": "^4.17.1",
     "gl-matrix": "^3.3.0",
     "ws": "^7.4.6"
   },
   "devDependencies": {
     "@types/chai": "^4.2.18",
+    "@types/draco3d": "^1.4.0",
     "@types/express": "^4.17.12",
     "@types/mocha": "^8.2.2",
     "@types/ws": "^7.4.4",

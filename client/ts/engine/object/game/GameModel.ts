@@ -4,12 +4,13 @@ import { Material } from "../../material/Material";
 import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
 import { RenderContext, RenderPass } from "../../render/RenderContext";
 import { GameObject } from "./GameObject";
+import { Future } from "../../../../../ts/util/task/Future";
 
 export class GameModel extends GameObject {
   model: Model;
   private shadowTex: ShadowNoTextureMaterial;
 
-  constructor(ctx: GameContext, init: string | Model) {
+  constructor(ctx: GameContext, init: string | Model | Future<Model>) {
     // pass by path? pass as arg?
     // ctor raw seems like a piss idea
     super(ctx);
@@ -28,10 +29,24 @@ export class GameModel extends GameObject {
           console.error("Something went wrong while parsing model");
           console.error(reason);
         });
-    } else {
+        
+    } else if (init instanceof Model) {
       // init instanceof Model
       this.model = init;
+    } else {
+      // init instanceof Future
+      if (init.valid()) {
+        this.model = init.get();
+      } else {
+        init.wait().then((res: Model) => {
+          this.model = res;
+        });
+      }
     }
+  }
+
+  setModel(model: Model) {
+    this.model = model;
   }
 
   /**

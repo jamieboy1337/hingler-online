@@ -3,7 +3,7 @@ import { GameContext } from "../../GameContext";
 import { Material } from "../../material/Material";
 import { PBRMaterialImpl } from "../../material/PBRMaterialImpl";
 import { ShadowNoTextureMaterial } from "../../material/ShadowNoTextureMaterial";
-import { RenderContext } from "../../render/RenderContext";
+import { RenderContext, RenderPass } from "../../render/RenderContext";
 import { AttributeType, Model } from "../../model/Model";
 import { PBRModel } from "../../model/PBRModel";
 import { PBRMaterial } from "../../material/PBRMaterial";
@@ -40,7 +40,12 @@ export class PBRModelImpl implements PBRModel {
   }
 
   drawPBR(modelMatrix: mat4, rc: RenderContext) {
+    if (rc.getRenderPass() === RenderPass.SHADOW) {
+      return this.drawPBRShadow(modelMatrix, rc);
+    }
+    
     // in order to use materials: we need to know where the model is, and where the camera is.
+
     let info = rc.getActiveCameraInfo();
     for (let i = 0; i < this.instances.length; i++) {
       let mat = this.mats[i];

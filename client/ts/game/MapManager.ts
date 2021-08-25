@@ -4,7 +4,9 @@ import { GameContext } from "../engine/GameContext";
 import { GameObject } from "../engine/object/game/GameObject";
 import { GamePBRModel } from "../engine/object/game/GamePBRModel";
 import { GameConnectionManager } from "./GameConnectionManager";
+import { FieldManager } from "./manager/FieldManager";
 import { InputManager, InputType, MOTION_INPUT } from "./manager/InputManager";
+import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
 import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
 import { TileManagerSinglePlayer } from "./manager/internal/TileManagerSinglePlayer";
 import { TileManager } from "./manager/TileManager";
@@ -39,6 +41,7 @@ export class MapManager extends GameObject {
     this.time = 0;
     this.tilemgr = new TileManagerSinglePlayer(ctx, this.conn.getMapTitle());
     this.inputmgr = new InputManagerImpl();
+    
     this.players = new Map();
     this.addChild(this.tilemgr.root);
     this.tilemgr.root.setPosition(0, 0, 0);

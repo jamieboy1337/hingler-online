@@ -253,7 +253,7 @@ export class GLTFSceneImpl implements GLTFScene {
       // check node names -- sometimes they get mixed up
       if (meshID === -1 && this.data.nodes) {
         for (let i = 0; i < this.data.nodes.length; i++) {
-          if (this.data.nodes[i].name === model && this.data.nodes[i].mesh) {
+          if (this.data.nodes[i].name === model && this.data.nodes[i].mesh !== undefined) {
             meshID = this.data.nodes[i].mesh;
             break;
           }
@@ -262,7 +262,7 @@ export class GLTFSceneImpl implements GLTFScene {
     }
 
     if (meshID < 0 || meshID >= this.data.meshes.length) {
-      let err = "Invalid mesh identifier provided.";
+      let err = "Invalid mesh identifier provided: " + model;
       console.error(err);
       throw err;
     }

@@ -66,13 +66,13 @@ export class ExplosionTile extends GameTile {
       inst.noiseOffset[1] *= 0.7;
       inst.draw(rc);
 
-      // mat4.scale(mat, mat, [0.96, 0.96, 0.96]);
-      // inst.modelMat = mat;
-      // inst.threshold -= 0.025;
-      // inst.color = [1.0, 1.0, 0.0, 1.0];
-      // inst.noiseOffset[1] += 1.0;
-      // inst.noiseOffset[1] *= 2.1;
-      // inst.draw(rc);
+      mat4.scale(mat, mat, [0.96, 0.96, 0.96]);
+      inst.modelMat = mat;
+      inst.threshold -= 0.025;
+      inst.color = [1.0, 1.0, 0.0, 1.0];
+      inst.noiseOffset[1] += 1.0;
+      inst.noiseOffset[1] *= 2.1;
+      inst.draw(rc);
     }
   }
 
