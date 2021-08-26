@@ -20,6 +20,13 @@ vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, 
   vec3 F0 = mix(vec3(0.04), albedo, metallic);
   vec3 F = fresnel(N, V, F0);
 
+  // fudge factor: not phys accurate
+  if (metallic < 0.001) {
+    F = vec3(0.0);
+  }
+
+  
+
   vec3 ks = F;
   vec3 kd = vec3(1.0) - ks;
   kd *= (1.0 - metallic);

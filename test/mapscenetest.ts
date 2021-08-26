@@ -63,8 +63,10 @@ export class MapSceneTest extends Scene {
     rot_two.setPosition(0, 0, 0);
     
     let spot = new SpotLightObject(ctx);
-    spot.setPosition(-20, 30, 45);
-    spot.fov = 31;
+    spot.setPosition(-200, 400, 225);
+    spot.fov = 7.5;
+    spot.near = 100.0;
+    spot.far = 10000.0;
     spot.falloffRadius = 0.2;
     spot.atten_const = 1;
     spot.atten_linear = 0;
@@ -73,35 +75,31 @@ export class MapSceneTest extends Scene {
     spot.color = new Float32Array([1, 1, 1, 1]);
 
     let spotalso = new SpotLightObject(ctx);
-    spotalso.setPosition(-45, 30, -20);
-    spotalso.fov = 43;
+    spotalso.setPosition(-450, 300, -200);
+    spotalso.fov = 12.0;
+    spotalso.near = 100.0;
+    spotalso.far = 10000.0;
     spotalso.falloffRadius = 0.2;
     spotalso.atten_const = 1;
     spotalso.atten_linear = 0;
     spotalso.atten_quad = 0;
     spotalso.intensity = 1.1;
     spotalso.color = new Float32Array([1, 1, 1, 1]);
-    
-    spot.near = 0.1;
-    spot.far = 1000.0;
-
-    spotalso.near = 0.1;
-    spotalso.far = 1000.0;
 
     spot.setShadowDims(2048, 2048);
     spot.setShadows(false);
     spot.lookAt(0, 0, 0);
 
-    spotalso.setShadowDims(2048, 2048);
+    spotalso.setShadowDims(4096, 4096);
     spotalso.setShadows(true);
     spotalso.lookAt(0, 0, 0);
 
     let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];
-    amb.intensity = 0.1;
+    amb.intensity = 0.3;
     root.addChild(amb);
 
-    rot_two.addChild(spot);
+    // rot_two.addChild(spot);
     rot_two.addChild(spotalso);
     root.addChild(rot_two);
   }

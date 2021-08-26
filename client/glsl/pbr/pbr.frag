@@ -39,6 +39,8 @@ uniform int use_metal_rough;
 uniform vec4 color_factor;
 uniform float rough_factor;
 uniform float metal_factor;
+// add sampler for this if necc.
+uniform vec4 emission_factor;
 
 void main() {
   // get albedo map at tex, use as surf color, store in vec3 col;
@@ -93,6 +95,8 @@ void main() {
 
     col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
   }
+
+  col += vec4(emission_factor.rgb, 0.0);
 
   gl_FragColor = vec4(col.xyz, 1.0);
 }

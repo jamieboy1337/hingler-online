@@ -40,6 +40,8 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
   metalFactor: number;
   roughFactor: number;
 
+  emissionFactor: vec4;
+
   // use a flag to indicate whether the model matrix should be used as an attribute
   // probably use a step func to snag the right one
 
@@ -65,6 +67,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     albedoDef: WebGLUniformLocation,
     roughDef: WebGLUniformLocation,
     metalDef: WebGLUniformLocation,
+    emissionFactor: WebGLUniformLocation,
 
     useAttribute: WebGLUniformLocation
   };
@@ -92,6 +95,9 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     this.metalRough = null;
     this.metalFactor = 1.0;
     this.roughFactor = 1.0;
+    this.emissionFactor = vec4.create();
+    vec4.zero(this.emissionFactor);
+
     this.cameraPos = vec3.create();
 
     this.modelMatrixIndex = -1;
@@ -130,6 +136,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       albedoDef: gl.getUniformLocation(prog, "color_factor"),
       roughDef: gl.getUniformLocation(prog, "rough_factor"),
       metalDef: gl.getUniformLocation(prog, "metal_factor"),
+      emissionFactor: gl.getUniformLocation(prog, "emission_factor"),
       useAttribute: gl.getUniformLocation(prog, "is_instanced")
     };
 
@@ -270,6 +277,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       
       gl.uniform1f(this.locs.roughDef, this.roughFactor);
       gl.uniform1f(this.locs.metalDef, this.metalFactor);
+      gl.uniform4fv(this.locs.emissionFactor, this.emissionFactor);
 
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);
       model.bindAttribute(AttributeType.NORMAL, this.attribs.norm);
@@ -359,6 +367,8 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       
       gl.uniform1f(this.locs.roughDef, this.roughFactor);
       gl.uniform1f(this.locs.metalDef, this.metalFactor);
+
+      gl.uniform4fv(this.locs.emissionFactor, this.emissionFactor);
 
       gl.uniform1i(this.locs.useAttribute, 0);
 

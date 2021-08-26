@@ -91,6 +91,7 @@ export interface MatNormalTexture {
 export interface Material {
   name?: string,
   pbrMetallicRoughness: PBRMaterialSchema,
+  emissiveFactor?: [number, number, number],
   normalTexture?: MatNormalTexture
 };
 

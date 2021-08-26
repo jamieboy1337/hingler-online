@@ -19,6 +19,8 @@ export interface PBRMaterial extends Material, PBRInterface {
   metalFactor: number;
   roughFactor: number;
 
+  emissionFactor: vec4;
+
   cameraPos: vec3;
 
   setSpotLight(light: Array<SpotLightStruct>) : void;

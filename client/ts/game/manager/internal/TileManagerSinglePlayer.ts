@@ -4,6 +4,7 @@ import { GameContext } from "../../../engine/GameContext";
 import { GameObject } from "../../../engine/object/game/GameObject";
 import { GamePBRModel } from "../../../engine/object/game/GamePBRModel";
 import { GameMapState } from "../../GameMapState";
+import { PlayerInputState } from "../../PlayerInputState";
 import { PlayerState } from "../../PlayerState";
 import { GameTile } from "../../tile/GameTile";
 import { TileFactory } from "../../tile/TileFactory";
@@ -103,6 +104,19 @@ export class TileManagerSinglePlayer implements TileManager {
     let playerObject = this.players.get(1);
     offset[0] = (2 * playerInfo.position[0]) + this.origin[0];
     offset[1] = (2 * playerInfo.position[1]) + this.origin[1];
+    switch(playerInfo.lastInput) {
+      case PlayerInputState.MOVE_DOWN:
+        playerObject.setRotationEuler(0, 0, 0);
+        break;
+      case PlayerInputState.MOVE_LEFT:
+        playerObject.setRotationEuler(0, 270, 0);
+        break;
+      case PlayerInputState.MOVE_UP:
+        playerObject.setRotationEuler(0, 180, 0);
+        break;
+      case PlayerInputState.MOVE_RIGHT:
+        playerObject.setRotationEuler(0, 90, 0);
+    }
     playerObject.setPosition(offset[0], 0, offset[1]);
 
     // read around player

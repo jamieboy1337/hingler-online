@@ -1,4 +1,4 @@
-import { quat, vec2, vec3 } from "gl-matrix";
+import { quat, vec2, vec3, vec4 } from "gl-matrix";
 import { GLAttribute } from "../../gl/GLAttribute";
 import { GLAttributeImpl } from "../../gl/internal/GLAttributeImpl";
 import { GLBuffer } from "../../gl/internal/GLBuffer";
@@ -206,6 +206,17 @@ export class GLTFSceneImpl implements GLTFScene {
 
     if (pbrSchema.metallicRoughnessTexture) {
       pbrMat.metalRough = this.getTextureFromNumber(pbrSchema.metallicRoughnessTexture.index);
+    }
+
+    if (mat.emissiveFactor) {
+      pbrMat.emissionFactor = vec4.create();
+      pbrMat.emissionFactor[0] = mat.emissiveFactor[0];
+      pbrMat.emissionFactor[1] = mat.emissiveFactor[1];
+      pbrMat.emissionFactor[2] = mat.emissiveFactor[2];
+      pbrMat.emissionFactor[3] = 1.0;
+    } else {
+      pbrMat.emissionFactor = vec4.create();
+      vec4.zero(pbrMat.emissionFactor);
     }
 
     return pbrMat;
