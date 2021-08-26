@@ -10,6 +10,7 @@ import { FieldManager } from "../../FieldManager";
 const grassFieldNames = [
   "grass0",
   "grass1",
+  "grass-1"
 ];
 
 const resourceNames = [
@@ -49,6 +50,10 @@ export class GrassFieldManager implements FieldManager {
 
   getFieldModel(n: number) {
     // compute which model to spawn
+    if (n === 0) {
+      return new GamePBRModel(this.ctx, this.models[2].getFuture());
+    }
+
     xorshift32_seed(this.seed + n);
     let prob = xorshift32_float();
     if (prob > 0.8) {

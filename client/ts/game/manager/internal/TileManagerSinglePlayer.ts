@@ -246,14 +246,16 @@ export class TileManagerSinglePlayer implements TileManager {
         this.root.removeChild(this.fieldPieces[i].getId());
         this.root.addChild(piece);
         this.fieldPieces[i] = piece;
-        piece.setPosition((fieldIndex + i) * (48.0), 0, yTop);
+        piece.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, yTop);
 
         let pieceBot = this.fieldmgr.getFieldModel(fieldIndex + i);
         this.root.removeChild(this.fieldPiecesBot[i].getId());
-        this.root.addChild(pieceBot);
         this.fieldPiecesBot[i] = pieceBot;
-        pieceBot.setPosition((fieldIndex + i) * (48.0), 0, yBottom);
+        pieceBot.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, yBottom);
         pieceBot.setRotationEuler(0, 180, 0);
+        if (i + fieldIndex !== 0) {
+          this.root.addChild(pieceBot);
+        }
       }
     }
 

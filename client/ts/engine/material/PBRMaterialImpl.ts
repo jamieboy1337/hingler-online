@@ -182,9 +182,9 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       }
 
       let norm = mat3.create();
-      mat3.fromMat4(norm, mat);
-      mat3.invert(norm, norm);
-      mat3.transpose(norm, norm);
+      norm = mat3.fromMat4(norm, mat);
+      norm = mat3.transpose(norm, norm);
+      norm =  mat3.invert(norm, norm);
 
       this.normalBuffer.setFloatArray(offsetBuf, norm);
       offsetBuf += 36;
@@ -304,9 +304,9 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       gl.useProgram(this.prog);
 
       let normalMat = mat3.create();
-      mat3.fromMat4(normalMat, this.modelMat);
-      mat3.invert(normalMat, normalMat);
-      mat3.transpose(normalMat, normalMat);
+      normalMat = mat3.fromMat4(normalMat, this.modelMat);
+      normalMat = mat3.transpose(normalMat, normalMat);
+      normalMat = mat3.invert(normalMat, normalMat);
 
       gl.uniformMatrix4fv(this.locs.modelMat, false, this.modelMat);
       gl.uniformMatrix4fv(this.locs.vpMat, false, this.vpMat);
