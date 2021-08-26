@@ -17,7 +17,7 @@ interface ExplosionRecord {
 }
 
 const MAX_BOMB_COUNT = 8;
-const EXPLOSION_DUR = 0.4
+const EXPLOSION_DUR = 0.15;
 // implement as game object so that we can receive update from root object
 // alternatively: we give it to some manager component which promises to update it
 // the manager component can handle dialogue, etc.

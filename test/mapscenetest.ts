@@ -75,7 +75,7 @@ export class MapSceneTest extends Scene {
     spot.color = new Float32Array([1, 1, 1, 1]);
 
     let spotalso = new SpotLightObject(ctx);
-    spotalso.setPosition(-450, 300, -200);
+    spotalso.setPosition(-115, 400, -80);
     spotalso.fov = 12.0;
     spotalso.near = 100.0;
     spotalso.far = 10000.0;
@@ -90,9 +90,10 @@ export class MapSceneTest extends Scene {
     spot.setShadows(false);
     spot.lookAt(0, 0, 0);
 
-    spotalso.setShadowDims(4096, 4096);
+    spotalso.setShadowDims(2048, 2048);
     spotalso.setShadows(true);
     spotalso.lookAt(0, 0, 0);
+    spotalso.falloffRadius = 0.00001;
 
     let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];

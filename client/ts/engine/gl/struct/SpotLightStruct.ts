@@ -1,4 +1,4 @@
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat4, vec2, vec3, vec4 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
 import { SpotLight } from "../../object/game/light/SpotLight";
 import { GLSLStruct } from "../GLSLStruct";
@@ -17,6 +17,8 @@ export class SpotLightStruct implements GLSLStruct {
   readonly lightTransform: mat4;
 
   readonly attenuation: AttenuationStruct;
+
+  readonly shadowSize: vec2;
 
   private index: number;
 
@@ -39,6 +41,8 @@ export class SpotLightStruct implements GLSLStruct {
     this.lightTransform = light.getLightMatrix();
 
     this.attenuation = new AttenuationStruct(ctx, light);
+
+    this.shadowSize = light.getShadowDims();
 
     this.index = 0;
 
@@ -77,6 +81,7 @@ export class SpotLightStruct implements GLSLStruct {
     const intensityLoc =  prog.getUniformLocation(name + ".intensity");
     const colorLoc =      prog.getUniformLocation(name + ".color");
     const transformLoc =  prog.getUniformLocation(name + ".lightTransform");
+    const shadowDimLoc =  prog.getUniformLocation(name + ".shadowSize");
     let texLoc : WebGLUniformLocation;
 
     if (useShadow) {
@@ -97,6 +102,7 @@ export class SpotLightStruct implements GLSLStruct {
     }
 
     gl.uniformMatrix4fv(transformLoc, false, this.lightTransform);
+    gl.uniform2fv(shadowDimLoc, this.shadowSize);
   }
   
 }

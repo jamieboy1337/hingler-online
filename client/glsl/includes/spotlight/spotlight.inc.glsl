@@ -22,6 +22,9 @@ struct SpotLight {
 
   // attenuation factors for our light.
   Attenuation a;
+
+  // size of the light's shadow map. can be ignored if this light does not have shadow map.
+  vec2 shadowSize;
 };
 
 // only include all this shader code if we absolutely need it
@@ -95,9 +98,27 @@ vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec3 albedo,
 
 vec4 getSpotLightColorPBR(SpotLight s, vec3 cam_pos, vec3 geom_pos, vec4 shadow_tex_pos, vec3 albedo, vec3 norm, float rough, float metal, in sampler2D shadow_tex) {
   vec4 col = getSpotLightColorPBR(s, cam_pos, geom_pos, albedo, norm, rough, metal);
+  // sample several shadow locations for this
+
   float shadowprop = getShadowTexture(s, geom_pos, shadow_tex_pos, shadow_tex);
 
   return vec4(shadowprop * col.rgb, 1.0);
+}
+
+float sampleShadow(vec3 pos_ndc, in sampler2D shadowtex, vec2 sample_tex, vec2 tex_size) {
+  vec2 shadow_step = 1.0 / tex_size;
+  float coll = 0.0;
+  for (float i = -1.5; i < 2.0; i += 1.0) {
+    for (float j = -1.5; j < 2.0; j += 1.0) {
+      vec2 pos_tex = sample_tex + (shadow_step * vec2(i, j));
+      float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
+      float rawDist = (pos_ndc.z - shadow_dist);
+      coll += 1.0 - step(0.0, rawDist);
+    }
+  }
+
+  coll /= 16.0;
+  return coll;
 }
 
 /**
@@ -113,11 +134,11 @@ float getShadowTexture(SpotLight s, vec3 pos, vec4 light_pos, in sampler2D shado
   float depth = pos_ndc.z;
   pos_ndc *= 0.5;
   pos_ndc += 0.5;
-  vec2 pos_tex = pos_ndc.xy;
-  float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
-
-  float rawDist = (pos_ndc.z - shadow_dist);
-  return 1.0 - step(0.0, rawDist);
+  float shadowRes = sampleShadow(pos_ndc.xyz, shadowtex, pos_ndc.xy, s.shadowSize);
+  // vec2 pos_tex = pos_ndc.xy;
+  // float shadow_dist = texture2D(shadowtex, pos_tex).r + SHADOW_BIAS;
+  // float rawDist = (pos_ndc.z - shadow_dist);
+  return shadowRes;
 }
 
 #endif
