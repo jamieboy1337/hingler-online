@@ -31,6 +31,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private bombCount: number;
   private detonations: Set<ExplosionRecord>;
   private time: number;
+
+  private scoreElem: HTMLElement;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.state = new SinglePlayerMapState(11);
@@ -47,6 +50,19 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         this.state.setTile(i, j, TileID.EMPTY);
       }
     }
+
+    this.scoreElem = document.createElement("div");
+    this.scoreElem.id = "info";
+    let score = document.createElement("div");
+    score.id = "score";
+    score.textContent = "0m";
+    this.scoreElem.appendChild(score);
+
+    let time = document.createElement("div");
+    time.id = "time";
+    time.textContent = "0s";
+    this.scoreElem.appendChild(time);
+    document.querySelector("body").appendChild(this.scoreElem);
   }
 
   getMapState() {
@@ -114,6 +130,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     if (this.playerpos[1] > this.state.dims[1] - 1) {
       this.playerpos[1] = this.state.dims[1] - 1;
     }
+
+    this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
+    this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
 
     // don't do oob check yet!
     let playerTile = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1])];
