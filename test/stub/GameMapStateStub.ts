@@ -1,6 +1,6 @@
 import { GameMapState } from "../../client/ts/game/GameMapState";
 import { GameTile } from "../../client/ts/game/tile/GameTile";
-import { LayerInstance } from "../../client/ts/game/tile/LayerInstance";
+import { EnemyInstance, LayerInstance } from "../../client/ts/game/tile/LayerInstance";
 import { TileAtlas } from "../../client/ts/game/TileAtlas";
 
 // TODO: loading a model over and over sucks
@@ -11,11 +11,13 @@ export class GameMapStateStub implements GameMapState {
   height: number;
   getCount: number;
   layer: Map<number, LayerInstance>;
+  enemy: Map<number, EnemyInstance>;
   constructor() {
     this.width = 512;
     this.height = 11;
     this.getCount = 0;
     this.layer = new Map();
+    this.enemy = new Map();
   }
   get dims() {
     return [this.width, this.height] as [number, number];

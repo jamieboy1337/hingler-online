@@ -7,13 +7,20 @@ import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
 import { LayerInstance } from "./tile/LayerInstance";
+import { MOTION_INPUT } from "./manager/InputManager";
 
-const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
+export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
+
+const knightSpeed = 1.5;
 
 interface ExplosionRecord {
   time: number;
   x: number;
   y: number;
+}
+
+interface KnightState {
+  direction: PlayerInputState;
 }
 
 const MAX_BOMB_COUNT = 8;
@@ -26,8 +33,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private state: SinglePlayerMapState;
   private playerpos: [number, number];
   private playermotion: PlayerInputState;
-  private layer: Map<number, LayerInstance>;
-  private currentLayerInstanceID: number;
+  // todo: implement a custom map (coordmap)
+  // which works like our map but also provides coordinate access
+  // then update the code as needed
+
   private bombCount: number;
   private detonations: Set<ExplosionRecord>;
   private time: number;
@@ -38,8 +47,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     super(ctx);
     this.state = new SinglePlayerMapState(11);
     this.playerpos = [0, 0];
-    this.layer = new Map();
-    this.currentLayerInstanceID = 0;
     this.bombCount = 0;
 
     this.detonations = new Set();
@@ -66,8 +73,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   getMapState() {
-    // return an internally-managed game map state which generates and returns tiles on the fly
-    this.state.setLayer(this.layer);
     return this.state;
   }
 
@@ -90,86 +95,95 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   update() {
     let delta = this.getContext().getDelta();
     this.time += delta;
-    // with bombs they have just placed down.
+    this.moveKnights(delta);
+    let velo : [number, number] = [0, 0];
+    // snag current motion state
+    switch (this.playermotion) {
+      case PlayerInputState.MOVE_LEFT:
+        velo[0] = -6.0 * delta;
+        break;
+      case PlayerInputState.MOVE_RIGHT:
+        velo[0] = 6.0 * delta;
+        break;
+      case PlayerInputState.MOVE_UP:
+        velo[1] = -6.0 * delta;
+        break;
+      case PlayerInputState.MOVE_DOWN:
+        velo[1] = 6.0 * delta;
+    }
+    
+    // clear explosions
+    this.clearExplosions();
+
+    this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
+    this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
+
+
+   this.playerpos = this.stepInstance(this.playerpos, velo);
+  }
+
+  private stepInstance(init: [number, number], velo: [number, number]) : [number, number] {
     let collisionIgnoreList : Array<vec2> = [];
-    for (let inst of this.layer.values()) {
+    // potentially a lot of work for a lot of enemies
+    // come up with a way to quickly fetch entities in a 2x2 area?
+    // - place layer instances in some sort of hashed array
+    // fetch them by coordinates
+    // only fetch instances within 1 tile of our rounded player position
+    for (let inst of this.state.layer.values()) {
       let pos = inst.position;
-      let delta = [Math.abs(pos[0] - this.playerpos[0]), Math.abs(pos[1] - this.playerpos[1])];
-      // eps factor -- in case float rounding becomes an issue, this should be negligible in gameplay however
+      let delta = [Math.abs(pos[0] - init[0]), Math.abs(pos[1] - init[1])];
       if (delta[0] < 0.999 && delta[1] < 0.999) {
         collisionIgnoreList.push([pos[0], pos[1]]);
       }
     }
 
-    // clear explosions
-    this.clearExplosions();
+    let res : [number, number] = [init[0], init[1]];
+    res[0] += velo[0];
+    res[1] += velo[1];
 
-    // snag current motion state
-    switch (this.playermotion) {
-      case PlayerInputState.MOVE_LEFT:
-        this.playerpos[0] -= 6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_RIGHT:
-        this.playerpos[0] += 6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_UP:
-        this.playerpos[1] -= 6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_DOWN:
-        this.playerpos[1] += 6.0 * delta;
+    if (res[0] < 0) {
+      res[0] = 0;
     }
 
-    if (this.playerpos[0] < 0) {
-      this.playerpos[0] = 0;
+    if (res[1] < 0) {
+      res[1] = 0;
     }
 
-    if (this.playerpos[1] < 0) {
-      this.playerpos[1] = 0;
+    if (res[1] > this.state.dims[1] - 1) {
+      res[1] = this.state.dims[1] - 1;
     }
 
-    if (this.playerpos[1] > this.state.dims[1] - 1) {
-      this.playerpos[1] = this.state.dims[1] - 1;
-    }
+    let eTile = res.map(Math.round);
+    let tile = this.state.fetchTiles(eTile[0] - 1, eTile[1] - 1, 3, 3);
+    let sign = [eTile[0] - res[0], eTile[1] - res[1]];
 
-    this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
-    this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
-
-    // don't do oob check yet!
-    let playerTile = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1])];
-    let tile = this.state.fetchTiles(playerTile[0] - 1, playerTile[1] - 1, 3, 3);
-    let sign = [playerTile[0] - this.playerpos[0], playerTile[1] - this.playerpos[1]];
-    // tiles are in direction of respective sign
-    // if a tile occupies the checked space
     sign[0] = (sign[0] < 0 ? 1 : -1);
     sign[1] = (sign[1] < 0 ? 1 : -1);
-    // add in a check to avoid the character being shot off the end of some border (later lol)
-    let curtile = tile.getTile(playerTile[0], playerTile[1]);
-    let checkX = [playerTile[0] + sign[0], playerTile[1]];
-    let checkY = [playerTile[0], playerTile[1] + sign[1]];
+
+    let curtile = tile.getTile(eTile[0], eTile[1]);
+    let checkX = [eTile[0] + sign[0], eTile[1]];
+    let checkY = [eTile[0], eTile[1] + sign[1]];
     let tileX = tile.getTile(checkX[0], checkX[1]);
     let tileY = tile.getTile(checkY[0], checkY[1]);
 
     if (curtile === TileID.CRATE || curtile === TileID.WALL) {
-      this.playerpos[0] = Math.round(this.playerpos[0] + sign[0]);
+      res[0] = Math.round(res[0] + sign[0]);
     } else {
       if (tileX === TileID.CRATE || tileX === TileID.WALL) {
-        this.playerpos[0] = Math.round(this.playerpos[0]);
+        res[0] = Math.round(res[0]);
       }
   
       if (tileY === TileID.CRATE || tileY === TileID.WALL) {
-        this.playerpos[1] = Math.round(this.playerpos[1]);
+        res[1] = Math.round(res[1]);
       }
     }
 
-    // continue moving in that direction
-    // now we want to check our layers in the respective direction?
-    for (let inst of this.layer.values()) {
+    for (let inst of this.state.layer.values()) {
       if (inst.type !== TileID.BOMB) {
         continue;
       }
 
       let pos = inst.position;
-      // note: we do this check for every layer, regardless of if we actually care about collisions with it
       let check : boolean = (pos[0] === checkX[0] && pos[1] === checkX[1]);
       check = check || (pos[0] === checkY[0] && pos[1] === checkY[1]);
 
@@ -191,16 +205,77 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
 
       if ((pos[0] === checkX[0] && pos[1] === checkX[1])) {
-        this.playerpos[0] = Math.round(this.playerpos[0]);
+        res[0] = Math.round(res[0]);
       }
       
       if (pos[0] === checkY[0] && pos[1] === checkY[1]) {
-        this.playerpos[1] = Math.round(this.playerpos[1]);
+        res[1] = Math.round(res[1]);
       }
     }
 
-    // we also want to check our layers and see if an impassable object has been placed on one of these tiles
-    // if so: stop the player from moving there!
+    return res;
+  }
+
+  private moveKnights(delta: number) {
+    // go through our layers, find the knights
+    for (let inst of this.state.enemy) {
+      if (inst[1].type === TileID.ENEMY_KNIGHT) {
+        let data = inst[1];
+        // use a function to return a signed direction bit
+        let velo = this.getSignFromDirection(data.direction);
+        velo[0] *= 1.5 * delta;
+        velo[1] *= 1.5 * delta;
+
+        let pos = inst[1].position;
+        let init : [number, number] = [pos[0], pos[1]];
+        let fin = this.stepInstance(init, velo);
+
+        if (fin[0] === pos[0] && fin[1] === pos[1]) {
+          // randomize direction
+          let randDirInd = Math.floor(Math.random() * 4);
+          let randDir : PlayerInputState;
+          // check in that direction
+          let sign : [number, number];
+          let tile : TileID;
+          let i = -1;
+          do {
+            randDir = PLAYER_MOTION_STATES[randDirInd % 4];
+            sign = this.getSignFromDirection(randDir);
+            let tileCoord = [Math.floor(fin[0]) + sign[0], Math.floor(fin[1]) + sign[1]];
+            tile = this.state.getTile(tileCoord[0], tileCoord[1]);
+            i++;
+            randDirInd++;
+            // note: we need a layer check here as well :(
+          } while ((tile === TileID.CRATE || tile === TileID.WALL) && i < 4);
+
+          if (i >= 4) {
+            randDir = PlayerInputState.MOVE_DOWN;
+          }
+
+          data.direction = randDir;
+        }
+
+        data.position[0] = fin[0];
+        data.position[1] = fin[1];
+        
+        this.state.enemy.set(inst[0], data);
+      }
+    }
+  }
+
+  private getSignFromDirection(dir: PlayerInputState) : [number, number] {
+    switch (dir) {
+      case PlayerInputState.MOVE_LEFT:
+        return [-1, 0];
+      case PlayerInputState.MOVE_RIGHT:
+        return [1, 0];
+      case PlayerInputState.MOVE_UP:
+        return [0, -1];
+      case PlayerInputState.MOVE_DOWN:
+        return [0, 1];
+      default:
+        return [0, 0];
+    }
   }
 
   private clearExplosions() {
@@ -253,8 +328,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
     let bombPos : vec3 = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1]), 0];
     // ensure there's no other bombs in that location (this shouldn't be a problem)
-    for (let id of this.layer.keys()) {
-      let inst = this.layer.get(id);
+    for (let id of this.state.layer.keys()) {
+      let inst = this.state.layer.get(id);
       let pos = inst.position;
       if (pos[0] === bombPos[0] && pos[1] === bombPos[1]) {
         // come up with something smarter ig
@@ -264,13 +339,13 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
     }
 
-    let id = this.currentLayerInstanceID++;
+    let id = this.state.nextID++;
     let layer = {
       type: TileID.BOMB,
       position: bombPos
     };
 
-    this.layer.set(id, layer);
+    this.state.layer.set(id, layer);
     this.bombCount++;
   }
 
@@ -286,8 +361,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     // if they do, set the tile to a blank
 
     let bombIDs = [];
-    for (let id of this.layer.keys()) {
-      let inst = this.layer.get(id);
+    for (let id of this.state.layer.keys()) {
+      let inst = this.state.layer.get(id);
       if (inst.type === TileID.BOMB) {
         bombIDs.push(id);
       }
@@ -297,7 +372,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       // get the bomb's position
       // for every tile in its vicinity which is not a wall, place an explosion
       // place a record of each explosion, so that we can clear them all
-      let pos = this.layer.get(id).position;
+      let pos = this.state.layer.get(id).position;
       let minX = (Math.max(0, pos[0] - 1));
       let maxX = pos[0] + 1;
       let minY = Math.max(0, pos[1] - 1);
@@ -317,7 +392,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         }
       }
 
-      this.layer.delete(id);
+      this.state.layer.delete(id);
     }
 
     this.bombCount = 0;

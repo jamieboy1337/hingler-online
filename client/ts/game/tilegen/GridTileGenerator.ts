@@ -1,3 +1,4 @@
+import { TileID } from "../tile/TileID";
 import { TileGenerator } from "./TileGenerator";
 
 export class GridTileGenerator implements TileGenerator {
@@ -13,25 +14,25 @@ export class GridTileGenerator implements TileGenerator {
   }
 
   generateColumn() {
-    let res = new Array(this.len);
+    let res : Array<TileID> = new Array(this.len);
     if (this.num % 2 === 1) {
       for (let i = 0; i < this.len; i++) {
         if (i % 2 === 1) {
-          res[i] = 3;
+          res[i] = TileID.WALL;
         } else {
-          res[i] = 0;
+          res[i] = TileID.EMPTY;
         }
       }
     }
     
     for (let i = 0; i < this.len; i++) {
       let cratechance = Math.random();
-      if (res[i] !== 3) {
+      if (res[i] !== TileID.WALL) {
         if (cratechance < 0.25) {
           // todo: convert these over t osomething better >:)
-          res[i] = 1;
+          res[i] = TileID.CRATE;
         } else {
-          res[i] = 0;
+          res[i] = TileID.EMPTY;
         }
       }
     }

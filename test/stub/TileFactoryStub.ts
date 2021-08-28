@@ -1,15 +1,20 @@
 import { GameContext } from "../../client/ts/engine/GameContext";
 import { GLTFScene } from "../../client/ts/engine/loaders/GLTFScene";
+import { PBRModelImpl } from "../../client/ts/engine/loaders/internal/PBRModelImpl";
 import { PBRInstance } from "../../client/ts/engine/model/PBRInstance";
 import { PBRInstanceFactory } from "../../client/ts/engine/model/PBRInstanceFactory";
+import { PBRModel } from "../../client/ts/engine/model/PBRModel";
+import { GamePBRModel } from "../../client/ts/engine/object/game/GamePBRModel";
 import { GameTile } from "../../client/ts/game/tile/GameTile";
 import { BombTile } from "../../client/ts/game/tile/generic/BombTile";
 import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
 import { ExplosionTile } from "../../client/ts/game/tile/generic/ExplosionTile";
+import { ModelTile } from "../../client/ts/game/tile/generic/ModelTile";
 import { ExplosionInstanceFactory } from "../../client/ts/game/tile/instancefactory/ExplosionInstanceFactory";
 import { ExplosionInstance } from "../../client/ts/game/tile/instancefactory/instance/ExplosionInstance";
 import { TileFactory } from "../../client/ts/game/tile/TileFactory";
 import { TileID } from "../../client/ts/game/tile/TileID";
+import { Future } from "../../ts/util/task/Future";
 import { Task } from "../../ts/util/task/Task";
 
 export class TileFactoryStub implements TileFactory {
@@ -19,11 +24,13 @@ export class TileFactoryStub implements TileFactory {
   explosionFactory: ExplosionInstanceFactory;
   wallFactory: PBRInstanceFactory;
   bombFactory: PBRInstanceFactory;
+  knight: PBRInstanceFactory;
   constructor(ctx: GameContext) {
     this.ctx = ctx;
     // create instances for all desired tiles
     this.crateFactory = null;
     this.explosionFactory = null;
+    this.knight = null;
     this.scenePromise = new Task();
     ctx.getGLTFLoader().loadAsGLTFScene("../res/crate3d.glb").then(this.configureCrateFactory.bind(this));
   }
@@ -34,6 +41,7 @@ export class TileFactoryStub implements TileFactory {
     this.explosionFactory = new ExplosionInstanceFactory(this.ctx, scene.getInstancedModel("Sphere"));
     this.wallFactory = scene.getPBRInstanceFactory("Cube.001");
     this.bombFactory = scene.getPBRInstanceFactory("Bomb");
+    this.knight = (scene.getPBRInstanceFactory("knight"));
     this.scenePromise.resolve(scene);
   }
 
@@ -52,6 +60,8 @@ export class TileFactoryStub implements TileFactory {
           return this.getWall();
         case TileID.BOMB:
           return this.getBomb();
+        case TileID.ENEMY_KNIGHT:
+          return this.getKnight();
       }
     }
 
@@ -108,5 +118,18 @@ export class TileFactoryStub implements TileFactory {
     }
 
     return new BombTile(this.ctx, loadtask.getFuture());
+  }
+
+  private getKnight() {
+    let loadtask : Task<PBRInstance> = new Task();
+    if (this.scenePromise.getFuture().valid()) {
+      loadtask.resolve(this.knight.getInstance());
+    } else {
+      this.scenePromise.future.wait().then((_) => {
+        loadtask.resolve(this.knight.getInstance());
+      });
+    }
+
+    return new ModelTile(this.ctx, loadtask.getFuture());
   }
 }

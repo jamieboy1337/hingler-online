@@ -1,7 +1,8 @@
 // how to construct
 
+import { PLAYER_MOTION_STATES } from "../../GameConnectionManagerSinglePlayer";
 import { GameMapState } from "../../GameMapState";
-import { LayerInstance } from "../../tile/LayerInstance";
+import { EnemyInstance, LayerInstance } from "../../tile/LayerInstance";
 import { TileID } from "../../tile/TileID";
 import { TileAtlas } from "../../TileAtlas";
 import { GridTileGenerator } from "../../tilegen/GridTileGenerator";
@@ -11,22 +12,32 @@ export class SinglePlayerMapState implements GameMapState {
   gen: GridTileGenerator;
   cache: TileGrid<TileID>;
   layer: Map<number, LayerInstance>;
+  enemy: Map<number, EnemyInstance>;
   len: number;
+
+  nextID: number;
   constructor(len: number) {
     this.gen = new GridTileGenerator(len);
     this.len = len;
     this.cache = new TileGrid();
     this.cache.setOrigin(0, 0);
     this.cache.setDims(128, len);
+
+    this.layer = new Map();
+    this.enemy = new Map();
+    this.nextID = 0;
   }
 
   get dims() {
     return [Number.MAX_SAFE_INTEGER, this.len] as [number, number];
   }
 
-  setLayer(layer: Map<number, LayerInstance>) {
-    this.layer = layer;
-  }
+  // setLayer(layer: Map<number, LayerInstance>) {
+  //   for (let entry of layer) {
+  //     // overwrite vs replace :D
+  //     this.layer.set(entry[0], entry[1]);
+  //   }
+  // }
 
   fetchTiles(x: number, y: number, dx: number, dy: number) {
     // generate tiles up to our desired value and add them to the cache
@@ -53,6 +64,15 @@ export class SinglePlayerMapState implements GameMapState {
       let genTiles = this.gen.generateColumn();
       for (let j = 0; j < this.len; j++) {
         this.cache.setTile(i, j, genTiles[j]);
+        // for a random generated tile, set some probability of placing a knight
+        if (genTiles[j] === TileID.EMPTY && i > 20 && (Math.random() < 0.03)) {
+          // tracking ID :(
+          this.enemy.set(this.nextID++, {
+            direction: PLAYER_MOTION_STATES[Math.floor(Math.random() * 4)],
+            type: TileID.ENEMY_KNIGHT,
+            position: [i, j, 0]
+          })
+        }
       }
     }
   }

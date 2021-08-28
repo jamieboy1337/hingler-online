@@ -7,6 +7,7 @@ import { GameMapState } from "../../GameMapState";
 import { PlayerInputState } from "../../PlayerInputState";
 import { PlayerState } from "../../PlayerState";
 import { GameTile } from "../../tile/GameTile";
+import { LayerInstance } from "../../tile/LayerInstance";
 import { TileFactory } from "../../tile/TileFactory";
 import { TileGrid } from "../../TileGrid";
 import { FieldManager } from "../FieldManager";
@@ -193,21 +194,60 @@ export class TileManagerSinglePlayer implements TileManager {
 
     for (let layerID of state.layer.keys()) {
       let inst = state.layer.get(layerID);
-      if (!this.layerInstances.has(layerID)) {
+      let dist = Math.abs(inst.position[0] - playerInfo.position[0]);
+      if (dist < 30) {
+        if (!this.layerInstances.has(layerID)) {
+          let tile = this.factory.getTileFromID(inst.type);
+          this.layerInstances.set(layerID, tile);
+          this.root.addChild(tile);
+        }
+        
+        let obj = this.layerInstances.get(layerID);
+        let offset = [inst.position[0] * 2 + this.origin[0], inst.position[1] * 2 + this.origin[1]];
+        obj.setPosition(offset[0], inst.position[2], offset[1])
+      }
+    }
+
+    for (let enemyID of state.enemy.keys()) {
+      let inst = state.enemy.get(enemyID);
+      if (!this.layerInstances.has(enemyID)) {
         let tile = this.factory.getTileFromID(inst.type);
-        this.layerInstances.set(layerID, tile);
+        this.layerInstances.set(enemyID, tile);
         this.root.addChild(tile);
       }
 
-      let obj = this.layerInstances.get(layerID);
+      let obj = this.layerInstances.get(enemyID);
       let offset = [inst.position[0] * 2 + this.origin[0], inst.position[1] * 2 + this.origin[1]];
-      obj.setPosition(offset[0], inst.position[2], offset[1])
+      obj.setPosition(offset[0], inst.position[2], offset[1]);
+      switch (inst.direction) {
+        case PlayerInputState.MOVE_LEFT:
+          obj.setRotationEuler(0, 180, 0);
+          break;
+        case PlayerInputState.MOVE_RIGHT:
+          obj.setRotationEuler(0, 0, 0);
+          break;
+        case PlayerInputState.MOVE_UP:
+          obj.setRotationEuler(0, 90, 0);
+          break;
+        case PlayerInputState.MOVE_DOWN:
+        default:
+          obj.setRotationEuler(0, 270, 0);
+          break;
+      }
     }
 
     let delID = [];
     for (let id of this.layerInstances.keys()) {
-      if (!state.layer.has(id)) {
+      if (!state.layer.has(id) && !state.enemy.has(id)) {
         delID.push(id);
+      } else {
+        // todo: avoid simulating enemies which are outside of some visible range (40 tiles?)
+        // having the tiled map will help with this a ton
+        let inst : LayerInstance = (state.layer.has(id) ? state.layer.get(id) : state.enemy.get(id));
+        let dist = Math.abs(inst.position[0] - playerInfo.position[0]);
+        if (dist > 31) {
+          delID.push(id);
+        }
       }
     }
 
