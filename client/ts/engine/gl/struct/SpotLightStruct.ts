@@ -30,7 +30,9 @@ export class SpotLightStruct implements GLSLStruct {
     this.fov = light.fov * (Math.PI / 180);
     this.falloffRadius = light.falloffRadius;
     this.intensity = light.intensity;
-    this.color = light.color;
+
+    // TODO: no idea why this happens :(
+    this.color = new Float32Array(light.color);
 
     if (light.getShadowState()) {
       this.shadowTex = light.getShadowTexture();

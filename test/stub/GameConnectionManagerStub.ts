@@ -30,7 +30,8 @@ export class GameConnectionManagerStub implements GameConnectionManager {
     let me : PlayerState = {
       name: "player",
       position: this.playerpos,
-      lastInput: this.playerinput
+      lastInput: this.playerinput,
+      dead: false
     };
 
     let res = new Map();

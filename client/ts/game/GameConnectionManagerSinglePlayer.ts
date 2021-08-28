@@ -32,6 +32,7 @@ const EXPLOSION_DUR = 0.15;
 export class GameConnectionManagerSinglePlayer extends GameObject implements GameConnectionManager {
   private state: SinglePlayerMapState;
   private playerpos: [number, number];
+  private playerdead: boolean;
   private playermotion: PlayerInputState;
   // todo: implement a custom map (coordmap)
   // which works like our map but also provides coordinate access
@@ -48,6 +49,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.state = new SinglePlayerMapState(11);
     this.playerpos = [0, 0];
     this.bombCount = 0;
+
+    this.playerdead = false;
 
     this.detonations = new Set();
     this.time = 0;
@@ -72,6 +75,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     document.querySelector("body").appendChild(this.scoreElem);
   }
 
+  get killerIsDead() {
+    return this.playerdead;
+  }
+
   getMapState() {
     return this.state;
   }
@@ -80,7 +87,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     let me : PlayerState = {
       name: "player",
       position: this.playerpos,
-      lastInput: this.playermotion
+      lastInput: this.playermotion,
+      dead: this.playerdead
     };
 
     let res = new Map();
@@ -98,18 +106,21 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.moveKnights(delta);
     let velo : [number, number] = [0, 0];
     // snag current motion state
-    switch (this.playermotion) {
-      case PlayerInputState.MOVE_LEFT:
-        velo[0] = -6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_RIGHT:
-        velo[0] = 6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_UP:
-        velo[1] = -6.0 * delta;
-        break;
-      case PlayerInputState.MOVE_DOWN:
-        velo[1] = 6.0 * delta;
+
+    if (!this.playerdead) {
+      switch (this.playermotion) {
+        case PlayerInputState.MOVE_LEFT:
+          velo[0] = -6.0 * delta;
+          break;
+        case PlayerInputState.MOVE_RIGHT:
+          velo[0] = 6.0 * delta;
+          break;
+        case PlayerInputState.MOVE_UP:
+          velo[1] = -6.0 * delta;
+          break;
+        case PlayerInputState.MOVE_DOWN:
+          velo[1] = 6.0 * delta;
+      }
     }
     
     // clear explosions
@@ -119,16 +130,29 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
 
 
-   this.playerpos = this.stepInstance(this.playerpos, velo);
+    this.playerpos = this.stepInstance(this.playerpos, velo);
+    // check if the player is near any explosion tiles (round test i think, round their pos and check if the tile is gone)
+    // alternatively, we check every tile which they are at least .2 in (1 - 4 tiles)
+    if (this.state.getTile(Math.round(this.playerpos[0]), Math.round(this.playerpos[1])) === TileID.EXPLOSION) {
+      this.playerdead = true; 
+    }
   }
 
   private stepInstance(init: [number, number], velo: [number, number]) : [number, number] {
     let collisionIgnoreList : Array<vec2> = [];
-    // potentially a lot of work for a lot of enemies
-    // come up with a way to quickly fetch entities in a 2x2 area?
-    // - place layer instances in some sort of hashed array
-    // fetch them by coordinates
-    // only fetch instances within 1 tile of our rounded player position
+
+    // if velo is too large: split this into multiple calls, to avoid skipping tiles
+    if (velo[0] > 1 || velo[1] > 1) {
+      let denom = Math.ceil(Math.max(velo[1] * 3, velo[0] * 3));
+      let velo_itr : [number, number] = [velo[0] / denom, velo[1] / denom];
+      let res : [number, number];
+      for (let i = 0; i < denom; i++) {
+        res = this.stepInstance(init, velo_itr);
+      }
+
+      return res;
+    }
+
     for (let inst of this.state.layer.values()) {
       let pos = inst.position;
       let delta = [Math.abs(pos[0] - init[0]), Math.abs(pos[1] - init[1])];
@@ -289,6 +313,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   sendInput(i: PlayerInputState) {
     // if i is a movement command: log it as such
+    if (this.playerdead) {
+      return;
+    }
+
     if (PLAYER_MOTION_STATES.indexOf(i) !== -1) {
       this.playermotion = i;
     } else {

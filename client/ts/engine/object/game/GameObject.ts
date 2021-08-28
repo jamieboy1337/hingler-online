@@ -263,7 +263,7 @@ export class GameObject extends EngineObject {
   }
 
   lookAt(x: number | vec3, y?: number, z?: number) {
-    let dirVector : vec3 = (typeof x === "number" ? vec3.fromValues(x, y, z) : x);
+    let dirVector : vec3 = (typeof x === "number" ? vec3.fromValues(x, y, z) : vec3.copy(vec3.create(), x));
     let pos = this.getPosition();
     // account for own offset: vector from camera to dest
     vec3.sub(dirVector, dirVector, pos);

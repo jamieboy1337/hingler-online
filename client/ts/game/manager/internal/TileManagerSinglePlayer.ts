@@ -4,6 +4,7 @@ import { GameContext } from "../../../engine/GameContext";
 import { GameObject } from "../../../engine/object/game/GameObject";
 import { GamePBRModel } from "../../../engine/object/game/GamePBRModel";
 import { GameMapState } from "../../GameMapState";
+import { PlayerGameObject } from "../../PlayerGameObject";
 import { PlayerInputState } from "../../PlayerInputState";
 import { PlayerState } from "../../PlayerState";
 import { GameTile } from "../../tile/GameTile";
@@ -14,6 +15,8 @@ import { FieldManager } from "../FieldManager";
 import { TileManager } from "../TileManager";
 import { FieldManagerSinglePlayer } from "./FieldManagerSinglePlayer";
 
+// todo: lots of redundancy between this and what the multiplayer ver would look like
+// before creating a multiplayer, factor it out!
 export class TileManagerSinglePlayer implements TileManager {
   private ctx: GameContext;
   private tilesDestroying: Set<GameTile>;
@@ -27,7 +30,7 @@ export class TileManagerSinglePlayer implements TileManager {
 
   private xOffset: number;
 
-  private players: Map<number, GameObject>;
+  private players: Map<number, PlayerGameObject>;
 
   private floorPieces : Array<GameObject>;
   private fieldPieces : Array<GameObject>;
@@ -35,6 +38,8 @@ export class TileManagerSinglePlayer implements TileManager {
 
   // if a layer is removed, drop it.
   private layerInstances: Map<number, GameTile>;
+
+  private deathDelta: number;
 
   readonly root: GameObject;
 
@@ -47,6 +52,8 @@ export class TileManagerSinglePlayer implements TileManager {
     this.fieldPieces = [];
     this.fieldPiecesBot = [];
     this.fieldIndex = -1;
+
+    this.deathDelta = 0;
 
     // bombs should probably be instanced but i dont care right now
 
@@ -85,6 +92,14 @@ export class TileManagerSinglePlayer implements TileManager {
     // adjust position of all tiles
   }
 
+  getPlayerPosition(id: number) {
+    if (this.players.has(id)) {
+      return this.players.get(id).getGlobalPosition() as [number, number, number];
+    }
+
+    return [0, 0, 0] as [number, number, number];
+  }
+
   updateTiles(state: GameMapState, players: Map<number, PlayerState>) {
     // figure out where the player is (later)
     // fetch only the tiles around them
@@ -97,7 +112,7 @@ export class TileManagerSinglePlayer implements TileManager {
     }
 
     if (!this.players.has(1)) {
-      let guy = new GamePBRModel(this.ctx, "../res/chewingcharacter.glb");
+      let guy = new PlayerGameObject(this.ctx);
       this.players.set(1, guy);
       this.root.addChild(guy);
     }
@@ -105,20 +120,31 @@ export class TileManagerSinglePlayer implements TileManager {
     let playerObject = this.players.get(1);
     offset[0] = (2 * playerInfo.position[0]) + this.origin[0];
     offset[1] = (2 * playerInfo.position[1]) + this.origin[1];
-    switch(playerInfo.lastInput) {
-      case PlayerInputState.MOVE_DOWN:
-        playerObject.setRotationEuler(0, 0, 0);
-        break;
-      case PlayerInputState.MOVE_LEFT:
-        playerObject.setRotationEuler(0, 270, 0);
-        break;
-      case PlayerInputState.MOVE_UP:
-        playerObject.setRotationEuler(0, 180, 0);
-        break;
-      case PlayerInputState.MOVE_RIGHT:
-        playerObject.setRotationEuler(0, 90, 0);
+    if (playerInfo.dead) {
+      playerObject.setRotationEuler(0, 90, 0);
+    } else {
+      switch (playerInfo.lastInput) {
+        case PlayerInputState.MOVE_DOWN:
+          playerObject.setRotationEuler(0, 0, 0);
+          break;
+        case PlayerInputState.MOVE_LEFT:
+          playerObject.setRotationEuler(0, 270, 0);
+          break;
+        case PlayerInputState.MOVE_UP:
+          playerObject.setRotationEuler(0, 180, 0);
+          break;
+        case PlayerInputState.MOVE_RIGHT:
+          playerObject.setRotationEuler(0, 90, 0);
+      }
     }
     playerObject.setPosition(offset[0], 0, offset[1]);
+
+    if (playerInfo.dead) {
+      playerObject.getSpot().intensity = Math.min(this.deathDelta * 4, 1);
+      this.deathDelta += this.ctx.getDelta();
+      playerObject.setPivotRotation(Math.min(this.deathDelta * 90, 90));
+
+    }
 
     // read around player
     let tiles = state.fetchTiles(Math.floor(playerInfo.position[0] - 25), Math.floor(playerInfo.position[1] - 25), 50, 50);
@@ -255,6 +281,7 @@ export class TileManagerSinglePlayer implements TileManager {
       let inst = this.layerInstances.get(id);
       this.tilesDestroying.add(inst);
       this.layerInstances.delete(id);
+      inst.destroyTile();
       this.root.removeChild(inst.getId());
     }
 

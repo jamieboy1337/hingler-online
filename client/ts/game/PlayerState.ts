@@ -10,6 +10,9 @@ export interface PlayerState {
   // the current input, pertaining to the player's actions
   lastInput: PlayerInputState;
 
+  // whether or not the player is dead. lol
+  dead: boolean;
+
   // bomb list? not yet
 
   // TODO: add action state, etc.

@@ -23,8 +23,6 @@ export class MapManager extends GameObject {
   lastUpdate: Uint8Array;
   // contains all tiles at present.
   // in real gameconn: do not create the map manager until the connection is ready.
-  tilesCurrent: Array<GameTile>;
-  tilesDestroying: Set<GameTile>;
   factory: TileFactory;
   tilemgr: TileManager;
   inputmgr: InputManager;
@@ -35,8 +33,6 @@ export class MapManager extends GameObject {
     super(ctx);
     this.conn = conn;
     this.lastUpdate = null;
-    this.tilesCurrent = [];
-    this.tilesDestroying = new Set();
     this.inputMap = new Map();
     this.time = 0;
     this.tilemgr = new TileManagerSinglePlayer(ctx, this.conn.getMapTitle());
@@ -110,5 +106,9 @@ export class MapManager extends GameObject {
     }
 
     this.conn.sendInput(inputValue);
+  }
+
+  getPlayerPosition(id: number) {
+    return this.tilemgr.getPlayerPosition(id);
   }
 }

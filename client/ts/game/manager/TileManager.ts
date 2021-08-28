@@ -16,4 +16,6 @@ export interface TileManager {
    * @param dims - the point at which tile [0, 0] should appear.
    */
   setTileOrigin(dims: [number, number]) : void;
+
+  getPlayerPosition(id: number) : [number, number, number];
 }
