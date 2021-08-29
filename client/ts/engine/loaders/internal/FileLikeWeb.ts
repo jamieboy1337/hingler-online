@@ -5,11 +5,17 @@ export class FileLikeWeb implements FileLike {
   private buffer: ArrayBuffer;
   private bufferPromise: Promise<void>;
 
-  constructor(resp: Response) {
+  constructor(resp: Response | Promise<Response>) {
     this.buffer = null;
-    this.bufferPromise = resp.arrayBuffer().then((r) => {
-      this.buffer = r;
-    });
+    if (resp instanceof Response) {
+      this.bufferPromise = resp.arrayBuffer().then((r) => {
+        this.buffer = r;
+      });
+    } else {
+      this.bufferPromise = resp.then((r) => r.arrayBuffer()).then((r) =>{
+        this.buffer = r;
+      });
+    }
     // assume utf8 for now :(
   }
 

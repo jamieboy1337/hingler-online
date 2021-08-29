@@ -16,13 +16,13 @@ export class FileLoader {
 
   async open(path: string) : Promise<FileLike> {
 
-    let resp = await fetch(path);
-
+    
     let res : FileLikeWeb;
-
+    
     if (this.loadedFiles.has(path)) {
       res = this.loadedFiles.get(path);
     } else {
+      let resp = fetch(path);
       res = new FileLikeWeb(resp);
       this.loadedFiles.set(path, res);
     }

@@ -109,7 +109,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     let delta = this.getContext().getDelta();
     this.time += delta;
 
-    if (this.time < 0.25 || (!this.loaded && (this.getContext().getFileLoader().getFractionLoaded() < 0.99 || isShaderCompiling()))) {
+    if (this.time < 0.25 || (!this.loaded && (this.getContext().getFileLoader().getFractionLoaded() < 0.99 || shadersStillCompiling() > 0))) {
       console.log(this.getContext().getFileLoader().getFractionLoaded());
       console.log(shadersStillCompiling());
       // ignore frames before loading is complete
