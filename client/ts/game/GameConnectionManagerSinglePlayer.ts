@@ -34,6 +34,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private playerpos: [number, number];
   private playerdead: boolean;
   private playermotion: PlayerInputState;
+
+  private loaded: boolean;
   // todo: implement a custom map (coordmap)
   // which works like our map but also provides coordinate access
   // then update the code as needed
@@ -51,6 +53,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
 
     this.playerdead = false;
+
+    this.loaded = false;
 
     this.detonations = new Set();
     this.time = 0;
@@ -103,6 +107,18 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   update() {
     let delta = this.getContext().getDelta();
     this.time += delta;
+
+    if (this.time < 0.25 || (!this.loaded && this.getContext().getFileLoader().getFractionLoaded() < 0.99)) {
+      console.log(this.getContext().getFileLoader().getFractionLoaded());
+      // ignore frames before loading is complete
+      return;
+    } else if (!this.loaded) {
+      document.body.removeChild(document.getElementById("loading"));
+      this.loaded = true;
+      // give us a reset for the sake of it
+      this.time = 0;
+    }
+
     this.moveKnights(delta);
     let velo : [number, number] = [0, 0];
     // snag current motion state
@@ -126,8 +142,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     // clear explosions
     this.clearExplosions();
 
-    this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
-    this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
+    if (!this.playerdead) {
+      this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
+      this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
+    }
 
 
     this.playerpos = this.stepInstance(this.playerpos, velo);

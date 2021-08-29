@@ -68,7 +68,6 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       // toggle a flicket which positions the player
       // we need to figure out where the player is
       let player = this.mgr.getPlayerPosition(1);
-      console.log(player);
       let delta = this.getContext().getDelta();
 
       let t = 1.0 - Math.pow(0.1, delta);
@@ -78,9 +77,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       this.cam.lookAt(player);
       let rotDest = this.cam.getRotation() as quat;
       let posDest = [player[0] + 4, player[1] + 12.5, player[2] + 3] as vec3;
-      console.log(posDest);
       let posRes = this.vecLerp(pos, posDest, t);
-      console.log(posRes);
       this.cam.setPosition(posRes);
       this.cam.setRotationQuat(this.slerp(rot, rotDest, t));
       this.spotShadow.intensity = this.spotShadow.intensity * (1 - t);

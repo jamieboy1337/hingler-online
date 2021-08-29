@@ -24,3 +24,17 @@ body {
   font-size: 24pt;
   text-shadow: -4px 4px 0px rgba(0.2, 0.2, 0.2, 1.0);
 }
+
+#loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  color: #49b6ff;
+
+  font-family: sans-serif;
+  font-size: 96pt;
+  text-shadow: 4px 4px 0 #FFFFFF, -4px 4px 0 #FFFFFF, -4px -4px 0 #FFFFFF, 4px -4px 0 #FFFFFF;
+  z-index: 1000;
+}
