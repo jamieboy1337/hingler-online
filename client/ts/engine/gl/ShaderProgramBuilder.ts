@@ -15,6 +15,14 @@ import { ShaderFileParser } from "./internal/ShaderFileParser";
 const shaderCache : Map<string, WebGLProgram> = new Map();
 const shadersCompiling : Map<string, Promise<void>> = new Map();
 
+export function isShaderCompiling() {
+  return (shadersCompiling.size === 0);
+}
+
+export function shadersStillCompiling() {
+  return (shadersCompiling.size);
+}
+
 /**
  * Builds shaders from files.
  * Also supports non-standard include syntax for incorporating shader code from other files.

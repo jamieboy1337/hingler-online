@@ -8,6 +8,7 @@ import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
 import { LayerInstance } from "./tile/LayerInstance";
 import { MOTION_INPUT } from "./manager/InputManager";
+import { isShaderCompiling, shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
 
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
@@ -108,8 +109,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     let delta = this.getContext().getDelta();
     this.time += delta;
 
-    if (this.time < 0.25 || (!this.loaded && this.getContext().getFileLoader().getFractionLoaded() < 0.99)) {
+    if (this.time < 0.25 || (!this.loaded && (this.getContext().getFileLoader().getFractionLoaded() < 0.99 || isShaderCompiling()))) {
       console.log(this.getContext().getFileLoader().getFractionLoaded());
+      console.log(shadersStillCompiling());
       // ignore frames before loading is complete
       return;
     } else if (!this.loaded) {
