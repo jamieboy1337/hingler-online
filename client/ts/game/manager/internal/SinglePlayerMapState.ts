@@ -7,12 +7,13 @@ import { TileID } from "../../tile/TileID";
 import { TileAtlas } from "../../TileAtlas";
 import { GridTileGenerator } from "../../tilegen/GridTileGenerator";
 import { TileGrid } from "../../TileGrid";
+import { EnemyMap } from "./EnemyMap";
 
 export class SinglePlayerMapState implements GameMapState {
   gen: GridTileGenerator;
   cache: TileGrid<TileID>;
   layer: Map<number, LayerInstance>;
-  enemy: Map<number, EnemyInstance>;
+  enemy: EnemyMap;
   len: number;
 
   nextID: number;
@@ -24,7 +25,7 @@ export class SinglePlayerMapState implements GameMapState {
     this.cache.setDims(128, len);
 
     this.layer = new Map();
-    this.enemy = new Map();
+    this.enemy = new EnemyMap();
     this.nextID = 0;
   }
 

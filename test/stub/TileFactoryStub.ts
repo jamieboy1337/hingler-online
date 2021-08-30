@@ -9,6 +9,7 @@ import { GameTile } from "../../client/ts/game/tile/GameTile";
 import { BombTile } from "../../client/ts/game/tile/generic/BombTile";
 import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
 import { ExplosionTile } from "../../client/ts/game/tile/generic/ExplosionTile";
+import { KnightTile } from "../../client/ts/game/tile/generic/KnightTile";
 import { ModelTile } from "../../client/ts/game/tile/generic/ModelTile";
 import { ExplosionInstanceFactory } from "../../client/ts/game/tile/instancefactory/ExplosionInstanceFactory";
 import { ExplosionInstance } from "../../client/ts/game/tile/instancefactory/instance/ExplosionInstance";
@@ -130,6 +131,6 @@ export class TileFactoryStub implements TileFactory {
       });
     }
 
-    return new ModelTile(this.ctx, loadtask.getFuture());
+    return new KnightTile(this.ctx, loadtask.getFuture());
   }
 }

@@ -13,4 +13,5 @@ export interface LayerInstance {
 
 export interface EnemyInstance extends LayerInstance {
   direction: PlayerInputState;
+  // enemies which are "plucked" are dead (for now)
 }

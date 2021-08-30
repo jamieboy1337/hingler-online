@@ -282,7 +282,6 @@ export class TileManagerSinglePlayer implements TileManager {
       this.tilesDestroying.add(inst);
       this.layerInstances.delete(id);
       inst.destroyTile();
-      this.root.removeChild(inst.getId());
     }
 
     // i want to set the origin on these to something more reasonable

@@ -154,6 +154,20 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     if (this.state.getTile(Math.round(this.playerpos[0]), Math.round(this.playerpos[1])) === TileID.EXPLOSION) {
       this.playerdead = true; 
     }
+
+    // check if there's any knights near the player
+    let playertile = this.playerpos.map(Math.round);
+    for (let i = playertile[0] - 1; i <= playertile[0] + 1; i++) {
+      for (let j = playertile[1] - 1; j <= playertile[1] + 1; j++) {
+        let enemies = this.state.enemy.getEnemiesAtCoordinate(i, j);
+        for (let enemy of enemies) {
+          let delta = [Math.abs(this.playerpos[0] - enemy.position[0]), Math.abs(this.playerpos[1] - enemy.position[1])];
+          if (delta[0] < 0.5 && delta[1] < 0.5) {
+            this.playerdead = true;
+          }
+        }
+      }
+    }
   }
 
   private stepInstance(init: [number, number], velo: [number, number]) : [number, number] {
@@ -297,10 +311,20 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
           data.direction = randDir;
         }
 
+        // perform an explosion check on our knight -- are they on an explosion tile?
+
         data.position[0] = fin[0];
         data.position[1] = fin[1];
-        
+
         this.state.enemy.set(inst[0], data);
+        let tile = this.state.getTile(Math.round(fin[0]), Math.round(fin[1]));
+        if (tile === TileID.EXPLOSION) {
+          // gone!
+          console.log(fin);
+          console.log("gonezo");
+          this.state.enemy.delete(inst[0]);
+        }
+        
       }
     }
   }
