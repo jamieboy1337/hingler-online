@@ -15,3 +15,5 @@ cypress/screenshots/
 cypress/reports/
 
 .nyc_output
+
+client/sw.js

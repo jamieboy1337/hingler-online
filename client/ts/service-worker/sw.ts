@@ -4,7 +4,7 @@ export {};
 declare const self: ServiceWorkerGlobalScope;
 
 // come up with some better way to handle this then :3
-const CACHE_NAME = "hingler-cache-v0.0.1";
+const CACHE_NAME = "hingler-cache-v0.0.2";
 
 // use a bash script to update the contents of this arr programmatically?
 // write a quick export and put it in a consistent place
