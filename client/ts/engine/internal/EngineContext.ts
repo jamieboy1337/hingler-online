@@ -6,6 +6,7 @@ import { GameContext } from "../GameContext";
 import { FileLoader } from "../loaders/FileLoader";
 import { GLTFLoaderImpl } from "../loaders/internal/GLTFLoaderImpl";
 import { Renderer } from "./Renderer";
+import { mobileCheck } from "../../../../ts/util/MobileCheck";
 
 /**
  * INTERNAL ONLY.
@@ -20,6 +21,8 @@ export class EngineContext implements GameContext {
   private scene: Scene;
   private renderer: Renderer;
   private passOffset: number;
+
+  readonly mobile: boolean;
 
   private getGLProxy(gl: WebGLRenderingContext) {
     gl = new Proxy(gl, {
@@ -52,6 +55,7 @@ export class EngineContext implements GameContext {
     this.passOffset = 0;
     this.glContext = canvas.getContext("webgl");
     this.gltfLoader = new GLTFLoaderImpl(this.loader, this);
+    this.mobile = mobileCheck();
 
     let gl = this.glContext;
     gl.clearColor(0, 0, 0, 1);

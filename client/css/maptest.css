@@ -61,7 +61,7 @@ body {
   height: auto;
 }
 
-#touch-detonate {
+#touch-bomb {
   position: absolute;
   right: 96px;
   bottom: 32px;
@@ -70,7 +70,7 @@ body {
   height: auto;
 }
 
-#touch-bomb {
+#touch-detonate {
   position: absolute;
   right: 32px;
   bottom: calc(32px + 20vw - 16px);

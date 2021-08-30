@@ -2,6 +2,7 @@
 
 precision highp float;
 precision highp int;
+precision highp sampler2D;
 
 #include <../includes/ambient.inc.glsl>
 #include <../includes/spotlight/spotlight.inc.glsl>

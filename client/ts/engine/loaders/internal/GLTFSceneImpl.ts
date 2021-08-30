@@ -184,7 +184,7 @@ export class GLTFSceneImpl implements GLTFScene {
 
   // consumes a PBRInterface and a material and configures all fixed values in the PBRInterface.
   private configurePBR<T extends PBRInterface>(pbrMat: T, mat: Material) {
-    if (mat.normalTexture) {
+    if (mat.normalTexture && !this.ctx.mobile) {
       let normtex = this.getTextureFromNumber(mat.normalTexture.index);
       pbrMat.normal = normtex;
     }

@@ -19,7 +19,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     let cam = new GameCamera(ctx);
     cam.setPosition(0, 70, 32);
-    cam.fov = 22;
+    cam.fov = 18;
     cam.near = 1.0;
     cam.far = 250.0;
     cam.lookAt(0, 0, 0);
@@ -48,7 +48,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     spot.intensity = 1.6;
     spot.color = new Float32Array([1, 1, 1, 1]);
 
-    spot.setShadowDims(1024, 1024);
+    spot.setShadowDims(2048, 2048);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 

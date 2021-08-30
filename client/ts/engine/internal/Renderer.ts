@@ -1,4 +1,5 @@
 import { mat4, vec3 } from "gl-matrix";
+import { mobileCheck } from "../../../../ts/util/MobileCheck";
 import { Framebuffer } from "../gl/Framebuffer";
 import { ColorFramebuffer } from "../gl/internal/ColorFramebuffer";
 import { AmbientLightStruct } from "../gl/struct/AmbientLightStruct";
@@ -94,7 +95,9 @@ export class Renderer {
         continue;
       }
 
-      if (light.getShadowState()) {
+      if (this.ctx.mobile) {
+        light.setShadows(false);
+      } else if (light.getShadowState()) {
         this.renderFromSpotLight(light);
       }
       

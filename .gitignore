@@ -17,3 +17,5 @@ cypress/reports/
 .nyc_output
 
 client/sw.js
+
+desktop.ini

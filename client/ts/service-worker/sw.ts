@@ -8,6 +8,7 @@ const CACHE_NAME = "hingler-cache-v0.0.3";
 
 // use a bash script to update the contents of this arr programmatically?
 // write a quick export and put it in a consistent place
+
 const filesToCache = [
   "/favicon.ico",
   "/chewingchar.png",
