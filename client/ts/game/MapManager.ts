@@ -57,6 +57,10 @@ export class MapManager extends GameObject {
     }
   }
 
+  clear() {
+    this.tilemgr.clear();
+  }
+
   protected update() {
     this.time += this.getContext().getDelta();
     let state = this.conn.getMapState();

@@ -87,6 +87,24 @@ export class TileManagerSinglePlayer implements TileManager {
     }
   }
 
+  clear() {
+    for (let inst of this.layerInstances) {
+      this.root.removeChild(inst[1].getId());
+    }
+
+    this.layerInstances.clear();
+
+    this.lastUpdateGrid = new TileGrid();
+    // todo: make tilegrid iterable
+
+    for (let tile of this.tilesDestroying) {
+      this.root.removeChild(tile.getId());
+    }
+    
+    this.tilesDestroying.clear();
+    
+  }
+
   setTileOrigin(origin: [number, number]) {
     this.origin = origin;
     // adjust position of all tiles

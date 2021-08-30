@@ -18,4 +18,9 @@ export interface TileManager {
   setTileOrigin(dims: [number, number]) : void;
 
   getPlayerPosition(id: number) : [number, number, number];
+
+  /**
+   * Resets the state of the tile manager.
+   */
+  clear() : void;
 }

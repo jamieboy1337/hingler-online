@@ -85,6 +85,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     cam.lookAt(0, 0, 0);
 
     this.deathDelta = 0;
+
+    this.mgr.clear();
   }
 
   update() {
