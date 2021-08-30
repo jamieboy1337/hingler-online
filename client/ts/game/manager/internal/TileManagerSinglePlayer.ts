@@ -313,7 +313,12 @@ export class TileManagerSinglePlayer implements TileManager {
     // we could allow a get sys time function and calculate it ourselves
     if (this.xOffset > 0 || offset[0] > 0) {
       let t = 1.0 - Math.pow(0.01, this.ctx.getDelta());
-      this.xOffset += (Math.max(offset[0], 0) - this.xOffset) * t;
+      if (Math.abs(this.xOffset - Math.max(offset[0])) > 12) {
+        this.xOffset = Math.max(offset[0], 0);
+      } else {
+        this.xOffset += (Math.max(offset[0], 0) - this.xOffset) * t;
+      }
+
       this.root.setPosition(-this.xOffset, 0, 0);
     }
 

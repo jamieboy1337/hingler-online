@@ -101,6 +101,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
         final.classList.remove("hidden");
       }
 
+      this.resetState = false;
+
       let t = 1.0 - Math.pow(0.1, delta);
       let rot = this.cam.getRotation();
       let pos = this.cam.getPosition();
