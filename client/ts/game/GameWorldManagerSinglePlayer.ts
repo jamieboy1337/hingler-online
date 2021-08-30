@@ -48,7 +48,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     spot.intensity = 1.6;
     spot.color = new Float32Array([1, 1, 1, 1]);
 
-    spot.setShadowDims(2048, 2048);
+    spot.setShadowDims(1024, 1024);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 

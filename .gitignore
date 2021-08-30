@@ -2,6 +2,7 @@ package-lock.json
 node_modules/
 ts-out/
 client/js/
+client/service-worker/js/
 server/js/
 
 test/js/

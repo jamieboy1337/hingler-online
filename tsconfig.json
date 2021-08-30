@@ -8,6 +8,7 @@
 
   "exclude": [
     "../*/cypress/**/*",
-    "./ts-out/*"
+    "./ts-out/*",
+    "**/*/sw.ts"
   ]
 }

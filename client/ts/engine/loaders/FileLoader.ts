@@ -8,15 +8,38 @@ import { FileLikeWeb } from "./internal/FileLikeWeb";
 export class FileLoader {
 
   private loadedFiles: Map<string, FileLikeWeb>;
+  private workerPath: Promise<void>;
+    private res: () => void;
+    private rej: (any) => void;
 
   constructor() {
     console.log("all good");
     this.loadedFiles = new Map();
+    this.workerPath = new Promise((re, rj) => { this.res = re; this.rej = rj; });
+
+    if ("serviceWorker" in navigator) {
+      console.log("jenkem planet");
+      this.cb();
+    } else {
+      console.error("serviceWorker not available on this platform");
+      // fetch calls won't go to cache, but it's OK
+      this.res();
+    }
+  }
+
+  private async cb() {
+    console.log("test");
+    window.navigator.serviceWorker.register("../sw.js", {}).then((reg) => {
+      console.log("serviceworker registered~~~");
+      this.res();
+    }, (err) => {
+      console.error("could not register serviceworker :(");
+      this.rej(err);
+    })
   }
 
   async open(path: string) : Promise<FileLike> {
-
-    
+    await this.workerPath;
     let res : FileLikeWeb;
     
     if (this.loadedFiles.has(path)) {

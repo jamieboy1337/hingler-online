@@ -11,7 +11,7 @@ uniform sampler2D texture_spotlight[4];
 uniform int spotlightCount;
 varying vec4 spot_coord[4];
 
-uniform SpotLight spotlight_no_shadow[16];
+uniform SpotLight spotlight_no_shadow[4];
 uniform int spotlightCount_no_shadow;
 
 uniform AmbientLight ambient[4];
@@ -79,7 +79,7 @@ void main() {
     col += getSpotLightColorPBR(spotlight[i], camera_pos, v_pos.xyz, spot_coord[i], C, N, rough, metal, texture_spotlight[i]);
   }
 
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 4; i++) {
     if (i >= spotlightCount_no_shadow) {
       break;
     }

@@ -89,6 +89,11 @@ export class Renderer {
 
     for (let light of lights) {
       // skip until spotlights are definitely working
+      // skip lights which won't contribute to final image
+      if (light.intensity < 0.001) {
+        continue;
+      }
+
       if (light.getShadowState()) {
         this.renderFromSpotLight(light);
       }
