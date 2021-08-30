@@ -134,6 +134,7 @@ export class TileManagerSinglePlayer implements TileManager {
           playerObject.setRotationEuler(0, 180, 0);
           break;
         case PlayerInputState.MOVE_RIGHT:
+        default:
           playerObject.setRotationEuler(0, 90, 0);
       }
     }
@@ -143,7 +144,10 @@ export class TileManagerSinglePlayer implements TileManager {
       playerObject.getSpot().intensity = Math.min(this.deathDelta * 4, 1);
       this.deathDelta += this.ctx.getDelta();
       playerObject.setPivotRotation(Math.min(this.deathDelta * 90, 90));
-
+    } else {
+      this.deathDelta = 0;
+      playerObject.getSpot().intensity = 0;
+      playerObject.setPivotRotation(0);
     }
 
     // read around player

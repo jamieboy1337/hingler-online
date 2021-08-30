@@ -25,12 +25,14 @@ body {
   text-shadow: -4px 4px 0px rgba(0.2, 0.2, 0.2, 1.0);
 }
 
-#loading {
+.center {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
 
+#loading {
   color: #49b6ff;
 
   font-family: sans-serif;
@@ -77,6 +79,31 @@ body {
   width: 10%;
   max-width: 192px;
   height: auto;
+}
+
+#final-score {
+  border-radius: 12px;
+  border: 5px solid white;
+  color: white;
+  font-family: sans-serif;
+  box-shadow: 0px 0px 25px 10px rgba(0.0, 0.0, 0.0, 0.8);
+
+  padding: 32px;
+  background-color: #404040;
+
+  font-size: 48pt;
+}
+
+#dist {
+  font-size: 120pt;
+  font-weight: 900;
+}
+
+#replay {
+  padding: 16px;
+  border: 3px solid white;
+  background-color: green;
+  text-align: center;
 }
 
 .hidden {

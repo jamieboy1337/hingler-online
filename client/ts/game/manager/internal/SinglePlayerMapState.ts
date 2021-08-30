@@ -33,13 +33,6 @@ export class SinglePlayerMapState implements GameMapState {
     return [Number.MAX_SAFE_INTEGER, this.len] as [number, number];
   }
 
-  // setLayer(layer: Map<number, LayerInstance>) {
-  //   for (let entry of layer) {
-  //     // overwrite vs replace :D
-  //     this.layer.set(entry[0], entry[1]);
-  //   }
-  // }
-
   fetchTiles(x: number, y: number, dx: number, dy: number) {
     // generate tiles up to our desired value and add them to the cache
     this.generateTiles(x + dx);

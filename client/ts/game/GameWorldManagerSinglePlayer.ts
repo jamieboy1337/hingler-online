@@ -13,16 +13,18 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private cam : GameCamera;
   private mgr : MapManager;
 
+  private resetState: boolean;
+
+  private deathDelta: number;
+
   private conn : GameConnectionManagerSinglePlayer;
   constructor(ctx: GameContext) {
     super(ctx);
 
+    this.deathDelta = 0;
+    this.resetState = true;
+
     let cam = new GameCamera(ctx);
-    cam.setPosition(0, 70, 32);
-    cam.fov = 18;
-    cam.near = 1.0;
-    cam.far = 250.0;
-    cam.lookAt(0, 0, 0);
 
     let conn = new GameConnectionManagerSinglePlayer(ctx);
     let mapmgr = new MapManager(ctx, conn);
@@ -37,6 +39,28 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     cam.setAsActive();
 
     let spot = new SpotLightObject(ctx);
+    let amb = new AmbientLightObject(ctx);
+    this.addChild(amb);
+    this.addChild(spot);
+
+    this.spotShadow = spot;
+    this.ambient = amb;
+    this.cam = cam;
+
+    this.resetObjectAttributes();
+
+    let final = document.getElementById("replay");
+    final.addEventListener("click", () => {
+      this.conn.reset();
+      document.getElementById("final-score").classList.add("hidden");
+    })
+  }
+
+  private resetObjectAttributes() {
+    let spot = this.spotShadow;
+    let amb = this.ambient;
+    let cam = this.cam;
+
     spot.setPosition(-115, 400, -80);
     spot.fov = 12.0;
     spot.near = 100.0;
@@ -47,20 +71,20 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     spot.atten_quad = 0;
     spot.intensity = 1.6;
     spot.color = new Float32Array([1, 1, 1, 1]);
-
     spot.setShadowDims(2048, 2048);
     spot.setShadows(true);
     spot.lookAt(0, 0, 0);
 
-    let amb = new AmbientLightObject(ctx);
     amb.color = [0.5, 0.5, 0.5, 1.0];
     amb.intensity = 0.3;
-    this.addChild(amb);
-    this.addChild(spot);
 
-    this.spotShadow = spot;
-    this.ambient = amb;
-    this.cam = cam;
+    cam.setPosition(0, 70, 32);
+    cam.fov = 18;
+    cam.near = 1.0;
+    cam.far = 250.0;
+    cam.lookAt(0, 0, 0);
+
+    this.deathDelta = 0;
   }
 
   update() {
@@ -69,6 +93,13 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       // we need to figure out where the player is
       let player = this.mgr.getPlayerPosition(1);
       let delta = this.getContext().getDelta();
+
+      this.deathDelta += delta;
+
+      let final = document.getElementById("final-score");
+      if (this.deathDelta > 0.5 && final.classList.contains("hidden")) {
+        final.classList.remove("hidden");
+      }
 
       let t = 1.0 - Math.pow(0.1, delta);
       let rot = this.cam.getRotation();
@@ -82,6 +113,9 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       this.cam.setRotationQuat(this.slerp(rot, rotDest, t));
       this.spotShadow.intensity = this.spotShadow.intensity * (1 - t);
       this.cam.fov = this.cam.fov * (1 - t) + 35 * t;
+    } else if (!this.resetState) {
+      this.resetState = true;
+      this.resetObjectAttributes();
     }
   }
 

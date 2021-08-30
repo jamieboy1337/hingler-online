@@ -84,6 +84,21 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     return this.playerdead;
   }
 
+  reset() {
+    this.playerpos = [0, 0];
+    this.bombCount = 0;
+    this.playerdead = false;
+    this.state = new SinglePlayerMapState(11);
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < this.state.dims[1]; j++) {
+        this.state.setTile(i, j, TileID.EMPTY);
+      }
+    }
+
+    this.time = 0;
+  }
+
   getMapState() {
     return this.state;
   }
@@ -145,6 +160,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     if (!this.playerdead) {
       this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
       this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
+
+      document.getElementById("dist").textContent = Math.floor(this.playerpos[0] * 2) + "m";
     }
 
 
