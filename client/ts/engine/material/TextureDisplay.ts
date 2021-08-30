@@ -69,16 +69,18 @@ export abstract class TextureDisplay {
     }
     
     if (this.prog !== null) {
+      gl.useProgram(this.prog);
       this.prepareUniforms(this.prog);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.useProgram(this.prog);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buf);
       
       gl.vertexAttribPointer(this.attribs.pos, 2, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(this.attribs.pos);
-
+      
       this.tex.bindToUniform(this.locs.tex, 1);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      gl.disableVertexAttribArray(this.attribs.pos);
     }
   }
 }

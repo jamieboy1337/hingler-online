@@ -78,7 +78,6 @@ export class Renderer {
     
     this.renderPasses = [];
     let gl = this.gl;
-    gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
     // find lights
     let lights = this.findSpotLights(this.scene.getGameObjectRoot());
     let ambLights = this.findAmbientLights(this.scene.getGameObjectRoot());
@@ -167,7 +166,7 @@ export class Renderer {
    * Once render is complete, returns the number of passes taken.
    */
   getPassCount() : number {
-    return this.renderPasses.length;
+    return (this.renderPasses ? this.renderPasses.length : 0);
   }
 
   /**
@@ -177,7 +176,7 @@ export class Renderer {
    * @returns Texture, or null if the index was invalid.
    */
   getPass(index: number) : TextureDisplay {
-    if (index < 0 || index > this.getPassCount()) {
+    if (index < 0 || index >= this.getPassCount()) {
       return null;
     }
 

@@ -120,16 +120,23 @@ export class EngineContext implements GameContext {
   }
 
   step() {
-    // handle everything in engine
     this.updateDelta();
     if (this.scene && this.scene.isInitialized()) {
       this.scene.getGameObjectRoot().updateChildren();
       this.renderer.renderScene();
+    }
+  }
+
+  drawFrame() {
+    if (this.scene && this.scene.isInitialized()) {
       let passCount = this.renderer.getPassCount();
-      let disp = this.renderer.getPass(Math.abs((passCount - 1 + this.passOffset) % passCount));
-      // come up with a way to display a particular pass
-      this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
-      disp.drawTexture();
+      if (passCount > 0) {
+        let disp = this.renderer.getPass(Math.abs(passCount - 1));
+        this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
+        this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
+        disp.drawTexture();
+        this.glContext.flush();
+      }
     }
   }
 
