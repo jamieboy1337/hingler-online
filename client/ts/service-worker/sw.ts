@@ -1,10 +1,12 @@
 /// <reference lib="WebWorker" />
 
+import { CACHE_NAME, VER_MAJOR, VER_MINOR, VER_BUILD } from "../../../versionNumber";
+
 export {};
 declare const self: ServiceWorkerGlobalScope;
 
 // come up with some better way to handle this then :3
-const CACHE_NAME = "hingler-cache-v0.0.5";
+const cacheName = `${CACHE_NAME}-v${VER_MAJOR}.${VER_MINOR}.${VER_BUILD}`;
 
 // use a bash script to update the contents of this arr programmatically?
 // write a quick export and put it in a consistent place
@@ -67,6 +69,7 @@ const filesToCache = [
 ];
 
 self.addEventListener("install", function(event) {
+  console.info("Creating cache " + CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(filesToCache);
