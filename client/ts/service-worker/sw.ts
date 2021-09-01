@@ -63,6 +63,9 @@ const filesToCache = [
   "/res/untitled.glb",
   "/res/woodworld.png",
 
+  // image folder
+  "/res/img/portrait_knight_final.png",
+
   // touch input
   "/res/touch/bomb.png",
   "/res/touch/detonate.png",

@@ -7,6 +7,7 @@ import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
 import { GameConnectionManagerSinglePlayer } from "./GameConnectionManagerSinglePlayer";
 import { MapManager } from "./MapManager";
 import { Counter } from "./ui/Counter";
+import { EnemyInfo } from "./ui/EnemyInfo";
 
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
@@ -19,6 +20,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private deathDelta: number;
 
   private counter: Counter;
+  private knightKills: EnemyInfo;
 
   private conn : GameConnectionManagerSinglePlayer;
   constructor(ctx: GameContext) {
@@ -62,6 +64,9 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     document.getElementById("score-display").prepend(this.counter.getElement());
     this.counter.getElement().id = "score-counter";
+
+    this.knightKills = new EnemyInfo("../res/img/portrait_knight_final.png");
+    document.getElementById("enemy-info").appendChild(this.knightKills.getElement());
   }
 
   private resetObjectAttributes() {
@@ -112,8 +117,13 @@ export class GameWorldManagerSinglePlayer extends GameObject {
           final.classList.remove("hidden");
         }
 
-        let score = Math.min(Math.max((this.deathDelta - 0.5) * 300, 0), this.conn.getScore());
+        let t = Math.pow(this.deathDelta - 0.5, 1.8);
+
+        let score = Math.min(Math.max(t * 300, 0), this.conn.getScore());
         this.counter.setValue(score);
+
+        let knightKills = Math.min(Math.max(t * 30, 0), this.conn.getKnightKillCount());
+        this.knightKills.setValue(knightKills);
       }
 
       this.resetState = false;

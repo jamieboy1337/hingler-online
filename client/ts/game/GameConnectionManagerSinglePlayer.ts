@@ -6,9 +6,7 @@ import { SinglePlayerMapState } from "./manager/internal/SinglePlayerMapState";
 import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
-import { LayerInstance } from "./tile/LayerInstance";
-import { MOTION_INPUT } from "./manager/InputManager";
-import { isShaderCompiling, shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
+import { shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
 
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
@@ -35,6 +33,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private playerpos: [number, number];
   private playerdead: boolean;
   private playermotion: PlayerInputState;
+  private playerdirection: PlayerInputState;
 
   private loaded: boolean;
   // todo: implement a custom map (coordmap)
@@ -47,6 +46,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private scoreElem: HTMLElement;
 
+  private knightKills: number;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.state = new SinglePlayerMapState(11);
@@ -54,6 +55,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
 
     this.playerdead = false;
+
+    this.playermotion = PlayerInputState.IDLE;
+    this.playerdirection = PlayerInputState.MOVE_RIGHT;
 
     this.loaded = false;
 
@@ -78,6 +82,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     time.textContent = "0s";
     this.scoreElem.appendChild(time);
     document.querySelector("body").appendChild(this.scoreElem);
+
+    this.knightKills = 0;
   }
 
   get killerIsDead() {
@@ -87,6 +93,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   reset() {
     this.playerpos = [0, 0];
     this.bombCount = 0;
+    this.knightKills = 0;
     this.playerdead = false;
     this.state = new SinglePlayerMapState(11);
 
@@ -99,6 +106,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.time = 0;
   }
 
+  getKnightKillCount() {
+    return this.knightKills;
+  }
+
   getMapState() {
     return this.state;
   }
@@ -107,7 +118,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     let me : PlayerState = {
       name: "player",
       position: this.playerpos,
-      lastInput: this.playermotion,
+      lastInput: this.playerdirection,
       dead: this.playerdead
     };
 
@@ -128,7 +139,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       // ignore frames before loading is complete
       return;
     } else if (!this.loaded) {
-      document.body.removeChild(document.getElementById("loading"));
+      document.getElementById("loading").classList.add("hidden");
       this.loaded = true;
       // give us a reset for the sake of it
       this.time = 0;
@@ -339,9 +350,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         let tile = this.state.getTile(Math.round(fin[0]), Math.round(fin[1]));
         if (tile === TileID.EXPLOSION) {
           // gone!
-          console.log(fin);
-          console.log("gonezo");
           this.state.enemy.delete(inst[0]);
+          this.knightKills++;
         }
         
       }
@@ -380,6 +390,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     if (PLAYER_MOTION_STATES.indexOf(i) !== -1) {
       this.playermotion = i;
+      if (this.playermotion !== PlayerInputState.IDLE) {
+        this.playerdirection = this.playermotion;
+      }
     } else {
       switch (i) {
         case PlayerInputState.BOMB_PLACE:
