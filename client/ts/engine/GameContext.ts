@@ -6,6 +6,11 @@ import { GLTFLoader } from "./loaders/GLTFLoader";
  */
 export interface GameContext {
   /**
+   * true if the device is detected as a mobile device, false otherwise.
+   */
+  readonly mobile;
+
+  /**
    * @returns the delta on the last frame, in seconds.
    */
   getDelta() : number;

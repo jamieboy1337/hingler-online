@@ -1,3 +1,4 @@
+import { GameContext } from "../../../engine/GameContext";
 import { PlayerInputState } from "../../PlayerInputState";
 import { InputManager, InputType, KeyListenerID } from "../InputManager";
 
@@ -22,8 +23,12 @@ export class InputManagerImpl implements InputManager {
   private detonate: boolean;
   private detonateID: number;
 
+  private ctx: GameContext;
 
-  constructor() {
+
+  constructor(ctx: GameContext) {
+    this.ctx = ctx;
+
     this.keyToInput  = new Map();
     this.inputToKey  = new Map();
     this.listeners   = new Map();
@@ -44,9 +49,6 @@ export class InputManagerImpl implements InputManager {
     addEventListener("keydown", this.handlekeydown_.bind(this));
     addEventListener("keyup", this.handlekeyup_.bind(this));
 
-    console.log("dingus");
-    console.log(document.getElementById("canvas"));
-    let canvas = document.getElementById("canvas");
     document.body.addEventListener("touchstart", this.handletouchstart_.bind(this), true);
 
     // add touch listeners to our buttons
@@ -58,6 +60,10 @@ export class InputManagerImpl implements InputManager {
   
     document.getElementById("touch-detonate").addEventListener("touchstart", (e) => {e.preventDefault(); this.detonate = true; for (let t of e.changedTouches) {this.detonateID = t.identifier}});
     document.getElementById("touch-bomb").addEventListener("touchstart", (e) => {e.preventDefault(); this.bomb = true; for (let t of e.changedTouches) {this.bombID = t.identifier}});
+  
+    if (this.ctx.mobile) {
+      document.getElementById("touch-controls").classList.remove("hidden");
+    }
   }
 
   private handletouchstart_(e: TouchEvent) {

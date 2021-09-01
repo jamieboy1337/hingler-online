@@ -36,7 +36,7 @@ export class MapManager extends GameObject {
     this.inputMap = new Map();
     this.time = 0;
     this.tilemgr = new TileManagerSinglePlayer(ctx, this.conn.getMapTitle());
-    this.inputmgr = new InputManagerImpl();
+    this.inputmgr = new InputManagerImpl(ctx);
     
     this.players = new Map();
     this.addChild(this.tilemgr.root);
