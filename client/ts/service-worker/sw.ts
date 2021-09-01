@@ -61,7 +61,7 @@ const filesToCache = [
   "/res/mappack.glb",
   "/res/test.glb",
   "/res/untitled.glb",
-  "/res/woodworld.glb",
+  "/res/woodworld.png",
 
   // touch input
   "/res/touch/bomb.png",
