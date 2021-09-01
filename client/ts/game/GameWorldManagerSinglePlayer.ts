@@ -6,6 +6,7 @@ import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObje
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
 import { GameConnectionManagerSinglePlayer } from "./GameConnectionManagerSinglePlayer";
 import { MapManager } from "./MapManager";
+import { Counter } from "./ui/Counter";
 
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
@@ -16,6 +17,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private resetState: boolean;
 
   private deathDelta: number;
+
+  private counter: Counter;
 
   private conn : GameConnectionManagerSinglePlayer;
   constructor(ctx: GameContext) {
@@ -49,11 +52,16 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     this.resetObjectAttributes();
 
-    let final = document.getElementById("replay");
+    let final = document.getElementById("retry");
     final.addEventListener("click", () => {
       this.conn.reset();
-      document.getElementById("final-score").classList.add("hidden");
-    })
+      document.getElementById("score-panel").classList.add("hidden");
+    });
+
+    this.counter = new Counter(8);
+
+    document.getElementById("score-display").prepend(this.counter.getElement());
+    this.counter.getElement().id = "score-counter";
   }
 
   private resetObjectAttributes() {
@@ -98,9 +106,14 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
       this.deathDelta += delta;
 
-      let final = document.getElementById("final-score");
-      if (this.deathDelta > 0.5 && final.classList.contains("hidden")) {
-        final.classList.remove("hidden");
+      let final = document.getElementById("score-panel");
+      if (this.deathDelta > 0.5) {
+        if (final.classList.contains("hidden")) {
+          final.classList.remove("hidden");
+        }
+
+        let score = Math.min(Math.max((this.deathDelta - 0.5) * 300, 0), this.conn.getScore());
+        this.counter.setValue(score);
       }
 
       this.resetState = false;

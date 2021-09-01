@@ -258,30 +258,34 @@ export class TileManagerSinglePlayer implements TileManager {
 
     for (let enemyID of state.enemy.keys()) {
       let inst = state.enemy.get(enemyID);
-      if (!this.layerInstances.has(enemyID)) {
-        let tile = this.factory.getTileFromID(inst.type);
-        this.layerInstances.set(enemyID, tile);
-        this.root.addChild(tile);
+      let dist = Math.abs(inst.position[0] - playerInfo.position[0]);
+      if (dist < 30) {
+        if (!this.layerInstances.has(enemyID)) {
+          let tile = this.factory.getTileFromID(inst.type);
+          this.layerInstances.set(enemyID, tile);
+          this.root.addChild(tile);
+        }
+        
+        let obj = this.layerInstances.get(enemyID);
+        let offset = [inst.position[0] * 2 + this.origin[0], inst.position[1] * 2 + this.origin[1]];
+        obj.setPosition(offset[0], inst.position[2], offset[1]);
+        switch (inst.direction) {
+          case PlayerInputState.MOVE_LEFT:
+            obj.setRotationEuler(0, 180, 0);
+            break;
+          case PlayerInputState.MOVE_RIGHT:
+            obj.setRotationEuler(0, 0, 0);
+            break;
+          case PlayerInputState.MOVE_UP:
+            obj.setRotationEuler(0, 90, 0);
+            break;
+          case PlayerInputState.MOVE_DOWN:
+          default:
+            obj.setRotationEuler(0, 270, 0);
+            break;
+        }
       }
 
-      let obj = this.layerInstances.get(enemyID);
-      let offset = [inst.position[0] * 2 + this.origin[0], inst.position[1] * 2 + this.origin[1]];
-      obj.setPosition(offset[0], inst.position[2], offset[1]);
-      switch (inst.direction) {
-        case PlayerInputState.MOVE_LEFT:
-          obj.setRotationEuler(0, 180, 0);
-          break;
-        case PlayerInputState.MOVE_RIGHT:
-          obj.setRotationEuler(0, 0, 0);
-          break;
-        case PlayerInputState.MOVE_UP:
-          obj.setRotationEuler(0, 90, 0);
-          break;
-        case PlayerInputState.MOVE_DOWN:
-        default:
-          obj.setRotationEuler(0, 270, 0);
-          break;
-      }
     }
 
     let delID = [];

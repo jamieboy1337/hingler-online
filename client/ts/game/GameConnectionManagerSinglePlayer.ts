@@ -160,8 +160,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     if (!this.playerdead) {
       this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
       this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
-
-      document.getElementById("dist").textContent = Math.floor(this.playerpos[0] * 2) + "m";
     }
 
 
@@ -287,6 +285,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
 
     return res;
+  }
+
+  getScore() {
+    return Math.floor(this.playerpos[0] * 2);
   }
 
   private moveKnights(delta: number) {

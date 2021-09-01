@@ -11,7 +11,8 @@ module.exports = [{
   entry: {
     client: "./client/index",
     drawtest2: "./client/ts/drawtest2",
-    maptest: "./client/ts/maptest"
+    maptest: "./client/ts/maptest",
+    countertest: "./client/ts/countertest"
   },
 
   mode: "development",

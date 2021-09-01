@@ -1,3 +1,7 @@
+:root {
+  --brass-color: #F7C968;
+}
+
 body {
   margin: 0;
   overflow: hidden;
@@ -15,7 +19,7 @@ body {
   top: 16px;
 }
 
-#score {
+#score {  
   margin-bottom: 4px;
 }
 
@@ -108,4 +112,90 @@ body {
 
 .hidden {
   display: none;
+}
+
+#score-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 16px;
+  background-image: url("../res/woodworld.png");
+  overflow: hidden;
+  box-shadow: 0px 0px 12px 2px #000000;
+  font-weight: 700;
+}
+
+
+#score-counter {
+  border: 12px solid var(--brass-color);
+  border-radius: 4px 4px 0px 4px;
+  font-size: 0;
+  right: 0;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+#score-display {
+  margin: 16px;
+  margin-bottom: 72px;
+  position: relative;
+  left: 0;
+}
+
+#background-bar {
+  position: absolute;
+  background-color: var(--brass-color);
+  width: calc(100% + 32px);
+  left: -16px;
+  height: 32px;
+  top: 50%;
+  border-radius: 16px;
+  transform: translate(0%, -50%);
+  display: inline-block;
+  z-index: -25;
+}
+
+#score-meters {
+  margin: 0;
+  text-align: right;
+  background-color: var(--brass-color);
+  position: absolute;
+  right: 0;
+  border: 4px solid var(--brass-color);
+  font-size: 32px;
+  font-weight: 700;
+  border-radius: 0px 0px 4px 4px;
+}
+
+.score-button {
+  padding: 9px;
+  background-color: var(--brass-color);
+  font-size: 32px;
+  display: inline-block;
+}
+
+#score-counter .counter {
+  font-size: 64pt;
+}
+
+/* counter code */
+
+.counter {
+  display: inline-block;
+  border: 2px solid black;
+  background-color: #404040;
+  padding: 0px 4px;
+  color: rgba(0, 0, 0, 0);
+  overflow: hidden;
+  font-size: 48px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8); 
+  position: relative;
+}
+
+.counter-container {
+  position: absolute;
+  font-family: "Times New Roman", serif;
+  color: white;
+  /* padding: 0px 4px; */
 }
