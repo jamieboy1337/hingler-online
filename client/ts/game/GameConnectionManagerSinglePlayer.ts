@@ -49,11 +49,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private knightKills: number;
 
+  private bombCollision: Set<number>;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.state = new SinglePlayerMapState(11);
     this.playerpos = [0, 0];
     this.bombCount = 0;
+
+    this.bombCollision = new Set();
 
     this.playerdead = false;
 
@@ -175,7 +179,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
 
 
-    this.playerpos = this.stepInstance(this.playerpos, velo);
+    this.playerpos = this.stepInstance(this.playerpos, velo, true);
     // check if the player is near any explosion tiles (round test i think, round their pos and check if the tile is gone)
     // alternatively, we check every tile which they are at least .2 in (1 - 4 tiles)
     if (this.state.getTile(Math.round(this.playerpos[0]), Math.round(this.playerpos[1])) === TileID.EXPLOSION) {
@@ -197,9 +201,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
   }
 
-  private stepInstance(init: [number, number], velo: [number, number]) : [number, number] {
+  private stepInstance(init: [number, number], velo: [number, number], usePlayerBombCollision?: boolean) : [number, number] {
     let collisionIgnoreList : Array<vec2> = [];
 
+    // bomb collision: we want to roll off bombs when we run into them
+    // but players shouldn't do the same
+    // one solution would be to maintain a list of "nocollide" objects for every instance and just ignore those
+    // enemyinstances would have a "nocollide" list and whenever we make a new bomb, we check every instance to see if its near that bomb
+    // i fucking hate that
+    // i'll just leave this field open for the player and use it as needed >:)
     // if velo is too large: split this into multiple calls, to avoid skipping tiles
     if (Math.abs(velo[0]) > 0.5 || Math.abs(velo[1]) > 0.5) {
       let denom = Math.ceil(Math.max(Math.abs(velo[1] * 6), Math.abs(velo[0] * 6)));
@@ -212,14 +222,21 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       return res;
     }
 
-
-    // look in 3x3 area
-    let layerSearch = this.state.layer.getTilesInRange(Math.round(init[0] - 2), Math.round(init[1] - 2), Math.round(init[0] + 2), Math.round(init[1] + 2));
-    for (let inst of this.state.layer.values()) {
-      let pos = inst.position;
+    for (let inst of this.state.layer.entries()) {
+      let pos = inst[1].position;
       let delta = [Math.abs(pos[0] - init[0]), Math.abs(pos[1] - init[1])];
-      if (delta[0] < 0.999 && delta[1] < 0.999) {
+      // use the old ignore handler
+
+      if (usePlayerBombCollision && this.bombCollision.has(inst[0])) {
         collisionIgnoreList.push([pos[0], pos[1]]);
+      }
+      
+      if (delta[0] < 0.999 && delta[1] < 0.999) {
+        if (!usePlayerBombCollision) {
+          collisionIgnoreList.push([pos[0], pos[1]]);
+        }
+      } else if (usePlayerBombCollision) {
+        this.bombCollision.delete(inst[0]);
       }
     }
 
@@ -275,7 +292,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       check = check || (pos[0] === checkY[0] && pos[1] === checkY[1]);
       check = check || (pos[0] === checkXY[0] && pos[1] === checkXY[1]);
 
-      // neither tile collision is a problem -- bail out
+      // no tile collision is a problem -- bail out
       if (!check) {
         continue;
       }
@@ -300,12 +317,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         res[1] = Math.round(res[1]);
       }
 
-      if (pos[0] === checkXY[0] && pos[1] === checkXY[1]) {
-        let signMag = signFloat.map(Math.abs);
-        if (signMag[0] > signMag[1]) {
-          res[1] = Math.round(res[1]);
-        } else {
-          res[0] = Math.round(res[0]);
+      // ignore this -- treat it like tiles!
+      if (!usePlayerBombCollision) {
+        if (pos[0] === checkXY[0] && pos[1] === checkXY[1]) {
+          let signMag = signFloat.map(Math.abs);
+          if (signMag[0] > signMag[1]) {
+            res[1] = Math.round(res[1]);
+          } else {
+            res[0] = Math.round(res[0]);
+          }
         }
       }
     }
@@ -463,6 +483,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     this.state.layer.set(id, layer);
     this.bombCount++;
+
+    this.bombCollision.add(id);
   }
 
   private handleBombDetonate() {
@@ -512,5 +534,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
 
     this.bombCount = 0;
+    this.bombCollision.clear();
   }
 }
