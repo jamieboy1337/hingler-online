@@ -2,16 +2,38 @@ import { vec3 } from "gl-matrix";
 import { PlayerInputState } from "../PlayerInputState";
 import { TileID } from "./TileID";
 
-export interface LayerInstance {
-  // type of instance this is.
-  type: TileID;
+/**
+ * CRTP behavior for copy function
+ */
+export interface LayerInstanceInterface<Self> {
+  copyInstance() : Self;
 
-  // position of this instance.
-  // x/y are in tile space, z is world coordinates, relative to tile grid.
+  type: TileID;
   position: vec3;
 }
 
-export interface EnemyInstance extends LayerInstance {
+export class LayerInstance implements LayerInstanceInterface<LayerInstance> {
+  type: TileID;
+  position: vec3;
+
+  // add copy function?
+  copyInstance() {
+    let res = new LayerInstance();
+    res.type = this.type;
+    res.position = vec3.copy(vec3.create(), this.position);
+    return res;
+  }
+}
+
+export class EnemyInstance extends LayerInstance implements LayerInstanceInterface<EnemyInstance> {
   direction: PlayerInputState;
   // enemies which are "plucked" are dead (for now)
+
+  copyInstance() : EnemyInstance {
+    let res = new EnemyInstance();
+    res.position = vec3.copy(vec3.create(), this.position);
+    res.type = this.type;
+    res.direction = this.direction;
+    return res;
+  }
 }

@@ -1,10 +1,9 @@
-import { vec3 } from "gl-matrix";
-import { EnemyInstance } from "../../tile/LayerInstance";
+import { EnemyInstance, LayerInstance, LayerInstanceInterface } from "../../tile/LayerInstance";
 
-class EnemyMapIterator implements IterableIterator<[number, EnemyInstance]> {
+class EnemyMapIterator<T extends LayerInstanceInterface<T>> implements IterableIterator<[number, T]> {
   keys: IterableIterator<number>;
-  map: EnemyMap;
-  constructor(map: EnemyMap) {
+  map: EnemyMap<T>;
+  constructor(map: EnemyMap<T>) {
     this.keys = map.keys();
     this.map = map;
   }
@@ -14,7 +13,7 @@ class EnemyMapIterator implements IterableIterator<[number, EnemyInstance]> {
     // return copies!!! :D
     return {
       done: temp.done,
-      value: [temp.value, this.map.get(temp.value)] as [number, EnemyInstance]
+      value: [temp.value, this.map.get(temp.value)] as [number, T]
     }
   }
 
@@ -23,8 +22,8 @@ class EnemyMapIterator implements IterableIterator<[number, EnemyInstance]> {
   }
 }
 
-export class EnemyMap implements Map<number, EnemyInstance> {
-  private map: Map<number, EnemyInstance>;
+export class EnemyMap<T extends LayerInstanceInterface<T>> implements Map<number, T> {
+  private map: Map<number, T>;
   // y is let's say 32, x is much larger
   // hash as y + x * 32.
 
@@ -32,7 +31,6 @@ export class EnemyMap implements Map<number, EnemyInstance> {
 
   private hashCoordinate(x: number, y: number) {
     return Math.round(y) + Math.round(x) * 32;
-    let test = this.map[Symbol.iterator];
   }
 
   constructor() {
@@ -59,10 +57,15 @@ export class EnemyMap implements Map<number, EnemyInstance> {
   getEnemiesAtCoordinate(x: number, y: number) {
     let hash = this.hashCoordinate(x, y);
     if (this.positionToId.has(hash)) {
-      let ret : Array<EnemyInstance> = [];
+      let ret : Array<T> = [];
       let res = this.positionToId.get(hash);
       for (let enemyID of res) {
-        ret.push(this.copyEnemy(this.map.get(enemyID)));
+        ret.push(this.map.get(enemyID).copyInstance());
+      }
+
+      if (ret.length > 0) {
+        console.log(ret);
+        console.log(x + ", " + y);
       }
 
       return ret;
@@ -71,12 +74,23 @@ export class EnemyMap implements Map<number, EnemyInstance> {
     return [];
   }
 
+  getTilesInRange(minX: number, minY: number, maxX: number, maxY: number) {
+    let ret : Array<T> = [];
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        ret.concat(this.getEnemiesAtCoordinate(x, y));
+      }
+    }
+
+    return ret;
+  }
+
   [Symbol.iterator]() {
     // note: this is a risky vector
     // would like some way to return copies instead of the real deal since it muddies
     // our internal state
     // whatever i'll do it later
-    return new EnemyMapIterator(this);
+    return new EnemyMapIterator<T>(this);
   }
 
   get [Symbol.toStringTag]() {
@@ -105,7 +119,7 @@ export class EnemyMap implements Map<number, EnemyInstance> {
     return false;
   }
 
-  forEach(callbackfn: (value: EnemyInstance, key: number, map: Map<number, EnemyInstance>) => void, thisArg?: any) {
+  forEach(callbackfn: (value: T, key: number, map: Map<number, T>) => void, thisArg?: any) {
     for (let key of this.map.keys()) {
       callbackfn.bind((thisArg ? thisArg : this))(this.map.get(key), key, this.map);
     }
@@ -120,7 +134,7 @@ export class EnemyMap implements Map<number, EnemyInstance> {
     }
   }
 
-  private insertInstanceToPID(id: number, inst: EnemyInstance) {
+  private insertInstanceToPID(id: number, inst: T) {
     let hash = this.hashCoordinate(Math.round(inst.position[0]), Math.round(inst.position[1]));
     if (!this.positionToId.has(hash)) {
       this.positionToId.set(hash, new Set());
@@ -128,18 +142,10 @@ export class EnemyMap implements Map<number, EnemyInstance> {
     this.positionToId.get(hash).add(id);
   }
 
-  private copyEnemy(e: EnemyInstance) : EnemyInstance {
-    return {
-      type: e.type,
-      position: vec3.copy(vec3.create(), e.position),
-      direction: e.direction
-    }
-  }
-
   get(key: number) {
     let res = this.map.get(key);
     if (res !== undefined) {
-      return this.copyEnemy(res);
+      return res.copyInstance();
     }
 
     return undefined;
@@ -149,7 +155,7 @@ export class EnemyMap implements Map<number, EnemyInstance> {
     return this.map.has(key);
   }
 
-  set(key: number, value: EnemyInstance) {
+  set(key: number, value: T) {
     let old = this.map.get(key);
 
     if (old !== undefined) {

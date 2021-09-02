@@ -12,8 +12,8 @@ import { EnemyMap } from "./EnemyMap";
 export class SinglePlayerMapState implements GameMapState {
   gen: GridTileGenerator;
   cache: TileGrid<TileID>;
-  layer: Map<number, LayerInstance>;
-  enemy: EnemyMap;
+  layer: EnemyMap<LayerInstance>;
+  enemy: EnemyMap<EnemyInstance>;
   len: number;
 
   nextID: number;
@@ -24,7 +24,7 @@ export class SinglePlayerMapState implements GameMapState {
     this.cache.setOrigin(0, 0);
     this.cache.setDims(128, len);
 
-    this.layer = new Map();
+    this.layer = new EnemyMap();
     this.enemy = new EnemyMap();
     this.nextID = 0;
   }
@@ -61,11 +61,11 @@ export class SinglePlayerMapState implements GameMapState {
         // for a random generated tile, set some probability of placing a knight
         if (genTiles[j] === TileID.EMPTY && i > 20 && (Math.random() < 0.03)) {
           // tracking ID :(
-          this.enemy.set(this.nextID++, {
-            direction: PLAYER_MOTION_STATES[Math.floor(Math.random() * 4)],
-            type: TileID.ENEMY_KNIGHT,
-            position: [i, j, 0]
-          })
+          let enemy = new EnemyInstance();
+          enemy.position = [i, j, 0];
+          enemy.type = TileID.ENEMY_KNIGHT;
+          enemy.direction = PLAYER_MOTION_STATES[Math.floor(Math.random() * 4)];
+          this.enemy.set(this.nextID++, enemy);
         }
       }
     }

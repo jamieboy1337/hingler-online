@@ -7,6 +7,7 @@ import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
 import { shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
+import { LayerInstance } from "./tile/LayerInstance";
 
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
@@ -200,8 +201,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     let collisionIgnoreList : Array<vec2> = [];
 
     // if velo is too large: split this into multiple calls, to avoid skipping tiles
-    if (velo[0] > 1 || velo[1] > 1) {
-      let denom = Math.ceil(Math.max(velo[1] * 3, velo[0] * 3));
+    if (Math.abs(velo[0]) > 0.5 || Math.abs(velo[1]) > 0.5) {
+      let denom = Math.ceil(Math.max(Math.abs(velo[1] * 6), Math.abs(velo[0] * 6)));
       let velo_itr : [number, number] = [velo[0] / denom, velo[1] / denom];
       let res : [number, number];
       for (let i = 0; i < denom; i++) {
@@ -211,6 +212,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       return res;
     }
 
+
+    // look in 3x3 area
+    let layerSearch = this.state.layer.getTilesInRange(Math.round(init[0] - 2), Math.round(init[1] - 2), Math.round(init[0] + 2), Math.round(init[1] + 2));
     for (let inst of this.state.layer.values()) {
       let pos = inst.position;
       let delta = [Math.abs(pos[0] - init[0]), Math.abs(pos[1] - init[1])];
@@ -237,14 +241,13 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     let eTile = res.map(Math.round);
     let tile = this.state.fetchTiles(eTile[0] - 1, eTile[1] - 1, 3, 3);
-    let sign = [eTile[0] - res[0], eTile[1] - res[1]];
-
-    sign[0] = (sign[0] < 0 ? 1 : -1);
-    sign[1] = (sign[1] < 0 ? 1 : -1);
+    let signFloat = [eTile[0] - res[0], eTile[1] - res[1]];
+    let sign = [(signFloat[0] < 0 ? 1 : -1), (signFloat[1] < 0 ? 1 : -1)];
 
     let curtile = tile.getTile(eTile[0], eTile[1]);
     let checkX = [eTile[0] + sign[0], eTile[1]];
     let checkY = [eTile[0], eTile[1] + sign[1]];
+    let checkXY = [eTile[0] + sign[0], eTile[1] + sign[1]];
     let tileX = tile.getTile(checkX[0], checkX[1]);
     let tileY = tile.getTile(checkY[0], checkY[1]);
 
@@ -260,6 +263,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
     }
 
+    // todo: use enemymap to greatly limit number of layers checked
+
     for (let inst of this.state.layer.values()) {
       if (inst.type !== TileID.BOMB) {
         continue;
@@ -268,6 +273,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       let pos = inst.position;
       let check : boolean = (pos[0] === checkX[0] && pos[1] === checkX[1]);
       check = check || (pos[0] === checkY[0] && pos[1] === checkY[1]);
+      check = check || (pos[0] === checkXY[0] && pos[1] === checkXY[1]);
 
       // neither tile collision is a problem -- bail out
       if (!check) {
@@ -292,6 +298,15 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       
       if (pos[0] === checkY[0] && pos[1] === checkY[1]) {
         res[1] = Math.round(res[1]);
+      }
+
+      if (pos[0] === checkXY[0] && pos[1] === checkXY[1]) {
+        let signMag = signFloat.map(Math.abs);
+        if (signMag[0] > signMag[1]) {
+          res[1] = Math.round(res[1]);
+        } else {
+          res[0] = Math.round(res[0]);
+        }
       }
     }
 
@@ -442,10 +457,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
 
     let id = this.state.nextID++;
-    let layer = {
-      type: TileID.BOMB,
-      position: bombPos
-    };
+    let layer = new LayerInstance();
+    layer.type = TileID.BOMB;
+    layer.position = bombPos;
 
     this.state.layer.set(id, layer);
     this.bombCount++;
