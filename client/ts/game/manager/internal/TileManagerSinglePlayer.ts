@@ -31,10 +31,7 @@ export class TileManagerSinglePlayer implements TileManager {
   private xOffset: number;
 
   private players: Map<number, PlayerGameObject>;
-
-  private floorPieces : Array<GameObject>;
   private fieldPieces : Array<GameObject>;
-  private fieldPiecesBot : Array<GameObject>;
 
   // if a layer is removed, drop it.
   private layerInstances: Map<number, GameTile>;
@@ -45,30 +42,17 @@ export class TileManagerSinglePlayer implements TileManager {
 
   constructor(ctx: GameContext, mapTitle: string) {
     this.ctx = ctx;
-    this.fieldmgr = new FieldManagerSinglePlayer(ctx);
+
+    // :sade:
+    this.fieldmgr = new FieldManagerSinglePlayer(ctx, 11);
     this.root = new GameObject(ctx);
     this.tilesDestroying = new Set();
-    this.floorPieces = [];
-    this.fieldPieces = [];
-    this.fieldPiecesBot = [];
+    this.fieldPieces = new Array(3);
     this.fieldIndex = -1;
 
     this.deathDelta = 0;
 
     // bombs should probably be instanced but i dont care right now
-
-    for (let i = 0; i < 5; i++) {
-      this.floorPieces[i] = new GamePBRModel(ctx, "../res/grassworld.glb");
-      this.root.addChild(this.floorPieces[i]);
-    }
-
-    // on an update: if the number changes, reload the model
-    for (let i = 0; i < 3; i++) {
-      this.fieldPieces[i] = this.fieldmgr.getFieldModel(i);
-      this.fieldPiecesBot[i] = this.fieldmgr.getFieldModel(i);
-      this.root.addChild(this.fieldPieces[i]);
-      this.root.addChild(this.fieldPiecesBot[i]);
-    }
 
     this.lastUpdateGrid = new TileGrid();
     this.tilesCurrentGrid = new TileGrid();
@@ -354,19 +338,13 @@ export class TileManagerSinglePlayer implements TileManager {
       // update models, update positions
       for (let i = 0; i < this.fieldPieces.length; i++) {
         let piece = this.fieldmgr.getFieldModel(fieldIndex + i);
-        this.root.removeChild(this.fieldPieces[i].getId());
+        if (this.fieldPieces[i]) {
+          this.root.removeChild(this.fieldPieces[i].getId());
+        }
+
         this.root.addChild(piece);
         this.fieldPieces[i] = piece;
-        piece.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, yTop);
-
-        let pieceBot = this.fieldmgr.getFieldModel(fieldIndex + i);
-        this.root.removeChild(this.fieldPiecesBot[i].getId());
-        this.fieldPiecesBot[i] = pieceBot;
-        pieceBot.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, yBottom);
-        pieceBot.setRotationEuler(0, 180, 0);
-        if (i + fieldIndex !== 0) {
-          this.root.addChild(pieceBot);
-        }
+        piece.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, 0);
       }
     }
 
@@ -374,10 +352,13 @@ export class TileManagerSinglePlayer implements TileManager {
   }
 
   private handleFloorTiles(playerPos: vec2) {
-    let minTile = Math.max(Math.floor((playerPos[0] - 24) / 12), 0);
-    for (let i = 0; i < 5; i++) {
-      this.floorPieces[i].setPosition(this.origin[0] + 11 + (minTile * 24), 0, this.origin[1] + 10);
-      minTile++;
-    }
+    // figure out floor tile :3
+    // disjoint between floor tiles and field tiles
+    // delegate responsibility to field tiles???
+    // let minTile = Math.max(Math.floor((playerPos[0] - 24) / 12), 0);
+    // for (let i = 0; i < 5; i++) {
+    //   this.floorPieces[i].setPosition(this.origin[0] + 11 + (minTile * 24), 0, this.origin[1] + 10);
+    //   minTile++;
+    // }
   }
 }
