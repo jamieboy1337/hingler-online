@@ -1,7 +1,7 @@
 // expose functions to draw it
 // and expose functions to set instance state
 
-import { mat4 } from "gl-matrix";
+import { mat4, ReadonlyMat4 } from "gl-matrix";
 import { GameContext } from "../GameContext";
 import { InstancedModelImpl } from "../loaders/internal/InstancedModelImpl";
 import { InstancedShadowMaterial } from "../material/InstancedShadowMaterial";
@@ -40,7 +40,7 @@ export class PBRInstanceFactory implements InstancedModelFactory<PBRInstance> {
     return inst;
   }
 
-  private callbackfunc(mat: mat4, rc: RenderContext) {
+  private callbackfunc(mat: ReadonlyMat4, rc: RenderContext) {
     let pass = rc.getRenderPass();
     if (this.currentPass !== pass) {
       this.currentPass = pass;

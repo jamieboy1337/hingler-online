@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, ReadonlyMat4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { Texture } from "../gl/Texture";
 import { GameContext } from "../GameContext";
@@ -9,8 +9,8 @@ export class TextureAlbedoMaterial implements Material {
   private prog: WebGLProgram;
   private ctx: GameContext;
   
-  vpMat: mat4;
-  modelMat: mat4;
+  vpMat: ReadonlyMat4;
+  modelMat: ReadonlyMat4;
   tex: Texture;
 
   private locs: {
@@ -28,12 +28,9 @@ export class TextureAlbedoMaterial implements Material {
     this.ctx = ctx;
     this.prog = null;
 
-    this.vpMat = mat4.create();
-    this.modelMat = mat4.create();
+    this.vpMat = mat4.identity(mat4.create());
+    this.modelMat = mat4.identity(mat4.create());
     this.tex = null;
-
-    mat4.identity(this.vpMat);
-    mat4.identity(this.modelMat);
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/debug/texturetest.vert")

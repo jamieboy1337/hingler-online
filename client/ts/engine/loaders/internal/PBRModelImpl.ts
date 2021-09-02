@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, ReadonlyMat4 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
 import { Material } from "../../material/Material";
 import { PBRMaterialImpl } from "../../material/PBRMaterialImpl";
@@ -39,7 +39,7 @@ export class PBRModelImpl implements PBRModel {
     }
   }
 
-  drawPBR(modelMatrix: mat4, rc: RenderContext) {
+  drawPBR(modelMatrix: ReadonlyMat4, rc: RenderContext) {
     if (rc.getRenderPass() === RenderPass.SHADOW) {
       return this.drawPBRShadow(modelMatrix, rc);
     }
@@ -60,7 +60,7 @@ export class PBRModelImpl implements PBRModel {
     }
   }
 
-  drawPBRShadow(modelMatrix: mat4, rc: RenderContext) {
+  drawPBRShadow(modelMatrix: ReadonlyMat4, rc: RenderContext) {
     let info = rc.getActiveCameraInfo();
     for (let i = 0; i < this.instances.length; i++) {
       let mod = this.instances[i];

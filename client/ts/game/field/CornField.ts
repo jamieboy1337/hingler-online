@@ -41,12 +41,14 @@ export class CornField extends GameObject {
       }
 
       let cur = 0;
+      let cornmat = mat4.create();
       for (let i = -2; i >= -12; i -= 2) {
         for (let j = -20; j <= 20; j += 2) {
-          mat4.identity(corn.modelMat);
-          mat4.translate(corn.modelMat, corn.modelMat, [j, 0, i]);
-          mat4.rotate(corn.modelMat, corn.modelMat, this.rotcache[cur++] * 2 * Math.PI, [0, 1, 0]);
-          mat4.mul(corn.modelMat, mat, corn.modelMat);
+          mat4.identity(cornmat);
+          mat4.translate(cornmat, cornmat, [j, 0, i]);
+          mat4.rotate(cornmat, cornmat, this.rotcache[cur++] * 2 * Math.PI, [0, 1, 0]);
+          mat4.mul(cornmat, mat, cornmat);
+          corn.modelMat = cornmat;
           corn.draw(rc);
         }
       }

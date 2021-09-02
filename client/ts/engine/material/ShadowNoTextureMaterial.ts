@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, ReadonlyMat4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { GameContext } from "../GameContext";
 import { AttributeType, Model } from "../model/Model";
@@ -8,8 +8,8 @@ export class ShadowNoTextureMaterial implements Material {
   private prog: WebGLProgram;
   private ctx: GameContext;
 
-  modelMat: mat4;
-  shadowMat: mat4;
+  modelMat: ReadonlyMat4;
+  shadowMat: ReadonlyMat4;
 
   private attribs: {
     position: number;
@@ -24,11 +24,14 @@ export class ShadowNoTextureMaterial implements Material {
     this.ctx = ctx,
     this.prog = null;
 
-    this.modelMat = mat4.create();
-    this.shadowMat = mat4.create();
+    let modelMat = mat4.create();
+    let shadowMat = mat4.create();
 
-    mat4.identity(this.modelMat);
-    mat4.identity(this.shadowMat);
+    mat4.identity(modelMat);
+    mat4.identity(shadowMat);
+
+    this.modelMat = modelMat;
+    this.shadowMat = shadowMat;
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/shadownotexture/shadownotexture.vert")

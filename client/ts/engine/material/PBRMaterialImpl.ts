@@ -177,23 +177,17 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     let offset = 0;
     let offsetBuf = 0;
 
+    let normSpace : mat3 = mat3.create();
+
     for (let i = 0; i < instances; i++) {
-      let mat = new Float32Array(16) as mat4;
-      for (let j = 0; j < 16; j++) {
-        // add "getfloatarray" so that we can fetch data a bit more quickly?
-        mat[j] = buf.getFloat32(offset, true);
-        if (mat[j] === undefined) {
-          console.warn(`Reached end of buffer after processing ${i} arrays.`);
-        }
-        offset += 4;
-      }
+      let mat = buf.getFloat32Array(offset, 16);
+      offset += 64;
 
-      let norm = mat3.create();
-      norm = mat3.fromMat4(norm, mat);
-      norm = mat3.transpose(norm, norm);
-      norm =  mat3.invert(norm, norm);
+      mat3.fromMat4(normSpace, mat);
+      mat3.transpose(normSpace, normSpace);
+      mat3.invert(normSpace, normSpace);
 
-      this.normalBuffer.setFloatArray(offsetBuf, norm);
+      this.normalBuffer.setFloatArray(offsetBuf, normSpace);
       offsetBuf += 36;
     } 
   }

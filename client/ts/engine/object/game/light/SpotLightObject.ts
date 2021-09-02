@@ -68,7 +68,9 @@ export class SpotLightObject extends GameObject implements SpotLight {
   }
 
   getLightMatrix() {
-    let res = this.getTransformationMatrix();
+    let mat = this.getTransformationMatrix();
+    let res = mat4.create();
+    mat4.copy(res, mat);
     mat4.invert(res, res);
     let persp = mat4.create();
     mat4.perspective(persp, this.fov * (Math.PI / 180), 1, this.near, this.far);
@@ -84,16 +86,25 @@ export class SpotLightObject extends GameObject implements SpotLight {
     let pos = vec3.create();
     vec3.zero(pos);
     vec3.transformMat4(pos, pos, this.getTransformationMatrix());
+
+    
+    let view = mat4.create();
+    mat4.copy(view, this.getTransformationMatrix());
+    mat4.invert(view, view);
+    
+    let persp = mat4.create();
+    mat4.perspective(persp, this.fov * (Math.PI / 180), 1, this.near, this.far);
+    
+    let vp = mat4.create();
+    mat4.mul(vp, persp, view);
+
+
     let info : CameraInfo = {
-      viewMatrix: this.getTransformationMatrix(),
-      perspectiveMatrix: mat4.create(),
-      vpMatrix: mat4.create(),
+      viewMatrix: view,
+      perspectiveMatrix: persp,
+      vpMatrix: vp,
       cameraPosition: pos
     };
-
-    mat4.invert(info.viewMatrix, info.viewMatrix);
-    mat4.perspective(info.perspectiveMatrix, this.fov * (Math.PI / 180), 1, this.near, this.far);
-    mat4.mul(info.vpMatrix, info.perspectiveMatrix, info.viewMatrix);
 
     return info;
   }

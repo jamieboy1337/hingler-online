@@ -1,7 +1,7 @@
 import { GameContext } from "../../GameContext";
 import { EngineObject } from "../EngineObject";
 
-import { mat4, vec3, quat } from "gl-matrix";
+import { mat4, vec3, quat, ReadonlyMat4 } from "gl-matrix";
 import { RenderContext } from "../../render/RenderContext";
 
 /**
@@ -295,17 +295,10 @@ export class GameObject extends EngineObject {
   /**
    * @returns the transformation matrix associated with this GameObject.
    */
-  getTransformationMatrix() {
+  getTransformationMatrix() : ReadonlyMat4 {
     if (this.dirty) {
-      let res = mat4.create();
-      mat4.identity(res);
-  
-      let rot = mat4.create();
-      mat4.fromQuat(rot, this.rotation)
-      
-      res = mat4.translate(res, res, this.position);
-      res = mat4.mul(res, res, rot);
-      res = mat4.scale(res, res, this.scale);
+      let res = this.transform_cache;
+      mat4.fromRotationTranslationScale(res, this.rotation, this.position, this.scale);
       
       if (this.parent !== null) {
         mat4.mul(res, this.parent.getTransformationMatrix(), res);
@@ -315,6 +308,6 @@ export class GameObject extends EngineObject {
       this.dirty = false;
     }
 
-    return mat4.copy(mat4.create(), this.transform_cache);
+    return this.transform_cache;
   }
 }

@@ -1,4 +1,4 @@
-import { mat3, mat4, vec3, vec4 } from "gl-matrix";
+import { mat3, mat4, ReadonlyMat4, vec3, vec4 } from "gl-matrix";
 import { ShaderProgramBuilder } from "../gl/ShaderProgramBuilder";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { GameContext } from "../GameContext";
@@ -24,8 +24,8 @@ export class MatteMaterial implements Material {
   private progWrap: GLProgramWrap;
   private ctx: GameContext;
   private spot: Array<SpotLightStruct>;
-  vpMat: mat4;
-  modelMat: mat4;
+  vpMat: ReadonlyMat4;
+  modelMat: ReadonlyMat4;
   color: vec4;
   cameraPos: vec3;
 
@@ -49,14 +49,11 @@ export class MatteMaterial implements Material {
     this.ctx = ctx;
     this.prog = null;
 
-    this.vpMat = mat4.create();
-    this.modelMat = mat4.create();
+    this.vpMat = mat4.identity(mat4.create());
+    this.modelMat = mat4.identity(mat4.create());
     this.color = vec4.create();
 
     this.cameraPos = vec3.create();
-
-    mat4.identity(this.vpMat);
-    mat4.identity(this.modelMat);
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/matteshader/matteshader.vert")

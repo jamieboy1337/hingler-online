@@ -51,7 +51,7 @@ export class GameCamera extends GameObject implements Camera {
   }
 
   getViewMatrix() {
-    let vm = this.getTransformationMatrix();
+    let vm = mat4.copy(mat4.create(), this.getTransformationMatrix());
     mat4.invert(vm, vm);
     return vm;
   }

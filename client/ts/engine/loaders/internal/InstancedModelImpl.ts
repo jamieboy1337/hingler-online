@@ -1,3 +1,4 @@
+import { ReadonlyMat4 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
 import { GLBuffer, GLBufferReadOnly } from "../../gl/internal/GLBuffer";
 import { GLBufferImpl } from "../../gl/internal/GLBufferImpl";
@@ -126,7 +127,7 @@ export class InstancedModelImpl implements InstancedModel {
     this.instanceCount++;
   }
 
-  appendInstanceData(index: number, data: number | Array<number> | Float32Array, ...args: Array<number>) {
+  appendInstanceData(index: number, data: number | Array<number> | Float32Array | ReadonlyMat4, ...args: Array<number>) {
     let buf = this.instances.get(index);
     if (!buf) {
       buf = {

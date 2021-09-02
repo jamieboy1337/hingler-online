@@ -29,6 +29,8 @@ export interface GLBufferReadOnly {
   getInt32(offset: number, littleEndian?: boolean) : number;
   getUint32(offset: number, littleEndian?: boolean) : number;
   getFloat32(offset: number, littleEndian?: boolean) : number;
+  getFloat32Array(offset: number, num: number) : Float32Array;
+
   
   /**
    * @returns the size, in bytes, of the underlying buffer.

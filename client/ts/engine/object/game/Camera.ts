@@ -1,12 +1,12 @@
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, ReadonlyMat4, vec3 } from "gl-matrix";
 
 export interface CameraInfo {
   // view transform, preinverted
-  readonly viewMatrix: mat4;
+  readonly viewMatrix: ReadonlyMat4;
   // perspective transform
-  readonly perspectiveMatrix: mat4;
+  readonly perspectiveMatrix: ReadonlyMat4;
   // premultiplied view/perspective matrix, for convenience.
-  readonly vpMatrix: mat4;
+  readonly vpMatrix: ReadonlyMat4;
 
   // position of our camera in cartesian coordinates.
   readonly cameraPosition: vec3;

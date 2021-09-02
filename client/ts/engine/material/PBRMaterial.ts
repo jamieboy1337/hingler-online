@@ -1,4 +1,4 @@
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat4, ReadonlyMat4, vec3, vec4 } from "gl-matrix";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { Texture } from "../gl/Texture";
 import { Model } from "../model/Model";
@@ -9,8 +9,8 @@ import { PBRInterface } from "./PBRInterface";
 // come up with a way to factor that reuse out
 export interface PBRMaterial extends Material, PBRInterface { 
   
-  vpMat: mat4;
-  modelMat: mat4;
+  vpMat: ReadonlyMat4;
+  modelMat: ReadonlyMat4;
   
   color: Texture;
   colorFactor: vec4;

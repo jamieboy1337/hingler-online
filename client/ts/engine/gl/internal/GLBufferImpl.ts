@@ -1,3 +1,4 @@
+import { ReadonlyMat4 } from "gl-matrix";
 import { BufferTarget, DataType, DrawMode, GLBuffer } from "./GLBuffer";
 
 
@@ -233,6 +234,10 @@ export class GLBufferImpl implements GLBuffer {
     return this.view.getFloat32(offset, littleEndian);
   }
 
+  getFloat32Array(offset: number, num: number) {
+    return new Float32Array(this.buf, offset, num);
+  }
+
   setInt8(offset: number, value: number) {
     this.ensureInBounds(offset);
     this.view.setInt8(offset, value);
@@ -268,7 +273,7 @@ export class GLBufferImpl implements GLBuffer {
     this.view.setFloat32(offset, value, littleEndian);
   }
 
-  setFloatArray(offset: number, arr: Array<number> | Float32Array, littleEndian?: boolean) {
+  setFloatArray(offset: number, arr: Array<number> | Float32Array | ReadonlyMat4, littleEndian?: boolean) {
     this.ensureInBounds(offset + (4 * arr.length));
     let farr = new Float32Array(this.buf, offset, arr.length);
     farr.set(arr);

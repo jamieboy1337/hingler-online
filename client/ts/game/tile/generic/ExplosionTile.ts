@@ -47,7 +47,7 @@ export class ExplosionTile extends GameTile {
     // slightly different noise offsets, thresholds, and colors
     if (rc.getRenderPass() === RenderPass.FINAL && this.instance.valid()) {
       let inst = this.instance.get();
-      let mat = this.getTransformationMatrix();
+      let mat = mat4.copy(mat4.create(), this.getTransformationMatrix());
 
       inst.modelMat = mat;
       inst.threshold = this.thresh + 0.075;

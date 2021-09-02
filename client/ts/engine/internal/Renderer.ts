@@ -115,20 +115,26 @@ export class Renderer {
     if (cam) {
       info = cam.getCameraInfo();
     } else {
-      info = {
-        viewMatrix: mat4.create(),
-        perspectiveMatrix: mat4.create(),
-        vpMatrix: mat4.create(),
-        cameraPosition: vec3.create()
-      };
-
+      
+      let view = mat4.create();
+      let persp = mat4.create();
+      let vp = mat4.create();
+      let pos = vec3.create();
+      
       console.log("no active cam found");
-
-      mat4.identity(info.viewMatrix);
+      
+      mat4.identity(view);
       let rat = this.ctx.getScreenDims();
-      mat4.perspective(info.perspectiveMatrix, 1.0826, (rat[0] / rat[1]), 0.01, 100);
-      mat4.mul(info.vpMatrix, info.viewMatrix, info.perspectiveMatrix);
-      vec3.zero(info.cameraPosition);
+      mat4.perspective(persp, 1.0826, (rat[0] / rat[1]), 0.01, 100);
+      mat4.mul(vp, view, persp);
+      vec3.zero(pos);
+
+      info = {
+        viewMatrix: view,
+        perspectiveMatrix: persp,
+        vpMatrix: vp,
+        cameraPosition: pos
+      };
     }
 
     let rc : RenderContext = {
