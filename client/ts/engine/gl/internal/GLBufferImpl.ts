@@ -97,6 +97,11 @@ export class GLBufferImpl implements GLBuffer {
   // same thing as bindattribute but we want to add an additional step
   // where we specify the divisor in ext
   bindToInstancedVertexAttribute(location: number, components: number, type: number, normalize: boolean, stride: number, offset: number, divisor?: number) {
+    if (location < 0) {
+      // print stack trace to identify erroneous func call in firefox
+      console.error("LOCATION < 0");
+    }
+    
     if (divisor === undefined) {
       divisor = 1;
     }

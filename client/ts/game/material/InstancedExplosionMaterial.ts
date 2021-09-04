@@ -115,14 +115,13 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
       for (let i = 0; i < 4; i++) {
         let loc = this.attribs.model_matrix + i;
         let byteOffset = i * 16;
-        model.instanceAttribPointer(this.instanceIndices.modelMat, loc, 4, gl.FLOAT, false, 108, byteOffset);
+        model.instanceAttribPointer(this.instanceIndices.modelMat, loc, 4, gl.FLOAT, false, 96, byteOffset);
       }
 
       // todo: add params for offset, stride, etc. if necessary
-      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.threshold, 1, gl.FLOAT, false, 108, 64);
-      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.color, 4, gl.FLOAT, false, 108, 68);
-      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.noise_scale, 3, gl.FLOAT, false, 108, 84);
-      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.noise_offset, 3, gl.FLOAT, false, 108, 96);
+      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.threshold, 1, gl.FLOAT, false, 96, 64);
+      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.color, 4, gl.FLOAT, false, 96, 68);
+      model.instanceAttribPointer(this.instanceIndices.modelMat, this.attribs.noise_offset, 3, gl.FLOAT, false, 96, 84);
     }
   }
 

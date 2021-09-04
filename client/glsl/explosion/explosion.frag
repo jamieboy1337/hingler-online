@@ -9,7 +9,6 @@ varying vec2 v_tex;
 
 varying float v_threshold;
 varying vec4 v_col;
-varying vec3 v_noise_scale;
 varying vec3 v_noise_offset;
 
 uniform sampler2D noise_texture;
