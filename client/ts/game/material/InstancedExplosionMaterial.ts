@@ -27,7 +27,6 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     model_matrix: number,
     threshold: number,
     color: number,
-    noise_scale: number,
     noise_offset: number
   };
 
@@ -35,7 +34,6 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     modelMat: number,
     threshold: number,
     color: number,
-    noise_scale: number,
     noise_offset: number
   };
 
@@ -45,7 +43,6 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
       modelMat: -1,
       threshold: -1,
       color: -1,
-      noise_scale: -1,
       noise_offset: -1
     };
 
@@ -87,7 +84,6 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
       model_matrix: gl.getAttribLocation(prog, "model_matrix"),
       threshold: gl.getAttribLocation(prog, "threshold"),
       color: gl.getAttribLocation(prog, "color"),
-      noise_scale: gl.getAttribLocation(prog, "noise_scale"),
       noise_offset: gl.getAttribLocation(prog, "noise_offset")
     };
   }
