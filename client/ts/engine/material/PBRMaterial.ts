@@ -18,7 +18,7 @@ export interface PBRMaterial extends Material, PBRInterface {
   metalRough: Texture;
   metalFactor: number;
   roughFactor: number;
-
+  emission: Texture;
   emissionFactor: vec4;
 
   cameraPos: vec3;

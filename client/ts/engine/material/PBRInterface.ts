@@ -8,5 +8,6 @@ export interface PBRInterface {
   metalRough: Texture,
   metalFactor: number,
   roughFactor: number,
+  emission: Texture,
   emissionFactor: vec4
 };

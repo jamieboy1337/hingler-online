@@ -40,6 +40,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
   metalFactor: number;
   roughFactor: number;
 
+  emission: Texture;
   emissionFactor: vec4;
 
   // use a flag to indicate whether the model matrix should be used as an attribute
@@ -59,10 +60,12 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     texAlbedo: WebGLUniformLocation,
     texNorm: WebGLUniformLocation,
     texMetalRough: WebGLUniformLocation,
+    texEmission: WebGLUniformLocation,
 
     useAlbedo: WebGLUniformLocation,
     useNorm: WebGLUniformLocation,
     useRough: WebGLUniformLocation,
+    useEmission: WebGLUniformLocation,
 
     albedoDef: WebGLUniformLocation,
     roughDef: WebGLUniformLocation,
@@ -130,9 +133,11 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       texAlbedo: gl.getUniformLocation(prog, "tex_albedo"),
       texNorm: gl.getUniformLocation(prog, "tex_norm"),
       texMetalRough: gl.getUniformLocation(prog, "tex_metal_rough"),
+      texEmission: gl.getUniformLocation(prog, "tex_emission"),
       useAlbedo: gl.getUniformLocation(prog, "use_albedo"),
       useNorm: gl.getUniformLocation(prog, "use_norm"),
       useRough: gl.getUniformLocation(prog, "use_metal_rough"),
+      useEmission: gl.getUniformLocation(prog, "use_emission"),
       albedoDef: gl.getUniformLocation(prog, "color_factor"),
       roughDef: gl.getUniformLocation(prog, "rough_factor"),
       metalDef: gl.getUniformLocation(prog, "metal_factor"),
@@ -267,6 +272,14 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       } else {
         this.metalRough.bindToUniform(this.locs.texMetalRough, 2);
         gl.uniform1i(this.locs.useRough, 1);
+      }
+
+      if (this.emission === null) {
+        this.placeholder.bindToUniform(this.locs.texEmission, 3);
+        gl.uniform1i(this.locs.useEmission, 0);
+      } else {
+        this.emission.bindToUniform(this.locs.texEmission, 3);
+        gl.uniform1i(this.locs.useEmission, 1);
       }
       
       gl.uniform1f(this.locs.roughDef, this.roughFactor);

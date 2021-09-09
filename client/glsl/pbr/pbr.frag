@@ -28,12 +28,14 @@ uniform vec3 camera_pos;
 uniform sampler2D tex_albedo;
 uniform sampler2D tex_norm;
 uniform sampler2D tex_metal_rough;
+uniform sampler2D tex_emission;
 
 // 1 if the respective textures are to be used
 // 0 otherwise
 uniform int use_albedo;
 uniform int use_norm;
 uniform int use_metal_rough;
+uniform int use_emission;
 
 // defaults for color and rough if not texture
 // (normal uses v_norm)
@@ -97,7 +99,11 @@ void main() {
     col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
   }
 
-  col += vec4(emission_factor.rgb, 0.0);
+if (use_emission == 0) {
+  col += vec4(emision_factor.rgb, 0.0);
+} else {
+  col += vec4(texture2D(tex_emission, v_tex).rgb, 0.0);
+}
 
   gl_FragColor = vec4(col.xyz, 1.0);
 }
