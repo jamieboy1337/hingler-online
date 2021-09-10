@@ -99,6 +99,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     this.metalFactor = 1.0;
     this.roughFactor = 1.0;
     this.emissionFactor = vec4.create();
+    this.emission = null;
     vec4.zero(this.emissionFactor);
 
     this.cameraPos = vec3.create();

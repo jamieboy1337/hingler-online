@@ -99,11 +99,11 @@ void main() {
     col += vec4(C, 1.0) * getAmbientColor(ambient[i]);
   }
 
-if (use_emission == 0) {
-  col += vec4(emision_factor.rgb, 0.0);
-} else {
-  col += vec4(texture2D(tex_emission, v_tex).rgb, 0.0);
-}
+  if (use_emission == 0) {
+    col += vec4(emission_factor.rgb, 0.0);
+  } else {
+    col += vec4(texture2D(tex_emission, v_tex).rgb, 0.0);
+  }
 
   gl_FragColor = vec4(col.xyz, 1.0);
 }

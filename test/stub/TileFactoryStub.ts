@@ -133,4 +133,17 @@ export class TileFactoryStub implements TileFactory {
 
     return new KnightTile(this.ctx, loadtask.getFuture());
   }
+
+  protected loadInstanceFromFactory(fac: Future<PBRInstanceFactory>) {
+    let loadtask : Task<PBRInstance> = new Task();
+    if (fac.valid()) {
+      loadtask.resolve(fac.get().getInstance());
+    } else {
+      fac.wait().then((resFac) => {
+        loadtask.resolve(resFac.getInstance());
+      });
+    }
+
+    return loadtask.getFuture();
+  }
 }

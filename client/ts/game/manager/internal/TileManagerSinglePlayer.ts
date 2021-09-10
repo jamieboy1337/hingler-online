@@ -8,6 +8,7 @@ import { PlayerGameObject } from "../../PlayerGameObject";
 import { PlayerInputState } from "../../PlayerInputState";
 import { PlayerState } from "../../PlayerState";
 import { GameTile } from "../../tile/GameTile";
+import { LavaTileFactory } from "../../tile/instancefactory/LavaTileFactory";
 import { LayerInstance } from "../../tile/LayerInstance";
 import { TileFactory } from "../../tile/TileFactory";
 import { TileGrid } from "../../TileGrid";
@@ -15,12 +16,17 @@ import { FieldManager } from "../FieldManager";
 import { TileManager } from "../TileManager";
 import { FieldManagerSinglePlayer } from "./FieldManagerSinglePlayer";
 
+const TILES_PER_FIELD = 24;
+
+const LAVA_BARRIER = 240;
+
 // todo: lots of redundancy between this and what the multiplayer ver would look like
 // before creating a multiplayer, factor it out!
 export class TileManagerSinglePlayer implements TileManager {
   private ctx: GameContext;
   private tilesDestroying: Set<GameTile>;
   private factory: TileFactory;
+  private factoryLava: TileFactory;
   private tilesCurrentGrid: TileGrid<GameTile>;
   private lastUpdateGrid: TileGrid<number>;
   private fieldIndex: number;
@@ -61,14 +67,9 @@ export class TileManagerSinglePlayer implements TileManager {
 
     this.players = new Map();
     this.layerInstances = new Map();
+    this.factory = new TileFactoryStub(ctx);
 
-    switch (mapTitle) {
-      case "TEST_001":
-        this.factory = new TileFactoryStub(ctx);
-        break;
-      default:
-        console.warn("what");
-    }
+    this.factoryLava = new LavaTileFactory(ctx);
   }
 
   clear() {
@@ -175,7 +176,13 @@ export class TileManagerSinglePlayer implements TileManager {
           let offset = [i * 2 + this.origin[0], j * 2 + this.origin[1]];
           // origin is center of (0, 0)
           // we want to place our tiles at the corner of (5, 5) and (6, 6)
-          let newTile = this.factory.getTileFromID(tileID);
+          let newTile : GameTile;
+          if (i > LAVA_BARRIER) {
+            newTile = this.factoryLava.getTileFromID(tileID);
+          } else {
+            newTile = this.factory.getTileFromID(tileID);
+          }
+          
           if (newTile !== null) {
             newTile.setPosition(offset[0], 0, offset[1]);
             this.root.addChild(newTile);
