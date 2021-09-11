@@ -40,12 +40,28 @@ body {
   height: 100%;
 }
 
+#field-fg {
+  z-index: 10;
+}
+
+#walk-image {
+  z-index: 9;
+  bottom: -8px;
+}
+
 #score-counter-screen img {
   image-rendering: crisp-edges;
   image-rendering: pixelated;
   position: absolute;
   right: -16px;
-  bottom: -8px;
+}
+
+#field-bg {
+  z-index: 8;
+}
+
+#field-fg, #field-bg {
+  bottom: -12px;
 }
 
 #time {

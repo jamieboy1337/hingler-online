@@ -63,11 +63,6 @@ export class EnemyMap<T extends LayerInstanceInterface<T>> implements Map<number
         ret.push(this.map.get(enemyID).copyInstance());
       }
 
-      if (ret.length > 0) {
-        console.log(ret);
-        console.log(x + ", " + y);
-      }
-
       return ret;
     }
 

@@ -46,11 +46,15 @@ export class TileManagerSinglePlayer implements TileManager {
 
   readonly root: GameObject;
 
-  constructor(ctx: GameContext, mapTitle: string) {
+  constructor(ctx: GameContext, field?: FieldManager) {
     this.ctx = ctx;
 
     // :sade:
-    this.fieldmgr = new FieldManagerSinglePlayer(ctx, 11);
+    if (field) {
+      this.fieldmgr = field;
+    } else {
+      this.fieldmgr = new FieldManagerSinglePlayer(ctx, 11);
+    }
     this.root = new GameObject(ctx);
     this.tilesDestroying = new Set();
     this.fieldPieces = new Array(3);
@@ -176,12 +180,7 @@ export class TileManagerSinglePlayer implements TileManager {
           let offset = [i * 2 + this.origin[0], j * 2 + this.origin[1]];
           // origin is center of (0, 0)
           // we want to place our tiles at the corner of (5, 5) and (6, 6)
-          let newTile : GameTile;
-          if (i > LAVA_BARRIER) {
-            newTile = this.factoryLava.getTileFromID(tileID);
-          } else {
-            newTile = this.factory.getTileFromID(tileID);
-          }
+          let newTile = this.factory.getTileFromID(tileID);
           
           if (newTile !== null) {
             newTile.setPosition(offset[0], 0, offset[1]);

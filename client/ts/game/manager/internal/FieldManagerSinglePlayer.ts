@@ -13,6 +13,8 @@ export class FieldManagerSinglePlayer implements FieldManager {
   private grassmgr: GrassFieldManager;
   private lavamgr: LavaFieldManager;
   private beachmgr: BeachFieldManager;
+
+  private grassLen: number;
   private width: number;
   private seed: number;
   constructor(ctx: GameContext, width: number) {
@@ -20,16 +22,18 @@ export class FieldManagerSinglePlayer implements FieldManager {
     this.grassmgr = new GrassFieldManager(ctx, this.width);
     this.lavamgr = new LavaFieldManager(ctx, this.width);
     this.beachmgr = new BeachFieldManager(ctx, this.width);
+
+    this.grassLen = 10;
   }
 
   getFieldModel(n: number) {
     // let field managers take care of it
     // delegate responsibility for transitional fields to the next field
     // start from 0 at tx point
-    if (n < 2) {
+    if (n < this.grassLen) {
       return this.grassmgr.getFieldModel(n);
     } else {
-      return this.beachmgr.getFieldModel(n - 2);
+      return this.beachmgr.getFieldModel(n - this.grassLen);
     }
   }
 
@@ -38,5 +42,9 @@ export class FieldManagerSinglePlayer implements FieldManager {
     this.grassmgr.setFieldSeed(n);
     this.lavamgr.setFieldSeed(n);
     this.beachmgr.setFieldSeed(n);
+  }
+
+  setGrassLength(n: number) {
+    this.grassLen = n;
   }
 }

@@ -5,7 +5,9 @@ import { GameObject } from "../engine/object/game/GameObject";
 import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
+import { FieldManager } from "./manager/FieldManager";
 import { InputManager } from "./manager/InputManager";
+import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
 import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
 import { TileManagerSinglePlayer } from "./manager/internal/TileManagerSinglePlayer";
 import { TileManager } from "./manager/TileManager";
@@ -15,6 +17,15 @@ import { EnemyInfo } from "./ui/EnemyInfo";
 
 const MOVE_IMG = "../res/img/chewingcharacter_animated.gif";
 const STILL_IMG = "../res/img/charactermini_still.png";
+
+const GRASS_LEN = 2;
+
+enum FieldName {
+  GRASS,
+  BEACH,
+  MOUNTAIN,
+  LAVA
+};
 
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
@@ -33,12 +44,16 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
   private input: InputManager;
   private tile: TileManager;
+  private field: FieldManagerSinglePlayer;
 
   private motionState: boolean;
 
   private animImage: HTMLImageElement;
 
   private conn : GameConnectionManagerSinglePlayer;
+
+  private curfield: FieldName;
+
   constructor(ctx: GameContext) {
     super(ctx);
 
@@ -57,8 +72,11 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.conn = conn;
     
     this.input = new InputManagerImpl(ctx);
-    this.tile = new TileManagerSinglePlayer(ctx, "TEST_001");
-    
+    this.field = new FieldManagerSinglePlayer(ctx, 11);
+    this.tile = new TileManagerSinglePlayer(ctx, this.field);
+
+    this.field.setGrassLength(GRASS_LEN);
+
     let mapmgr = new MapManager(ctx, conn, this.input, this.tile);
 
     this.mgr = mapmgr;
@@ -133,6 +151,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   update() {
     let motion = this.input.getInputState();
     let inmotion = false;
+    let score = this.conn.getScore();
     for (let input of PLAYER_MOTION_STATES) {
       inmotion = inmotion || motion.has(input);
     }
@@ -148,9 +167,36 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.motionState = inmotion;
 
     let scorebox = document.getElementById("score-counter-screen");
-    this.scoreCounter.setValue(Math.floor(this.conn.getScore()));
+    this.scoreCounter.setValue(Math.floor(score));
     if (scorebox.classList.contains("hidden")) {
       scorebox.classList.remove("hidden");
+    }
+
+    let dist = score / 48;
+    let newfield : FieldName;
+
+    if (dist > GRASS_LEN) {
+      newfield = FieldName.BEACH;
+    } else {
+      newfield = FieldName.GRASS;
+    }
+
+    if (newfield !== this.curfield) {
+      let fg = document.getElementById("field-fg") as HTMLImageElement;
+      let bg = document.getElementById("field-bg") as HTMLImageElement;
+      switch (newfield) {
+        case FieldName.BEACH:
+          fg.src = "../res/img/fieldminis/beach_fg.png";
+          bg.src = "../res/img/fieldminis/beach_bg.png";
+          break;
+        case FieldName.GRASS:
+        default:
+          fg.src = "../res/img/fieldminis/field_fg.png";
+          bg.src = "../res/img/fieldminis/field_bg.png";
+          break;
+      }
+
+      this.curfield = newfield;
     }
 
     if (this.conn.killerIsDead) {
