@@ -75,18 +75,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
     }
 
-    this.scoreElem = document.createElement("div");
-    this.scoreElem.id = "info";
-    let score = document.createElement("div");
-    score.id = "score";
-    score.textContent = "0m";
-    this.scoreElem.appendChild(score);
-
-    let time = document.createElement("div");
-    time.id = "time";
-    time.textContent = "0s";
-    this.scoreElem.appendChild(time);
-    document.querySelector("body").appendChild(this.scoreElem);
 
     this.knightKills = 0;
   }
@@ -172,11 +160,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     
     // clear explosions
     this.clearExplosions();
-
-    if (!this.playerdead) {
-      this.scoreElem.querySelector("#score").textContent = Math.floor(this.playerpos[0] * 2) + "m";
-      this.scoreElem.querySelector("#time").textContent = Math.floor(this.time).toString() + "s";
-    }
 
 
     this.playerpos = this.stepInstance(this.playerpos, velo, true);
@@ -334,7 +317,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   getScore() {
-    return Math.floor(this.playerpos[0] * 2);
+    return this.playerpos[0] * 2;
   }
 
   private moveKnights(delta: number) {

@@ -4,10 +4,17 @@ import { GameCamera } from "../engine/object/game/GameCamera";
 import { GameObject } from "../engine/object/game/GameObject";
 import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
-import { GameConnectionManagerSinglePlayer } from "./GameConnectionManagerSinglePlayer";
+import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
+import { InputManager } from "./manager/InputManager";
+import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
+import { TileManagerSinglePlayer } from "./manager/internal/TileManagerSinglePlayer";
+import { TileManager } from "./manager/TileManager";
 import { MapManager } from "./MapManager";
 import { Counter } from "./ui/Counter";
 import { EnemyInfo } from "./ui/EnemyInfo";
+
+const MOVE_IMG = "../res/img/chewingcharacter_animated.gif";
+const STILL_IMG = "../res/img/charactermini_still.png";
 
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
@@ -22,6 +29,15 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private counter: Counter;
   private knightKills: EnemyInfo;
 
+  private scoreCounter: Counter;
+
+  private input: InputManager;
+  private tile: TileManager;
+
+  private motionState: boolean;
+
+  private animImage: HTMLImageElement;
+
   private conn : GameConnectionManagerSinglePlayer;
   constructor(ctx: GameContext) {
     super(ctx);
@@ -29,15 +45,24 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.deathDelta = 0;
     this.resetState = true;
 
+    this.motionState = false;
+
+    this.animImage = document.getElementById("walk-image") as HTMLImageElement;
+
     let cam = new GameCamera(ctx);
 
     let conn = new GameConnectionManagerSinglePlayer(ctx);
-    let mapmgr = new MapManager(ctx, conn);
+    
+    
+    this.conn = conn;
+    
+    this.input = new InputManagerImpl(ctx);
+    this.tile = new TileManagerSinglePlayer(ctx, "TEST_001");
+    
+    let mapmgr = new MapManager(ctx, conn, this.input, this.tile);
 
     this.mgr = mapmgr;
 
-    this.conn = conn;
-    
     this.addChild(conn);
     this.addChild(mapmgr);
     this.addChild(cam);
@@ -67,6 +92,9 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     this.knightKills = new EnemyInfo("../res/img/portrait_knight_final.png");
     document.getElementById("enemy-info").appendChild(this.knightKills.getElement());
+  
+    this.scoreCounter = new Counter(8);
+    document.getElementById("score-counter-screen").prepend(this.scoreCounter.getElement());
   }
 
   private resetObjectAttributes() {
@@ -103,6 +131,28 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   }
 
   update() {
+    let motion = this.input.getInputState();
+    let inmotion = false;
+    for (let input of PLAYER_MOTION_STATES) {
+      inmotion = inmotion || motion.has(input);
+    }
+
+    if (inmotion !== this.motionState) {
+      if (inmotion) {
+        this.animImage.src = MOVE_IMG;
+      } else {
+        this.animImage.src = STILL_IMG;
+      }
+    }
+
+    this.motionState = inmotion;
+
+    let scorebox = document.getElementById("score-counter-screen");
+    this.scoreCounter.setValue(Math.floor(this.conn.getScore()));
+    if (scorebox.classList.contains("hidden")) {
+      scorebox.classList.remove("hidden");
+    }
+
     if (this.conn.killerIsDead) {
       // toggle a flicket which positions the player
       // we need to figure out where the player is
@@ -117,9 +167,13 @@ export class GameWorldManagerSinglePlayer extends GameObject {
           final.classList.remove("hidden");
         }
 
+        if (!scorebox.classList.contains("hidden")) {
+          scorebox.classList.add("hidden");
+        }
+
         let t = Math.pow(this.deathDelta - 0.5, 1.8);
 
-        let score = Math.min(Math.max(t * 300, 0), this.conn.getScore());
+        let score = Math.min(Math.max(t * 300, 0), Math.floor(this.conn.getScore()));
         this.counter.setValue(score);
 
         let knightKills = Math.min(Math.max(t * 30, 0), this.conn.getKnightKillCount());
@@ -144,6 +198,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       this.resetState = true;
       this.resetObjectAttributes();
     }
+
+    // add counter to top of screen
   }
 
   private vecLerp(a: vec3, b: vec3, t: number) : [number, number, number] {

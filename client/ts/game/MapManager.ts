@@ -29,14 +29,24 @@ export class MapManager extends GameObject {
   inputMap: Map<PlayerInputState, number>;
   players: Map<number, GameObject>;
   time: number;
-  constructor(ctx: GameContext, conn: GameConnectionManager) {
+  constructor(ctx: GameContext, conn: GameConnectionManager, input?: InputManager, tile?: TileManager) {
     super(ctx);
     this.conn = conn;
     this.lastUpdate = null;
     this.inputMap = new Map();
     this.time = 0;
-    this.tilemgr = new TileManagerSinglePlayer(ctx, this.conn.getMapTitle());
-    this.inputmgr = new InputManagerImpl(ctx);
+
+    if (!tile) {
+      this.tilemgr = new TileManagerSinglePlayer(ctx, this.conn.getMapTitle());
+    } else {
+      this.tilemgr = tile;
+    }
+
+    if (!input) {
+      this.inputmgr = new InputManagerImpl(ctx);
+    } else {
+      this.inputmgr = input;
+    }
     
     this.players = new Map();
     this.addChild(this.tilemgr.root);
