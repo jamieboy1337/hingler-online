@@ -67,8 +67,6 @@ export class InputManagerImpl implements InputManager {
   }
 
   private handletouchstart_(e: TouchEvent) {
-    console.log("test");
-    console.log(e);
     document.getElementById("touch-controls").classList.remove("hidden");
     for (let touch of e.changedTouches) {
       this.touchMap.set(touch.identifier, touch);
@@ -81,8 +79,6 @@ export class InputManagerImpl implements InputManager {
       this.dirTouch = touch.identifier;
       this.setTouchZone(touch);
     }
-
-    console.log(this.dirTouch);
   }
 
   private updatetouchids_(e: TouchEvent) {
@@ -103,7 +99,6 @@ export class InputManagerImpl implements InputManager {
     let rect = this.touchImg.getBoundingClientRect();
     let center = [rect.x + rect.width / 2, rect.y + rect.height / 2];
     let dist = [e.clientX - center[0], e.clientY - center[1]];
-    console.log(dist);
 
     const ONE_SQRT_TWO = 1.0 / Math.sqrt(2);
     const M_PI_2 = Math.PI / 2;
