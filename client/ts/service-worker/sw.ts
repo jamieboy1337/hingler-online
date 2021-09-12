@@ -46,7 +46,6 @@ const filesToCache = [
   "/res/beachworld.glb",
   "/res/bomb.glb",
   "/res/chewingcharacter.glb",
-  "/res/cornplanet.glb",
   "/res/crate.glb",
   "/res/crate3d.glb",
   "/res/cubetest.glb",
