@@ -9,6 +9,12 @@ let engine : EngineContext;
 function main() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   window.addEventListener("resize", resizeCanvas);
+  // prevent right click, long press
+  window.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  });
   resizeCanvas();
   configureEngine();
 }
