@@ -51,7 +51,7 @@ body {
 .stats-add {
   position: absolute;
   top: 24px;
-  font-size: 24px;
+  font-size: 12px;
   background: linear-gradient(0deg, rgba(98,86,187,1) 0%, rgba(120,175,255,1) 100%);
   background: -webkit-linear-gradient(0deg, rgba(98,86,187,1) 0%, rgba(120,175,255,1) 100%);
   background-clip: text;
@@ -67,6 +67,7 @@ body {
 
 #stats-view p {
   margin-bottom: 8px;
+  font-size: 20px;
   margin-top: 8px;
   font-family: "JetBrains Mono";
   background: linear-gradient(90deg, rgba(226,39,14,1) 0%, rgba(217,100,15,1) 25%, rgba(255,231,0,1) 100%);

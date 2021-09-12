@@ -15,13 +15,14 @@ function main() {
     event.stopPropagation();
     return false;
   });
+
   resizeCanvas();
   configureEngine();
 }
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = document.body.clientWidth;
+  canvas.height = document.body.clientHeight;
 }
 
 function configureEngine() {
