@@ -4,13 +4,31 @@
     <script src="../js/maptest.js"></script>
     <link href="../css/maptest.css" rel="stylesheet" type="text/css" />
     <link href="../chewingchar.png" sizes="128x128" rel="apple-touch-icon" />
-    <meta name="viewport" content="" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Simple map test</title>
   </head>
   <body>
     <canvas id="canvas" width="640" height="640">WebGL not available on your browser :(</canvas>
     <div id="loading">
       <img src="../res/loading.png" />
+    </div>
+
+    <div id="stats-view">
+      <div class="stat-contents" id="stat-contents-radius">
+        <p>POW:&nbsp;&nbsp;&nbsp;&nbsp;<span id="stat-radius"></span></p>
+        <div class="stats-add"></div>
+      </div>
+
+      <div class="stat-contents" id="stat-contents-maxbomb">
+        <p>BOMBS:&nbsp;&nbsp;<span id="stat-maxbomb"></span></p>
+        <div class="stats-add"></div>
+      </div>
+
+      <div class="stat-contents" id="stat-contents-speed">
+        <p>SPEED:&nbsp;&nbsp;<span id="stat-speed"></span> m/s</p>
+        <div class="stats-add"></div>
+      </div>
     </div>
 
     <div id="score-counter-screen">

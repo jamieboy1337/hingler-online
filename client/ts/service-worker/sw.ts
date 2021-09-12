@@ -61,9 +61,22 @@ const filesToCache = [
   "/res/mappack.glb",
   "/res/test.glb",
   "/res/untitled.glb",
+  "/res/powerups.glb",
   "/res/woodworld.png",
 
   // image folder
+  "/res/img/portrait_knight_final.png",
+  "/res/img/fieldminis/beach_bg.png",
+  "/res/img/fieldminis/beach_fg.png",
+  "/res/img/fieldminis/field_bg.png",
+  "/res/img/fieldminis/field_fg.png",
+
+  "/res/img/powerup/bombs.png",
+  "/res/img/powerup/radius.png",
+  "/res/img/powerup/speed.png",
+
+  "/res/img/charactermini_still.png",
+  "/res/img/chewingcharacter_animated.gif",
   "/res/img/portrait_knight_final.png",
 
   // touch input

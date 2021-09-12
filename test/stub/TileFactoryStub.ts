@@ -11,6 +11,7 @@ import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
 import { ExplosionTile } from "../../client/ts/game/tile/generic/ExplosionTile";
 import { KnightTile } from "../../client/ts/game/tile/generic/KnightTile";
 import { ModelTile } from "../../client/ts/game/tile/generic/ModelTile";
+import { PowerupTile } from "../../client/ts/game/tile/generic/PowerupTile";
 import { ExplosionInstanceFactory } from "../../client/ts/game/tile/instancefactory/ExplosionInstanceFactory";
 import { ExplosionInstance } from "../../client/ts/game/tile/instancefactory/instance/ExplosionInstance";
 import { TileFactory } from "../../client/ts/game/tile/TileFactory";
@@ -26,14 +27,26 @@ export class TileFactoryStub implements TileFactory {
   wallFactory: PBRInstanceFactory;
   bombFactory: PBRInstanceFactory;
   knight: PBRInstanceFactory;
+
+  powerupPromise: Task<GLTFScene>;
+  speedPower: Task<PBRInstanceFactory>;
+  bombPower: Task<PBRInstanceFactory>;;
+  radiusPower: Task<PBRInstanceFactory>;;
   constructor(ctx: GameContext) {
     this.ctx = ctx;
     // create instances for all desired tiles
     this.crateFactory = null;
     this.explosionFactory = null;
     this.knight = null;
+
+    this.speedPower = new Task();
+    this.bombPower =  new Task();
+    this.radiusPower =  new Task();
+
     this.scenePromise = new Task();
+    this.powerupPromise = new Task();
     ctx.getGLTFLoader().loadAsGLTFScene("../res/crate3d.glb").then(this.configureCrateFactory.bind(this));
+    ctx.getGLTFLoader().loadAsGLTFScene("../res/powerups.glb").then(this.configurePowerupFactory.bind(this));
   }
 
   private configureCrateFactory(scene: GLTFScene) {
@@ -44,6 +57,13 @@ export class TileFactoryStub implements TileFactory {
     this.bombFactory = scene.getPBRInstanceFactory("Bomb");
     this.knight = (scene.getPBRInstanceFactory("knight"));
     this.scenePromise.resolve(scene);
+  }
+
+  private configurePowerupFactory(scene: GLTFScene) {
+    this.speedPower.resolve(scene.getPBRInstanceFactory("powerup_speed"));
+    this.bombPower.resolve(scene.getPBRInstanceFactory("powerup_bomb"));
+    this.radiusPower.resolve(scene.getPBRInstanceFactory("powerup_radius"));
+    this.powerupPromise.resolve(scene);
   }
 
   getTileFromID(id: number) : GameTile {
@@ -63,11 +83,20 @@ export class TileFactoryStub implements TileFactory {
           return this.getBomb();
         case TileID.ENEMY_KNIGHT:
           return this.getKnight();
+        case TileID.POWER_SPEED:
+          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.speedPower.getFuture()));
+        case TileID.POWER_BOMB:
+          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.bombPower.getFuture()));
+        case TileID.POWER_RADIUS:
+          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.radiusPower.getFuture()));
+        
       }
     }
 
     return null;
   }
+
+
 
   private getCrate() {
     let loadtask : Task<PBRInstance> = new Task(); 

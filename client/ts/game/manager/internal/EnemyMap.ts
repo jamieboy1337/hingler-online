@@ -57,10 +57,10 @@ export class EnemyMap<T extends LayerInstanceInterface<T>> implements Map<number
   getEnemiesAtCoordinate(x: number, y: number) {
     let hash = this.hashCoordinate(x, y);
     if (this.positionToId.has(hash)) {
-      let ret : Array<T> = [];
+      let ret : Array<[number, T]> = [];
       let res = this.positionToId.get(hash);
       for (let enemyID of res) {
-        ret.push(this.map.get(enemyID).copyInstance());
+        ret.push([enemyID, this.map.get(enemyID).copyInstance()]);
       }
 
       return ret;
@@ -70,7 +70,7 @@ export class EnemyMap<T extends LayerInstanceInterface<T>> implements Map<number
   }
 
   getTilesInRange(minX: number, minY: number, maxX: number, maxY: number) {
-    let ret : Array<T> = [];
+    let ret : Array<[number, T]> = [];
     for (let x = minX; x <= maxX; x++) {
       for (let y = minY; y <= maxY; y++) {
         ret.concat(this.getEnemiesAtCoordinate(x, y));

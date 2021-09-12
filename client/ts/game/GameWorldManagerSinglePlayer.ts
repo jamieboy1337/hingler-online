@@ -54,6 +54,29 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
   private curfield: FieldName;
 
+  private statview: HTMLElement;
+
+  private statRadius: HTMLElement;
+  private statBomb: HTMLElement;
+  private statSpeed: HTMLElement;
+
+  // addanims
+  private addRadius: HTMLElement;
+  private addBomb: HTMLElement;
+  private addSpeed: HTMLElement;
+
+  private lastRadius: number;
+  private lastBomb: number;
+  private lastSpeed: number;
+
+  private animateRadius: boolean;
+  private animateBomb: boolean;
+  private animateSpeed: boolean;
+
+  private addRadiusTime: number;
+  private addBombTime: number;
+  private addSpeedTime: number;
+
   constructor(ctx: GameContext) {
     super(ctx);
 
@@ -67,9 +90,29 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     let cam = new GameCamera(ctx);
 
     let conn = new GameConnectionManagerSinglePlayer(ctx);
-    
-    
     this.conn = conn;
+
+    this.statview = document.getElementById("stats-view");
+    this.statRadius = document.getElementById("stat-radius");
+    this.statBomb = document.getElementById("stat-maxbomb");
+    this.statSpeed = document.getElementById("stat-speed");
+
+    this.addRadius = document.getElementById("stat-contents-radius").querySelector(".stats-add");
+    this.addSpeed = document.getElementById("stat-contents-speed").querySelector(".stats-add");
+    this.addBomb = document.getElementById("stat-contents-maxbomb").querySelector(".stats-add");
+
+    this.addRadius.style.filter = "opacity(0)";
+    this.addSpeed.style.filter = "opacity(0)";
+    this.addBomb.style.filter = "opacity(0)";
+
+    this.animateRadius = false;
+    this.animateBomb = false;
+    this.animateSpeed = false;
+
+    this.lastRadius = this.conn.getRadius();
+    this.lastBomb = this.conn.getBombMax();
+    this.lastSpeed = this.conn.getSpeed();
+    
     
     this.input = new InputManagerImpl(ctx);
     this.field = new FieldManagerSinglePlayer(ctx, 11);
@@ -152,6 +195,54 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     let motion = this.input.getInputState();
     let inmotion = false;
     let score = this.conn.getScore();
+
+    if (this.lastBomb !== this.conn.getBombMax()) {
+      this.animateBomb = true;
+      this.addBombTime = 0;
+      this.addBomb.removeAttribute("time");
+      let delta = (this.conn.getBombMax() - this.lastBomb);
+      this.addBomb.textContent = (delta >= 0 ? "+" : "-") + Math.abs(delta).toString();
+      this.lastBomb = this.conn.getBombMax();
+    }
+
+    if (this.lastRadius !== this.conn.getRadius()) {
+      this.animateRadius = true;
+      this.addRadiusTime = 0;
+      this.addRadius.removeAttribute("time");
+      let delta = (this.conn.getRadius() - this.lastRadius);
+      this.addRadius.textContent = (delta >= 0 ? "+" : "-") + Math.abs(delta).toString();
+      this.lastRadius = this.conn.getRadius();
+    }
+
+    if (this.lastSpeed !== this.conn.getSpeed()) {
+      console.log("dingus");
+      this.animateSpeed = true;
+      this.addSpeedTime = 0;
+      this.addSpeed.removeAttribute("time");
+      let delta = (this.conn.getSpeed() - this.lastSpeed);
+      this.addSpeed.textContent = (delta >= 0 ? "+" : "-") + Math.abs(delta).toFixed(2).toString();
+      this.lastSpeed = this.conn.getSpeed();
+    }
+
+    if (this.animateBomb) {
+      this.addBombTime = this.animateAddText(this.addBomb, this.addBombTime);
+      this.animateBomb = (this.addBombTime <= 2.0);
+    }
+
+    if (this.animateRadius) {
+      this.addRadiusTime = this.animateAddText(this.addRadius, this.addRadiusTime);
+      this.animateRadius = (this.addRadiusTime <= 2.0);
+    }
+
+    if (this.animateSpeed) {
+      this.addSpeedTime = this.animateAddText(this.addSpeed, this.addSpeedTime);
+      this.animateSpeed = (this.addSpeedTime <= 2.0);
+    }
+
+    this.statRadius.textContent = this.conn.getRadius().toString();
+    this.statBomb.textContent = this.conn.getBombMax().toString();
+    this.statSpeed.textContent = this.conn.getSpeed().toFixed(2);
+
     for (let input of PLAYER_MOTION_STATES) {
       inmotion = inmotion || motion.has(input);
     }
@@ -199,6 +290,10 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       this.curfield = newfield;
     }
 
+    if (!this.conn.killerIsDead && this.statview.classList.contains("hidden")) {
+      this.statview.classList.remove("hidden");
+    }
+
     if (this.conn.killerIsDead) {
       // toggle a flicket which positions the player
       // we need to figure out where the player is
@@ -211,6 +306,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       if (this.deathDelta > 0.5) {
         if (final.classList.contains("hidden")) {
           final.classList.remove("hidden");
+          this.statview.classList.add("hidden");
         }
 
         if (!scorebox.classList.contains("hidden")) {
@@ -270,5 +366,20 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     quat.pow(res, res, t);
     quat.mul(res, a, res);
     return res;
+  }
+
+  private textfunc(t: number) {
+    return Math.max(Math.min(1.0 - (0.5 + (Math.pow(-(t - 1), 5) / 2)), 1.0), 0.0);
+  }
+
+  // returns true if the animation should continue, false otherwise
+  private animateAddText(elem: HTMLElement, t: number) {
+    t += this.getContext().getDelta();
+
+    let fade = this.textfunc(t);
+    console.log(fade);
+    elem.style.left = (80 + (fade * 160)) + "px";
+    elem.style.filter = "opacity(" + (1 * (1 - (2 * Math.abs(fade - 0.5)))) + ")";
+    return t;
   }
 }

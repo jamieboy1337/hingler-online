@@ -12,6 +12,10 @@ import { LayerInstance } from "./tile/LayerInstance";
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
 const knightSpeed = 1.5;
+const BOMB_RADIUS = 1;
+
+const CRATE_POWERUP_CHANCE = .05;
+const KNIGHT_POWERUP_CHANCE = .3;
 
 interface ExplosionRecord {
   time: number;
@@ -23,7 +27,6 @@ interface KnightState {
   direction: PlayerInputState;
 }
 
-const MAX_BOMB_COUNT = 8;
 const EXPLOSION_DUR = 0.15;
 // implement as game object so that we can receive update from root object
 // alternatively: we give it to some manager component which promises to update it
@@ -35,6 +38,11 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private playerdead: boolean;
   private playermotion: PlayerInputState;
   private playerdirection: PlayerInputState;
+
+  // stats
+  private maxBombCount: number;
+  private speed: number;
+  private radius: number;
 
   private loaded: boolean;
   // todo: implement a custom map (coordmap)
@@ -56,6 +64,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.state = new SinglePlayerMapState(11);
     this.playerpos = [0, 0];
     this.bombCount = 0;
+
+    this.maxBombCount = 1;
+    this.speed = 4.5;
+    this.radius = 1;
 
     this.bombCollision = new Set();
 
@@ -87,6 +99,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.playerpos = [0, 0];
     this.bombCount = 0;
     this.knightKills = 0;
+    this.maxBombCount = 1;
+    this.speed = 4.5;
+    this.radius = 1;
     this.playerdead = false;
     this.state = new SinglePlayerMapState(11);
 
@@ -145,16 +160,16 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     if (!this.playerdead) {
       switch (this.playermotion) {
         case PlayerInputState.MOVE_LEFT:
-          velo[0] = -6.0 * delta;
+          velo[0] = -this.speed * delta;
           break;
         case PlayerInputState.MOVE_RIGHT:
-          velo[0] = 6.0 * delta;
+          velo[0] = this.speed * delta;
           break;
         case PlayerInputState.MOVE_UP:
-          velo[1] = -6.0 * delta;
+          velo[1] = -this.speed * delta;
           break;
         case PlayerInputState.MOVE_DOWN:
-          velo[1] = 6.0 * delta;
+          velo[1] = this.speed * delta;
       }
     }
     
@@ -174,13 +189,40 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     for (let i = playertile[0] - 1; i <= playertile[0] + 1; i++) {
       for (let j = playertile[1] - 1; j <= playertile[1] + 1; j++) {
         let enemies = this.state.enemy.getEnemiesAtCoordinate(i, j);
-        for (let enemy of enemies) {
+        for (let enemyArr of enemies) {
+          let enemy = enemyArr[1];
           let delta = [Math.abs(this.playerpos[0] - enemy.position[0]), Math.abs(this.playerpos[1] - enemy.position[1])];
           if (delta[0] < 0.5 && delta[1] < 0.5) {
             this.playerdead = true;
           }
         }
       }
+    }
+
+    // check if the player can pick up a powerup
+    let layerNear = this.state.layer.getEnemiesAtCoordinate(playertile[0], playertile[1]);
+    if (layerNear.length > 0) {
+      for (let instArr of layerNear) {
+        let inst = instArr[1];
+        if (inst.type >= TileID.POWER_SPEED && inst.type <= TileID.POWER_RADIUS) {
+          this.state.layer.delete(instArr[0]);
+          this.handlePowerup(inst.type);
+        }
+      }
+    }
+
+  }
+
+  private handlePowerup(type: TileID) {
+    switch (type) {
+      case TileID.POWER_BOMB:
+        this.maxBombCount++;
+        break;
+      case TileID.POWER_RADIUS:
+        this.radius++;
+        break;
+      case TileID.POWER_SPEED:
+        this.speed += 0.2;
     }
   }
 
@@ -369,6 +411,14 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         if (tile === TileID.EXPLOSION) {
           // gone!
           this.state.enemy.delete(inst[0]);
+          let roll = Math.random();
+          if (roll < KNIGHT_POWERUP_CHANCE) {
+            let inst = new LayerInstance();
+            inst.type = this.getRandomKnightPowerup();
+            inst.position = [Math.round(fin[0]), Math.round(fin[1]), 0];
+            this.state.layer.set(this.state.nextID++, inst);
+          }
+          // spawn a powerup potentially
           this.knightKills++;
         }
         
@@ -438,12 +488,20 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   getBombMax() {
-    return MAX_BOMB_COUNT;
+    return this.maxBombCount;
+  }
+
+  getSpeed() {
+    return this.speed;
+  }
+
+  getRadius() {
+    return this.radius;
   }
 
   private handleBombPlace() {
     // max out
-    if (this.bombCount >= MAX_BOMB_COUNT) {
+    if (this.bombCount >= this.maxBombCount) {
       return;
     }
     let bombPos : vec3 = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1]), 0];
@@ -489,34 +547,144 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
     }
 
+    let explosionTiles = [];
     for (let id of bombIDs) {
       // get the bomb's position
-      // for every tile in its vicinity which is not a wall, place an explosion
-      // place a record of each explosion, so that we can clear them all
-      let pos = this.state.layer.get(id).position;
-      let minX = (Math.max(0, pos[0] - 1));
-      let maxX = pos[0] + 1;
-      let minY = Math.max(0, pos[1] - 1);
-      let maxY = Math.min(pos[1] + 1, this.state.dims[1] - 1)
+      // step along the x and y axes, placing explosions as we go
+      // bomb radius is determined by distance
+      // if we hit a wall, stop
+      // if we hit a crate, destroy it and stop.
 
-      for (let i = minX; i <= maxX; i++) {
-        for (let j = minY; j <= maxY; j++) {
-          let tile = this.state.getTile(i, j);
-          if (tile !== TileID.WALL) {
-            this.state.setTile(i, j, TileID.EXPLOSION);
-            this.detonations.add({
-              time: this.time,
-              x: i,
-              y: j
-            });
-          }
+      // TODO: add special bombs which slightly tweak this behavior.
+      let pos = this.state.layer.get(id).position;
+
+      let dist = 0;
+
+
+      while (dist <= this.radius) {
+        let bomb = [pos[0] - dist, pos[1]];
+        let det = this.createExplosion(bomb[0], bomb[1]);
+        if (det === 0) {
+          break;
         }
+        
+        explosionTiles.push(bomb);
+        if (det === 1) {
+          break;
+        }
+        dist++;
       }
 
+      dist = 1;
+      while (dist <= this.radius) {
+        let bomb = [pos[0] + dist, pos[1]];
+        let det = this.createExplosion(bomb[0], bomb[1]);
+        if (det === 0) {
+          break;
+        }
+        
+        explosionTiles.push(bomb);
+        if (det === 1) {
+          break;
+        }
+        dist++;
+      }
+
+      dist = 1;
+      while (dist <= this.radius) {
+        let bomb = [pos[0], pos[1] - dist];
+        let det = this.createExplosion(bomb[0], bomb[1]);
+        if (det === 0) {
+          break;
+        }
+        
+        explosionTiles.push(bomb);
+        if (det === 1) {
+          break;
+        }
+        dist++;
+      }
+
+      dist = 1;
+      while (dist <= this.radius) {
+        let bomb = [pos[0], pos[1] + dist];
+        let det = this.createExplosion(bomb[0], bomb[1]);
+        if (det === 0) {
+          break;
+        }
+        
+        explosionTiles.push(bomb);
+        if (det === 1) {
+          break;
+        }
+        dist++;
+      }
+      
+
       this.state.layer.delete(id);
+
+    }
+    
+    for (let tile of explosionTiles) {
+      let delType = this.state.getTile(tile[0], tile[1]);
+      this.state.setTile(tile[0], tile[1], TileID.EXPLOSION);
+
+      // this does not work
+      // we need this kind of free control though
+      // store x, y, and tile
+      this.detonations.add({
+        "time": this.time,
+        "x": tile[0],
+        "y": tile[1]
+      });
+
+      // TODO: item spawning?
+      if (delType === TileID.CRATE) {
+        // spawn an item (low low chance of spawn)
+        if (Math.random() < CRATE_POWERUP_CHANCE) {
+          let inst = new LayerInstance();
+          inst.type = this.getRandomCratePowerup();
+          inst.position = [tile[0], tile[1], 0];
+          this.state.layer.set(this.state.nextID++, inst);
+        }
+      }
     }
 
     this.bombCount = 0;
     this.bombCollision.clear();
+  }
+
+  private getRandomCratePowerup() {
+    let seed = Math.random();
+    if (seed > 0.9) {
+      return TileID.POWER_BOMB;
+    } else if (seed > 0.7) {
+      return TileID.POWER_RADIUS;
+    } else {
+      return TileID.POWER_SPEED;
+    }
+  }
+
+  private getRandomKnightPowerup() {
+    let seed = Math.random();
+    if (seed > 0.8) {
+      return TileID.POWER_BOMB;
+    } else {
+      return TileID.POWER_SPEED;
+    }
+  }
+
+  // return 2 for continue, 1 for crate, 0 for wall.
+  private createExplosion(x: number, y: number) : number {
+    if (x < 0 || y < 0 || y >= 11) {
+      return 0;
+    }
+
+    let tile = this.state.getTile(x, y);
+    if (tile === TileID.WALL) {
+      return 0;
+    } else {
+      return (tile !== TileID.CRATE ? 2 : 1);
+    }
   }
 }
