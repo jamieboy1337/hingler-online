@@ -5,7 +5,6 @@ import { GameObject } from "../engine/object/game/GameObject";
 import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
-import { FieldManager } from "./manager/FieldManager";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
 import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
@@ -215,7 +214,6 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     }
 
     if (this.lastSpeed !== this.conn.getSpeed()) {
-      console.log("dingus");
       this.animateSpeed = true;
       this.addSpeedTime = 0;
       this.addSpeed.removeAttribute("time");
@@ -377,7 +375,6 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     t += this.getContext().getDelta();
 
     let fade = this.textfunc(t);
-    console.log(fade);
     elem.style.left = (80 + (fade * 160)) + "px";
     elem.style.filter = "opacity(" + (1 * (1 - (2 * Math.abs(fade - 0.5)))) + ")";
     return t;
