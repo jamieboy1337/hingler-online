@@ -16,6 +16,7 @@ const filesToCache = [
   "/chewingchar.png",
 
   "/html/maptest.html",
+  "/html/manifest.json",
   "/css/maptest.css",
   "/js/maptest.js",
 
@@ -26,12 +27,20 @@ const filesToCache = [
   "/glsl/debug/texturetest.vert",
   "/glsl/explosion/explosion.frag",
   "/glsl/explosion/explosion.vert",
+  "/glsl/explosionglow/explosionglow.vert",
+  "/glsl/explosionglow/explosionglow.frag",
+  "/glsl/game/termshock/termshock.vert",
+  "/glsl/game/termshock/termshock.frag",
+
+  "/glsl/includes/radialblur.inc.glsl",
+  "/glsl/includes/gradient.inc.glsl",
   "/glsl/includes/spotlight/attenuation.inc.glsl",
   "/glsl/includes/spotlight/spotlight.inc.glsl",
   "/glsl/includes/ambient.inc.glsl",
   "/glsl/includes/constants.inc.glsl",
   "/glsl/includes/opensimplex.inc.glsl",
   "/glsl/includes/pbr.inc.glsl",
+
   "/glsl/matteshader/matteshader.frag",
   "/glsl/matteshader/matteshader.vert",
   "/glsl/pbr/pbr.frag",
@@ -48,6 +57,7 @@ const filesToCache = [
   "/res/chewingcharacter.glb",
   "/res/crate.glb",
   "/res/crate3d.glb",
+  "/res/crate3d_lava.glb",
   "/res/cubetest.glb",
   "/res/enemy1.glb",
   "/res/explosiontex.png",
@@ -58,10 +68,15 @@ const filesToCache = [
   "/res/lavaworld.glb",
   "/res/loading.png",
   "/res/mappack.glb",
+  "/res/terminationshock.glb",
   "/res/test.glb",
   "/res/untitled.glb",
   "/res/powerups.glb",
   "/res/woodworld.png",
+
+  // fonts
+  "/res/font/JetBrainsMono-Italic-VariableFont_wght.ttf",
+  "/res/font/WorkSans-VariableFont_wght.ttf",
 
   // image folder
   "/res/img/portrait_knight_final.png",
