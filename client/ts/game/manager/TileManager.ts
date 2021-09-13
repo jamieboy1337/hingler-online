@@ -1,4 +1,5 @@
 import { GameObject } from "../../engine/object/game/GameObject";
+import { GameConnectionManager } from "../GameConnectionManager";
 import { GameMapState } from "../GameMapState";
 import { PlayerState } from "../PlayerState";
 

@@ -37,7 +37,7 @@ export class MapManager extends GameObject {
     this.time = 0;
 
     if (!tile) {
-      this.tilemgr = new TileManagerSinglePlayer(ctx);
+      this.tilemgr = new TileManagerSinglePlayer(ctx, null);
     } else {
       this.tilemgr = tile;
     }

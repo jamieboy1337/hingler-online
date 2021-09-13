@@ -1,4 +1,4 @@
-import { quat, vec3, vec4 } from "gl-matrix";
+import { mat4, quat, vec3, vec4 } from "gl-matrix";
 import { Task } from "../../../ts/util/task/Task";
 import { GameContext } from "../engine/GameContext";
 import { Model } from "../engine/model/Model";
@@ -20,7 +20,9 @@ import { EnemyInfo } from "./ui/EnemyInfo";
 const MOVE_IMG = "../res/img/chewingcharacter_animated.gif";
 const STILL_IMG = "../res/img/charactermini_still.png";
 
-const GRASS_LEN = 2;
+const GRASS_LEN = 8;
+
+const GAMMA_POW = 2.2;
 
 enum FieldName {
   GRASS,
@@ -45,7 +47,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private scoreCounter: Counter;
 
   private input: InputManager;
-  private tile: TileManager;
+  private tile: TileManagerSinglePlayer;
   private field: FieldManagerSinglePlayer;
 
   private motionState: boolean;
@@ -55,6 +57,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private conn : GameConnectionManagerSinglePlayer;
 
   private curfield: FieldName;
+
+  private termShock: GameObject;
 
   private statview: HTMLElement;
 
@@ -91,18 +95,6 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     let cam = new GameCamera(ctx);
 
-    let shockScene = ctx.getGLTFLoader().loadAsGLTFScene("../res/terminationshock.glb");
-
-    let shockSceneTask : Task<Model> = new Task();
-    shockScene.then(scene => {
-      shockSceneTask.resolve(scene.getModel("explosion"));
-    });
-
-    // create explosion instance
-    let shock = new TerminationShock(ctx, shockSceneTask.getFuture(), cam);
-    this.addChild(shock);
-    shock.setPosition(0, 0, 0);
-
     let conn = new GameConnectionManagerSinglePlayer(ctx);
     this.conn = conn;
 
@@ -130,7 +122,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     
     this.input = new InputManagerImpl(ctx);
     this.field = new FieldManagerSinglePlayer(ctx, 11);
-    this.tile = new TileManagerSinglePlayer(ctx, this.field);
+    this.tile = new TileManagerSinglePlayer(ctx, cam, this.field);
 
     this.field.setGrassLength(GRASS_LEN);
 
@@ -205,10 +197,39 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.mgr.clear();
   }
 
+  private colLerp(a: vec4, b: vec4, t: number) {
+    let res = vec4.create();
+    vec4.zero(res);
+    let btemp = vec4.zero(vec4.create());
+    vec4.copy(res, a);
+    vec4.scale(res, res, t);
+    vec4.copy(btemp, b);
+    vec4.scale(btemp, btemp, (1 - t));
+    vec4.add(res, res, btemp);
+    return res;
+  }
+
   update() {
     let motion = this.input.getInputState();
     let inmotion = false;
     let score = this.conn.getScore();
+
+    let shock = this.conn.getTermShock();
+    this.tile.setTermShockPosition(shock);
+    let playerpos = this.conn.getPlayerList().get(1).position;
+    let shockDist = playerpos[0] - shock;
+
+    let tShock = Math.pow(Math.min(Math.max((shockDist - 5) / 15, 0.0), 1.0), GAMMA_POW);
+    let lightCol = this.colLerp([1, 1, 1, 1], [1, 0.1, 0, 1], tShock);
+    let ambIntensity = tShock * 0.3;
+
+    this.spotShadow.color = lightCol;
+    this.ambient.intensity = ambIntensity;
+    // map distance from player to termshock
+    // 20 - like 4 or 5 : turn the screen redder, lower the ambient
+
+
+
 
     if (this.lastBomb !== this.conn.getBombMax()) {
       this.animateBomb = true;

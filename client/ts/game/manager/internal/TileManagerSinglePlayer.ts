@@ -1,8 +1,13 @@
 import { vec2 } from "gl-matrix";
 import { TileFactoryStub } from "../../../../../test/stub/TileFactoryStub";
+import { Task } from "../../../../../ts/util/task/Task";
 import { GameContext } from "../../../engine/GameContext";
+import { Model } from "../../../engine/model/Model";
+import { GameCamera } from "../../../engine/object/game/GameCamera";
 import { GameObject } from "../../../engine/object/game/GameObject";
 import { GamePBRModel } from "../../../engine/object/game/GamePBRModel";
+import { TerminationShock } from "../../field/TerminationShock";
+import { GameConnectionManager } from "../../GameConnectionManager";
 import { GameMapState } from "../../GameMapState";
 import { PlayerGameObject } from "../../PlayerGameObject";
 import { PlayerInputState } from "../../PlayerInputState";
@@ -31,6 +36,8 @@ export class TileManagerSinglePlayer implements TileManager {
   private lastUpdateGrid: TileGrid<number>;
   private fieldIndex: number;
 
+  private shockLoc: number;
+
   private fieldmgr: FieldManager;
   private origin: [number, number];
 
@@ -46,8 +53,12 @@ export class TileManagerSinglePlayer implements TileManager {
 
   readonly root: GameObject;
 
-  constructor(ctx: GameContext, field?: FieldManager) {
+  private termShock: TerminationShock;
+
+  constructor(ctx: GameContext, cam: GameCamera, field?: FieldManager) {
     this.ctx = ctx;
+
+    this.shockLoc = -100;
 
     // :sade:
     if (field) {
@@ -55,7 +66,18 @@ export class TileManagerSinglePlayer implements TileManager {
     } else {
       this.fieldmgr = new FieldManagerSinglePlayer(ctx, 11);
     }
+
     this.root = new GameObject(ctx);
+    let shockScene = ctx.getGLTFLoader().loadAsGLTFScene("../res/terminationshock.glb");
+
+    let shockSceneTask : Task<Model> = new Task();
+    shockScene.then(scene => {
+      shockSceneTask.resolve(scene.getModel("explosion"));
+    });
+
+    this.termShock = new TerminationShock(ctx, shockSceneTask.getFuture(), cam);
+    this.root.addChild(this.termShock);
+
     this.tilesDestroying = new Set();
     this.fieldPieces = new Array(3);
     this.fieldIndex = -1;
@@ -107,7 +129,12 @@ export class TileManagerSinglePlayer implements TileManager {
     return [0, 0, 0] as [number, number, number];
   }
 
+  setTermShockPosition(pos: number) {
+    this.shockLoc = pos;
+  }
+
   updateTiles(state: GameMapState, players: Map<number, PlayerState>) {
+    this.termShock.setPosition(this.shockLoc * 2 + this.origin[0], 0, 0);
     // figure out where the player is (later)
     // fetch only the tiles around them
     // update those

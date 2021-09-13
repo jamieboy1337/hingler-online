@@ -1,4 +1,4 @@
-import { mat4, ReadonlyMat4, vec4 } from "gl-matrix";
+import { mat4, ReadonlyMat4, vec2, vec4 } from "gl-matrix";
 import { GameContext } from "../../engine/GameContext";
 import { Framebuffer } from "../../engine/gl/Framebuffer";
 import { ColorFramebuffer } from "../../engine/gl/internal/ColorFramebuffer";
@@ -8,6 +8,7 @@ import { Material } from "../../engine/material/Material";
 import { PostProcessingFilter } from "../../engine/material/PostProcessingFilter";
 import { AttributeType, Model } from "../../engine/model/Model";
 import { GameModel } from "../../engine/object/game/GameModel";
+import { GameObject } from "../../engine/object/game/GameObject";
 import { RenderContext } from "../../engine/render/RenderContext";
 
 const gradientCols : Array<vec4> = [
@@ -37,7 +38,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   private colUnif : WebGLUniformLocation;
   private depthUnif : WebGLUniformLocation;
   private explosionUnif : WebGLUniformLocation;
-
+  private explosionZ : WebGLUniformLocation;
 
   private explosionColorShader : WebGLProgram;
   private posLocColor : number;
@@ -46,15 +47,18 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   private vpMatUnif      : WebGLUniformLocation;
   private resolutionUnif : WebGLUniformLocation;
   private depthUnifCol   : WebGLUniformLocation;
+  private glowCenter     : WebGLUniformLocation;
 
   private explosion: GameModel;
+  private explosionCenter: GameObject;
 
   vpMat : ReadonlyMat4;
   tex : Texture;
 
-  constructor(ctx: GameContext, explosion: GameModel) {
+  constructor(ctx: GameContext, explosion: GameModel, explosionCenter: GameObject) {
     super(ctx);
     this.explosion = explosion;
+    this.explosionCenter = explosionCenter;
     this.explosionFramebuffer = new ColorFramebuffer(ctx, ctx.getScreenDims());
     this.glowShader = null;
     this.explosionColorShader = null;
@@ -83,6 +87,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     this.colUnif = gl.getUniformLocation(prog, "uColor");
     this.depthUnif = gl.getUniformLocation(prog, "uDepth");
     this.explosionUnif = gl.getUniformLocation(prog, "uExplosion");
+    this.glowCenter = gl.getUniformLocation(prog, "glowCenter");
   }
 
   private bindUniformsColor(prog: WebGLProgram) {
@@ -103,6 +108,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     this.vpMatUnif = gl.getUniformLocation(prog, "vp_matrix");
     this.resolutionUnif = gl.getUniformLocation(prog, "resolution");
     this.depthUnifCol = gl.getUniformLocation(prog, "uDepth");
+    this.explosionZ = gl.getUniformLocation(prog, "explosionZ");
   }
 
   runFilter(src: Framebuffer, dst: Framebuffer, rc: RenderContext) {
@@ -146,6 +152,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     gl.uniformMatrix4fv(this.vpMatUnif, false, this.vpMat);
 
     gl.uniform2fv(this.resolutionUnif, this.getContext().getScreenDims());
+    gl.uniform1f(this.explosionZ, this.explosion.getPosition()[0]);
     this.tex.bindToUniform(this.depthUnifCol, 1);
 
     model.bindAttribute(AttributeType.POSITION, this.posLocColor);
@@ -173,6 +180,14 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     src.getColorTexture().bindToUniform(this.colUnif, 1);
     src.getDepthTexture().bindToUniform(this.depthUnif, 2);
     this.explosionFramebuffer.getColorTexture().bindToUniform(this.explosionUnif, 3);
+
+    let explosionCenterCoord = vec4.create();
+
+    let explosionCenterPos = this.explosionCenter.getGlobalPosition();
+    explosionCenterCoord = vec4.fromValues(explosionCenterPos[0], explosionCenterPos[1], explosionCenterPos[2], 1.0);
+    vec4.transformMat4(explosionCenterCoord, explosionCenterCoord, this.vpMat);
+    explosionCenterCoord = explosionCenterCoord.map((val) => ((val / explosionCenterCoord[3]) + 1) / 2) as [number, number, number, number];
+    gl.uniform2fv(this.glowCenter, explosionCenterCoord.slice(0, 2));
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 

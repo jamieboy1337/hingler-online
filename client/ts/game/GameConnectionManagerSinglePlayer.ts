@@ -14,8 +14,13 @@ export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputStat
 const knightSpeed = 1.5;
 const BOMB_RADIUS = 1;
 
-const CRATE_POWERUP_CHANCE = .05;
-const KNIGHT_POWERUP_CHANCE = .3;
+const TERM_SHOCK_COEFF = (1 / 200);
+
+
+// todo: add grades of powerups
+// higher grades = better adders
+const CRATE_POWERUP_CHANCE = .1;
+const KNIGHT_POWERUP_CHANCE = .6;
 
 interface ExplosionRecord {
   time: number;
@@ -59,6 +64,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private bombCollision: Set<number>;
 
+  private termShockPos: number;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.state = new SinglePlayerMapState(11);
@@ -68,6 +75,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.maxBombCount = 1;
     this.speed = 4.5;
     this.radius = 1;
+
+    this.termShockPos = -40;
 
     this.bombCollision = new Set();
 
@@ -130,7 +139,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       dead: this.playerdead
     };
 
-    let res = new Map();
+    let res : Map<number, PlayerState> = new Map();
     res.set(1, me);
     return res;
   }
@@ -142,6 +151,12 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   update() {
     let delta = this.getContext().getDelta();
     this.time += delta;
+
+    this.termShockPos = this.shockFunc(this.time);
+
+    // advance termination shock slowly (start at like -40?)
+    // when the shock is within 30 tiles, begin to dim the lights to a low red
+    // kill the player if they are more than 0.5 tiles behind the shock
 
     if (this.time < 0.25 || (!this.loaded && (this.getContext().getFileLoader().getFractionLoaded() < 0.99 || shadersStillCompiling() > 0))) {
       // ignore frames before loading is complete
@@ -199,6 +214,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       }
     }
 
+    if (this.termShockPos > this.playerpos[0] + 0.5) {
+      this.playerdead = true;
+    }
+
     // check if the player can pick up a powerup
     let layerNear = this.state.layer.getEnemiesAtCoordinate(playertile[0], playertile[1]);
     if (layerNear.length > 0) {
@@ -222,7 +241,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         this.radius++;
         break;
       case TileID.POWER_SPEED:
-        this.speed += 0.2;
+        this.speed += 0.25;
     }
   }
 
@@ -406,6 +425,12 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         data.position[0] = fin[0];
         data.position[1] = fin[1];
 
+        // if position is less than term shock: die
+        if (fin[0] < this.termShockPos) {
+          this.state.enemy.delete(inst[0]);
+          continue;
+        }
+
         this.state.enemy.set(inst[0], data);
         let tile = this.state.getTile(Math.round(fin[0]), Math.round(fin[1]));
         if (tile === TileID.EXPLOSION) {
@@ -492,11 +517,23 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   getSpeed() {
-    return this.speed;
+    return this.speed * 2;
   }
 
   getRadius() {
     return this.radius;
+  }
+
+  getTermShock() {
+    return this.termShockPos;
+  }
+
+  getShockSpeed() {
+    return TERM_SHOCK_COEFF * 2 * this.time;
+  }
+
+  private shockFunc(t: number) {
+    return (TERM_SHOCK_COEFF * t * t) + 1.0 * t - 25;
   }
 
   private handleBombPlace() {
@@ -510,9 +547,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       let inst = this.state.layer.get(id);
       let pos = inst.position;
       if (pos[0] === bombPos[0] && pos[1] === bombPos[1]) {
-        // come up with something smarter ig
-        // we can use a tile system here and just make it 3d but there's some overlap
-        // x/y key, z in values
         return;
       }
     }
@@ -529,16 +563,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   private handleBombDetonate() {
-    // check the layer instance set for all bombs
-    // bombs detonate, producing explosion tiles in a 3x3 radius wherever walls are not present
-    // create a record of the detonation, so that we can revert it
-    // add a snippet in update which deletes explosions left by bombs some amount of time after they're generated
-    // tilemanager will make it transition smoothly :)
-
-    // place explosion tiles in a set
-    // on each update, we'll go through the set and see if any of them need to be cleared
-    // if they do, set the tile to a blank
-
     let bombIDs = [];
     for (let id of this.state.layer.keys()) {
       let inst = this.state.layer.get(id);
