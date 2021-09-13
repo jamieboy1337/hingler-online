@@ -76,7 +76,6 @@ const filesToCache = [
 
   "/res/img/charactermini_still.png",
   "/res/img/chewingcharacter_animated.gif",
-  "/res/img/portrait_knight_final.png",
 
   // touch input
   "/res/touch/bomb.png",

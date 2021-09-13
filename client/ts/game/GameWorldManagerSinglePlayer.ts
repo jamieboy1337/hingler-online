@@ -1,9 +1,12 @@
 import { quat, vec3, vec4 } from "gl-matrix";
+import { Task } from "../../../ts/util/task/Task";
 import { GameContext } from "../engine/GameContext";
+import { Model } from "../engine/model/Model";
 import { GameCamera } from "../engine/object/game/GameCamera";
 import { GameObject } from "../engine/object/game/GameObject";
 import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
+import { TerminationShock } from "./field/TerminationShock";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
@@ -87,6 +90,18 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.animImage = document.getElementById("walk-image") as HTMLImageElement;
 
     let cam = new GameCamera(ctx);
+
+    let shockScene = ctx.getGLTFLoader().loadAsGLTFScene("../res/terminationshock.glb");
+
+    let shockSceneTask : Task<Model> = new Task();
+    shockScene.then(scene => {
+      shockSceneTask.resolve(scene.getModel("explosion"));
+    });
+
+    // create explosion instance
+    let shock = new TerminationShock(ctx, shockSceneTask.getFuture(), cam);
+    this.addChild(shock);
+    shock.setPosition(0, 0, 0);
 
     let conn = new GameConnectionManagerSinglePlayer(ctx);
     this.conn = conn;

@@ -2,8 +2,6 @@
 
 precision highp float;
 
-#include <../includes/opensimplex.inc.glsl>
-
 varying vec4 v_pos;
 varying vec2 v_tex;
 

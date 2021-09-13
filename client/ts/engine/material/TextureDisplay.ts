@@ -4,7 +4,7 @@ import { Texture } from "../gl/Texture";
 import { GameContext } from "../GameContext";
 
 // fucking 
-const screenCoords = new Float32Array([
+export const screenCoords = new Float32Array([
   -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1
 ]);
 

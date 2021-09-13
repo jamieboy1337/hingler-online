@@ -5,6 +5,7 @@ import { ColorFramebuffer } from "../gl/internal/ColorFramebuffer";
 import { AmbientLightStruct } from "../gl/struct/AmbientLightStruct";
 import { SpotLightStruct } from "../gl/struct/SpotLightStruct";
 import { ColorDisplay } from "../material/ColorDisplay";
+import { PostProcessingFilter } from "../material/PostProcessingFilter";
 import { ShadowDisplay } from "../material/ShadowDisplay";
 import { TextureDisplay } from "../material/TextureDisplay";
 import { CameraInfo } from "../object/game/Camera";
@@ -49,6 +50,7 @@ export class Renderer {
   private gl: WebGLRenderingContext;
   private scene: Scene;
   private primaryFB: Framebuffer;
+  private swapFB: Framebuffer;
 
   // tracks rendered textures
   private renderPasses: Array<TextureDisplay>;
@@ -62,6 +64,7 @@ export class Renderer {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     this.primaryFB = new ColorFramebuffer(ctx, ctx.getScreenDims());
+    this.swapFB = new ColorFramebuffer(ctx, ctx.getScreenDims());
   }
 
   renderScene() {
@@ -74,6 +77,7 @@ export class Renderer {
     let old_dims = this.primaryFB.dims;
     if (dims[0] !== old_dims[0] || dims[1] !== old_dims[1]) {
       this.primaryFB.setFramebufferSize(dims);
+      this.swapFB.setFramebufferSize(dims);
     }
     
     this.renderPasses = [];
@@ -163,9 +167,32 @@ export class Renderer {
     for (let model of this.ctx.getGLTFLoader().getInstancedModels()) {
       model.flush(rc);
     }
-    this.renderPasses.push(new ColorDisplay(this.ctx, this.primaryFB.getColorTexture()));
 
+    // run our post processing passes
+    let filters : Array<PostProcessingFilter> = [];
+    
+    if (cam) {
+      filters = cam.getFilters();
+    }
+    
     gl.disable(gl.CULL_FACE);
+    
+    let usePrimaryAsSource = true;
+    let src : Framebuffer = this.swapFB;
+    let dst : Framebuffer = this.primaryFB;
+    for (let filter of filters) {
+      src = (usePrimaryAsSource ? this.primaryFB : this.swapFB);
+      dst = (usePrimaryAsSource ? this.swapFB : this.primaryFB);
+
+      dst.bindFramebuffer(this.gl.FRAMEBUFFER);
+      filter.runFilter(src, dst, rc);
+
+      usePrimaryAsSource = !usePrimaryAsSource;
+    }
+
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.renderPasses.push(new ColorDisplay(this.ctx, dst.getColorTexture()));
+
   }
 
   /**

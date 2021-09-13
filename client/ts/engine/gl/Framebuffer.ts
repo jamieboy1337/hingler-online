@@ -9,6 +9,12 @@ export interface Framebuffer {
   getColorTexture() : Texture;
 
   /**
+   * Gets the depth texture attached to this framebuffer, if one exists.
+   * Otherwise returns null.
+   */
+  getDepthTexture() : Texture;
+
+  /**
    * Resizes the framebuffer as well as its attachments.
    * @param dim_a - the width in px, or an array containing width and height (in order).
    * @param dim_b - if dim_a is a number, contains the height in px.

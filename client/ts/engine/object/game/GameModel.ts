@@ -54,7 +54,7 @@ export class GameModel extends GameObject {
    * @param rc - the render context associated with this draw call.
    * @param material - the material which should be drawn.
    */
-  protected drawModel(rc: RenderContext, material: Material) {
+  drawModel(rc: RenderContext, material: Material) {
     let info = rc.getActiveCameraInfo();
     if (this.model) {
       if (rc.getRenderPass() === RenderPass.SHADOW) {

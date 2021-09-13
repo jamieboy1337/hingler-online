@@ -1,19 +1,19 @@
 import { GameContext } from "../../GameContext";
 import { Framebuffer } from "../Framebuffer";
 import { ColorTexture } from "./ColorTexture";
-import { DepthStencilRenderbuffer } from "./DepthStencilRenderbuffer";
+import { DepthTexture } from "./DepthTexture";
 
 export class ColorFramebuffer implements Framebuffer {
   dims: [number, number];
 
   private colorTexture: ColorTexture;
-  private dsRenderbuffer: DepthStencilRenderbuffer;
+  private depthTexture: DepthTexture;
   private fb: WebGLFramebuffer;
   private gl: WebGLRenderingContext;
 
   constructor(ctx: GameContext, dims: [number, number]) {
     this.colorTexture = new ColorTexture(ctx, dims);
-    this.dsRenderbuffer = new DepthStencilRenderbuffer(ctx, dims);
+    this.depthTexture = new DepthTexture(ctx, dims);
     this.gl = ctx.getGLContext();
 
     let gl = this.gl;
@@ -25,12 +25,16 @@ export class ColorFramebuffer implements Framebuffer {
     return this.colorTexture;
   }
 
+  getDepthTexture() {
+    return this.depthTexture;
+  }
+
   setFramebufferSize(dim_a: [number, number] | number, dim_b?: number) {
     this.colorTexture.setDimensions(dim_a, dim_b);
-    this.dsRenderbuffer.setDimensions(dim_a, dim_b);
+    this.depthTexture.setDimensions(dim_a, dim_b);
 
     this.colorTexture.attachToFramebuffer(this.fb);
-    this.dsRenderbuffer.attachToFramebuffer(this.fb);
+    this.depthTexture.attachToFramebuffer(this.fb);
     this.dims = (typeof dim_a === "number" ? [dim_a, dim_b] : dim_a) as [number, number];
   }
 

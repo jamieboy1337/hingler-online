@@ -50,32 +50,19 @@ export class GLTFSceneImpl implements GLTFScene {
   // our priority should be ensuring that our engine is usable.
 
   getModel(name: string | number) : Model {
-    if (typeof name === "string") {
-      for (let i = 0; i < this.data.meshes.length; i++) {
-        let mesh = this.data.meshes[i];
-        if (mesh.name === name) {
-          if (this.modelCache.has(i)) {
-            return this.modelCache.get(i);
-          }
+    let meshID = this.lookupMeshID(name);
 
-          let model = this.meshToModel(mesh);
-          this.modelCache.set(i, model);
-          return model;
-        }
-      }
-    } else {
-      if (name > this.data.meshes.length || name < 0) {
-        return null;
-      }
+    let mesh = this.data.meshes[meshID];
+    let models : Array<ModelInstance> = []; 
+    for (let prim of mesh.primitives) {
 
-      if (this.modelCache.has(name)) {
-        return this.modelCache.get(name);
-      }
-      
-      let model = this.meshToModel(this.data.meshes[name]);
-      this.modelCache.set(name, model);
-      return model;
+      let inst = this.getInstance(prim);
+      models.push(inst);
     }
+
+    let res = new ModelImpl(models);
+    return res;
+
   }
 
   getNodeAsGameObject(name: string | number) {

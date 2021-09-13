@@ -57,8 +57,8 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-variation-settings: 'wght' 900, 'grad' 88;
-  -webkit-text-stroke: 1px black;
+  font-variation-settings: 'wght' 800, 'grad' 88;
+  -webkit-text-stroke: 0.4px black;
 }
 
 .stat-contents {
@@ -75,8 +75,8 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-variation-settings: 'wght' 900, 'grad' 88;
-  -webkit-text-stroke: 1px black;
+  font-variation-settings: 'wght' 800, 'grad' 88;
+  -webkit-text-stroke: 0.8px black;
 }
 
 #score {  

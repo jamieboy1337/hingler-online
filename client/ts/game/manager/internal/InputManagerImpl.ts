@@ -49,17 +49,17 @@ export class InputManagerImpl implements InputManager {
     addEventListener("keydown", this.handlekeydown_.bind(this));
     addEventListener("keyup", this.handlekeyup_.bind(this));
 
-    document.body.addEventListener("touchstart", this.handletouchstart_.bind(this), true);
+    document.body.addEventListener("touchstart", this.handletouchstart_.bind(this), {capture: true, passive: true});
 
     // add touch listeners to our buttons
     let dir = this.touchImg;
 
-    dir.addEventListener("touchstart", this.handletouchdirinput_.bind(this), true);
+    dir.addEventListener("touchstart", this.handletouchdirinput_.bind(this), {capture: true, passive: true});
     document.body.addEventListener("touchmove", this.updatetouchids_.bind(this), {capture: true, passive: false});
     document.body.addEventListener("touchend", this.removetouchids_.bind(this), true);
   
-    document.getElementById("touch-detonate").addEventListener("touchstart", (e) => {e.preventDefault(); this.detonate = true; for (let t of e.changedTouches) {this.detonateID = t.identifier}});
-    document.getElementById("touch-bomb").addEventListener("touchstart", (e) => {e.preventDefault(); this.bomb = true; for (let t of e.changedTouches) {this.bombID = t.identifier}});
+    document.getElementById("touch-detonate").addEventListener("touchstart", (e) => {e.preventDefault(); this.detonate = true; for (let t of e.changedTouches) {this.detonateID = t.identifier}}, {capture: true, passive: true});
+    document.getElementById("touch-bomb").addEventListener("touchstart", (e) => {e.preventDefault(); this.bomb = true; for (let t of e.changedTouches) {this.bombID = t.identifier}}, {capture: true, passive: true});
   
     if (this.ctx.mobile) {
       document.getElementById("touch-controls").classList.remove("hidden");

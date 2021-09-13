@@ -1,4 +1,7 @@
 import { mat4, ReadonlyMat4, vec3 } from "gl-matrix";
+import { PostProcessingFilter } from "../../material/PostProcessingFilter";
+
+export type FilterID = number;
 
 export interface CameraInfo {
   // view transform, preinverted
@@ -22,7 +25,7 @@ export interface Camera {
   far: number;
 
   /**
-   * @returns the position of this camera in object space.
+   * @returns the position of this camera in world space.
    */
   getGlobalPosition() : vec3;
 
@@ -50,4 +53,21 @@ export interface Camera {
    * Sets this camera as active, and marks all other cameras as inactive.
    */
   setAsActive() : void;
+
+  /**
+   * Adds a postprocessing filter to this camera.
+   * @returns a number which uniquely represents this filter wrt the camera.
+   */
+  addFilter(filter: PostProcessingFilter) : FilterID;
+
+  /**
+   * @returns an iterable structure over all postprocessing filters.
+   */
+  getFilters() : Iterable<PostProcessingFilter>;
+
+  /**
+   * Deletes a filter from this camera. Order of surrounding filters is preserved.
+   * @returns true if fthe filter existed and was removed - false otherwise.
+   */
+  deleteFilter(filter: FilterID) : boolean;
 }

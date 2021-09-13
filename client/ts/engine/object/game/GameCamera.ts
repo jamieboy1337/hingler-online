@@ -1,6 +1,7 @@
 import { mat4, vec3 } from "gl-matrix";
 import { GameContext } from "../../GameContext";
-import { Camera, CameraInfo } from "./Camera";
+import { PostProcessingFilter } from "../../material/PostProcessingFilter";
+import { Camera, CameraInfo, FilterID } from "./Camera";
 import { GameObject } from "./GameObject";
 
 // i think this is ok since circular references wont be a problem
@@ -13,12 +14,20 @@ export class GameCamera extends GameObject implements Camera {
   near: number;
   far: number;
 
+  private filterIDs: Array<FilterID>;
+  private filters:   Array<PostProcessingFilter>;
+  private lastFilter: FilterID;
+
   constructor(ctx: GameContext) {
     super(ctx);
     this.active = false;
     this.fov = 60;
     this.near = 0.1;
     this.far = 100.0;
+
+    this.filterIDs = [];
+    this.filters = [];
+    this.lastFilter = 0;
   }
 
   getGlobalPosition() {
@@ -99,5 +108,26 @@ export class GameCamera extends GameObject implements Camera {
     for (let child of root.getChildren()) {
       this.findActiveCameraAndDeactivate(child);
     }
+  }
+
+  addFilter(filter: PostProcessingFilter) {
+    this.filterIDs.push(this.lastFilter);
+    this.filters.push(filter);
+    return this.lastFilter++;
+  }
+
+  getFilters() {
+    return this.filters;
+  }
+
+  deleteFilter(filter: FilterID) {
+    let cur = this.filterIDs.indexOf(filter);
+
+    if (cur < 0) {
+      return false;
+    }
+
+    this.filterIDs = this.filterIDs.splice(cur, 1);
+    this.filters = this.filters.splice(cur, 1);
   }
 }
