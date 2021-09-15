@@ -10,6 +10,7 @@ import { AttributeType, Model } from "../../engine/model/Model";
 import { GameModel } from "../../engine/object/game/GameModel";
 import { GameObject } from "../../engine/object/game/GameObject";
 import { RenderContext } from "../../engine/render/RenderContext";
+import { RadialBlur } from "./RadialBlur";
 
 const gradientCols : Array<vec4> = [
   [0.004985, 0.001524, 0.0, 1.0],
@@ -30,6 +31,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   // probably have a reference to it and just call its render function
 
   private explosionFramebuffer : Framebuffer;
+  private explosionSwap : Framebuffer;
+  private blur : RadialBlur;
 
 
   private glowShader : WebGLProgram;
@@ -55,11 +58,17 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   vpMat : ReadonlyMat4;
   tex : Texture;
 
+  // blur 8x8 = 64, run 3 times for effectively smooth steps in 24 texfetches
+
   constructor(ctx: GameContext, explosion: GameModel, explosionCenter: GameObject) {
     super(ctx);
     this.explosion = explosion;
     this.explosionCenter = explosionCenter;
+
     this.explosionFramebuffer = new ColorFramebuffer(ctx, ctx.getScreenDims());
+    this.explosionSwap = new ColorFramebuffer(ctx, ctx.getScreenDims());
+    this.blur = new RadialBlur(ctx);
+
     this.glowShader = null;
     this.explosionColorShader = null;
     // load model from res
@@ -120,6 +129,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
       let newDims = this.getContext().getScreenDims();
       if (oldDims[0] !== newDims[0] || oldDims[1] !== newDims[1]) {
         this.explosionFramebuffer.setFramebufferSize(newDims);
+        this.explosionSwap.setFramebufferSize(newDims);
       }
       
       gl.viewport(0, 0, newDims[0], newDims[1]);
@@ -162,13 +172,28 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   private drawToFramebuffer(src: Framebuffer, dst: Framebuffer, rc: RenderContext) {
     // bind explosion texture
     
+    const EXPLOSION_SIZE = 0.2;
     let gl = this.getContext().getGLContext();
-    gl.useProgram(this.glowShader);
+    
+    let explosionCenterCoord = vec4.create();
 
+    let explosionCenterPos = this.explosionCenter.getGlobalPosition();
+    explosionCenterCoord = vec4.fromValues(explosionCenterPos[0], explosionCenterPos[1], explosionCenterPos[2], 1.0);
+    vec4.transformMat4(explosionCenterCoord, explosionCenterCoord, this.vpMat);
+    explosionCenterCoord = explosionCenterCoord.map((val) => ((val / explosionCenterCoord[3]) + 1) / 2) as [number, number, number, number];
+    
+    this.blur.center = [explosionCenterCoord[0], explosionCenterCoord[1]];
+    this.blur.sampleCount = 8;
+    this.blur.size = EXPLOSION_SIZE;
+    
+    this.blur.runFilter(this.explosionFramebuffer, this.explosionSwap, rc);
+    
+    this.blur.size = EXPLOSION_SIZE / 8;
+    this.blur.runFilter(this.explosionSwap, this.explosionFramebuffer, rc);
+    
+    gl.useProgram(this.glowShader);
     dst.bindFramebuffer(gl.FRAMEBUFFER);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    let dim = this.getContext().getScreenDims();
 
     let buf = this.getScreenBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
@@ -181,12 +206,9 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     src.getDepthTexture().bindToUniform(this.depthUnif, 2);
     this.explosionFramebuffer.getColorTexture().bindToUniform(this.explosionUnif, 3);
 
-    let explosionCenterCoord = vec4.create();
-
-    let explosionCenterPos = this.explosionCenter.getGlobalPosition();
-    explosionCenterCoord = vec4.fromValues(explosionCenterPos[0], explosionCenterPos[1], explosionCenterPos[2], 1.0);
-    vec4.transformMat4(explosionCenterCoord, explosionCenterCoord, this.vpMat);
-    explosionCenterCoord = explosionCenterCoord.map((val) => ((val / explosionCenterCoord[3]) + 1) / 2) as [number, number, number, number];
+    
+    // src to swap, swap to src, then run the rest
+    
     gl.uniform2fv(this.glowCenter, explosionCenterCoord.slice(0, 2));
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);

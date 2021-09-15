@@ -21,8 +21,8 @@ void main() {
   // perform a linear blur on the explosion from some point
   // add it to the color
   // preserve depth (for now -- use explosion depth if needed)
-  vec4 col = radialBlur(uExplosion, glowCenter, vCoord, 0.2, 64) / 1.0;
-  col = vec4(col.xyz * 5.0, col.a);
+  vec4 col = radialBlur(uExplosion, glowCenter, vCoord, (0.2 / 64.0), 8);
+  col = vec4(pow(col.xyz, vec3(1.6)) * 3.6, col.a);
   vec4 temp = texture2D(uExplosion, vCoord);
   vec4 colInit = (temp + texture2D(uColor, vCoord) * (1.0 - temp.a));
   gl_FragColor = col + colInit * (1.0 - col.a);

@@ -37,14 +37,14 @@ vec4 radialBlur(in sampler2D src, vec2 center, vec2 sample, float radius, int st
 
     vec4 colsample = texture2D(src, pt);
     cur += step_size;
-    pt = sample - ((radius * cur * cur * sign(cur)) * dir);
+    pt = sample - ((radius * cur) * dir);
 
     // if (pt.x < 0.0 || pt.x > 1.0 || pt.y < 0.0 || pt.y > 1.0) {
     //   continue;
     // }
 
-    res += colsample * (1.0 - abs(cur));
-    weight += (1.0 - abs(cur));
+    res += colsample;
+    weight += 1.0;
   }
 
   res /= weight;
