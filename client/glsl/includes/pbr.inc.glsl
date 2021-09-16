@@ -25,8 +25,6 @@ vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, 
     F = vec3(0.0);
   }
 
-  
-
   vec3 ks = F;
   vec3 kd = vec3(1.0) - ks;
   kd *= (1.0 - metallic);

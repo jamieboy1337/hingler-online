@@ -12,6 +12,7 @@ import { Texture } from "../gl/Texture";
 import { InstancedModel } from "../model/InstancedModel";
 import { AttributeType, Model } from "../model/Model";
 import { RenderContext } from "../render/RenderContext";
+import { CalculateNormalMatrixFromBuffer } from "./CalculateNormalMatrixFromBuffer";
 import { Material } from "./Material";
 import { PBRInstancedMaterial } from "./PBRInstancedMaterial";
 import { PBRMaterial } from "./PBRMaterial";
@@ -171,31 +172,7 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
   }
 
   private calculateNormalMatrixFromBuffer(buf: GLBufferReadOnly, instances: number) {
-    // read mat4s as 16 entry arrays
-    // convert to mat3
-    // inverse transpose
-    // write to our own buffer
-    if (buf.size() < instances * 64) {
-      const warning = "Buffer is not large enough to hold described number of matrices.";
-      console.warn(warning);
-    }
-
-    let offset = 0;
-    let offsetBuf = 0;
-
-    let normSpace : mat3 = mat3.create();
-
-    for (let i = 0; i < instances; i++) {
-      let mat = buf.getFloat32Array(offset, 16);
-      offset += 64;
-
-      mat3.fromMat4(normSpace, mat);
-      mat3.transpose(normSpace, normSpace);
-      mat3.invert(normSpace, normSpace);
-
-      this.normalBuffer.setFloatArray(offsetBuf, normSpace);
-      offsetBuf += 36;
-    } 
+    CalculateNormalMatrixFromBuffer(buf, this.normalBuffer, instances, 0, 0);
   }
 
   prepareAttributes(model: InstancedModel, instances: number, rc: RenderContext) {

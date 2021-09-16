@@ -90,10 +90,6 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
 
   prepareAttributes(model: InstancedModelImpl, instances: number, rc: RenderContext) {
     let gl = this.ctx.getGLContext();
-    if (this.prog === null) {
-      const err = "Explosion material not yet compiled!";
-      throw Error(err);
-    }
 
     if (this.prog !== null) {
       gl.useProgram(this.prog);

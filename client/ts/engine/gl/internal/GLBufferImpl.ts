@@ -278,7 +278,7 @@ export class GLBufferImpl implements GLBuffer {
     this.view.setFloat32(offset, value, littleEndian);
   }
 
-  setFloatArray(offset: number, arr: Array<number> | Float32Array | ReadonlyMat4, littleEndian?: boolean) {
+  setFloatArray(offset: number, arr: ArrayLike<number>, littleEndian?: boolean) {
     this.ensureInBounds(offset + (4 * arr.length));
     let farr = new Float32Array(this.buf, offset, arr.length);
     farr.set(arr);

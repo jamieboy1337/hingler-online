@@ -76,6 +76,7 @@ export interface GLBuffer extends GLBufferReadOnly {
   setInt32(offset: number, value: number, littleEndian?: boolean) : void;
   setUint32(offset: number, value: number, littleEndian?: boolean) : void;
   setFloat32(offset: number, value: number, littleEndian?: boolean) : void;
+  setFloatArray(offset: number, arr: ArrayLike<number>, littleEndian?: boolean) : void;
 
   /**
    * Wrapper for DrawElements. Binds this buffer as an ELEMENT_ARRAY_BUFFER

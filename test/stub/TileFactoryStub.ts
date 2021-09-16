@@ -1,19 +1,17 @@
 import { GameContext } from "../../client/ts/engine/GameContext";
 import { GLTFScene } from "../../client/ts/engine/loaders/GLTFScene";
-import { PBRModelImpl } from "../../client/ts/engine/loaders/internal/PBRModelImpl";
 import { PBRInstance } from "../../client/ts/engine/model/PBRInstance";
 import { PBRInstanceFactory } from "../../client/ts/engine/model/PBRInstanceFactory";
-import { PBRModel } from "../../client/ts/engine/model/PBRModel";
-import { GamePBRModel } from "../../client/ts/engine/object/game/GamePBRModel";
 import { GameTile } from "../../client/ts/game/tile/GameTile";
 import { BombTile } from "../../client/ts/game/tile/generic/BombTile";
 import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
 import { ExplosionTile } from "../../client/ts/game/tile/generic/ExplosionTile";
 import { KnightTile } from "../../client/ts/game/tile/generic/KnightTile";
-import { ModelTile } from "../../client/ts/game/tile/generic/ModelTile";
 import { PowerupTile } from "../../client/ts/game/tile/generic/PowerupTile";
 import { ExplosionInstanceFactory } from "../../client/ts/game/tile/instancefactory/ExplosionInstanceFactory";
 import { ExplosionInstance } from "../../client/ts/game/tile/instancefactory/instance/ExplosionInstance";
+import { PowerupInstance } from "../../client/ts/game/tile/instancefactory/instance/PowerupInstance";
+import { PowerupInstanceFactory } from "../../client/ts/game/tile/instancefactory/PowerupInstanceFactory";
 import { TileFactory } from "../../client/ts/game/tile/TileFactory";
 import { TileID } from "../../client/ts/game/tile/TileID";
 import { Future } from "../../ts/util/task/Future";
@@ -26,9 +24,14 @@ export class TileFactoryStub implements TileFactory {
   explosionFactory: ExplosionInstanceFactory;
   wallFactory: PBRInstanceFactory;
   bombFactory: PBRInstanceFactory;
-  knight: PBRInstanceFactory;
 
+  
+  knight: PBRInstanceFactory;
+  
   powerupPromise: Task<GLTFScene>;
+
+  powerupFactory: Task<PowerupInstanceFactory>;
+
   speedPower: Task<PBRInstanceFactory>;
   bombPower: Task<PBRInstanceFactory>;;
   radiusPower: Task<PBRInstanceFactory>;;
@@ -42,6 +45,10 @@ export class TileFactoryStub implements TileFactory {
     this.speedPower = new Task();
     this.bombPower =  new Task();
     this.radiusPower =  new Task();
+
+    // need a new tile class which accepts two models
+    // and handles spinning
+    this.powerupFactory = new Task();
 
     this.scenePromise = new Task();
     this.powerupPromise = new Task();
@@ -63,6 +70,8 @@ export class TileFactoryStub implements TileFactory {
     this.speedPower.resolve(scene.getPBRInstanceFactory("powerup_speed"));
     this.bombPower.resolve(scene.getPBRInstanceFactory("powerup_bomb"));
     this.radiusPower.resolve(scene.getPBRInstanceFactory("powerup_radius"));
+    let powerupBase = scene.getInstancedModel("powerup_base");
+    this.powerupFactory.resolve(new PowerupInstanceFactory(this.ctx, powerupBase));
     this.powerupPromise.resolve(scene);
   }
 
@@ -84,11 +93,11 @@ export class TileFactoryStub implements TileFactory {
         case TileID.ENEMY_KNIGHT:
           return this.getKnight();
         case TileID.POWER_SPEED:
-          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.speedPower.getFuture()));
+          return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.speedPower.getFuture()), id);
         case TileID.POWER_BOMB:
-          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.bombPower.getFuture()));
+          return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.bombPower.getFuture()), id);
         case TileID.POWER_RADIUS:
-          return new PowerupTile(this.ctx, this.loadInstanceFromFactory(this.radiusPower.getFuture()));
+          return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.radiusPower.getFuture()), id);
         
       }
     }
@@ -96,7 +105,19 @@ export class TileFactoryStub implements TileFactory {
     return null;
   }
 
+  private getPowerupBaseFuture() {
+    let loadtask : Task<PowerupInstance> = new Task();
+    let f = this.powerupFactory.getFuture();
+    if (f.valid()) {
+      loadtask.resolve(f.get().getInstance());
+    } else {
+      this.powerupFactory.getFuture().wait().then((fac) => {
+        loadtask.resolve(fac.getInstance());
+      });
+    }
 
+    return loadtask.getFuture();
+  }
 
   private getCrate() {
     let loadtask : Task<PBRInstance> = new Task(); 

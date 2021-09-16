@@ -169,6 +169,10 @@ class BufferStub implements GLBuffer {
     return new Float32Array();
   }
 
+  setFloatArray(offset: number, arr: ArrayLike<number>, littleEndian?: boolean) {
+    //
+  }
+
   drawElementsInstanced(count: number) {
     
   }
