@@ -15,9 +15,11 @@ const knightSpeed = 1.5;
 const BOMB_RADIUS = 1;
 
 const TERM_SHOCK_COEFF = (1 / 450);
-const TERM_SHOCK_INIT_VELO = 1.0;
+const TERM_SHOCK_INIT_VELO = 0.75;
 
 const BASE_SPEED_POWERUP = 0.1;
+
+const POWERUP_IDS = [TileID.POWER_BOMB, TileID.POWER_RADIUS, TileID.POWER_SPEED];
 
 // todo: draw colored outline around stronger tiles, brighten them?
 
@@ -25,7 +27,7 @@ const BASE_SPEED_POWERUP = 0.1;
 // todo: add grades of powerups
 // higher grades = better adders
 const CRATE_POWERUP_CHANCE = .1;
-const KNIGHT_POWERUP_CHANCE = .6;
+const KNIGHT_POWERUP_CHANCE = 1.0;
 
 const BASE_SPEED = 3.0;
 
@@ -677,6 +679,14 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
           inst.type = this.getRandomCratePowerup();
           inst.position = [tile[0], tile[1], 0];
           this.state.layer.set(this.state.nextID++, inst);
+        }
+      } else if (delType === TileID.EMPTY) {
+        // check for powerups
+        let items = this.state.layer.getEnemiesAtCoordinate(tile[0], tile[1]);
+        for (let item of items) {
+          if (POWERUP_IDS.indexOf(item[1].type) !== -1) {
+            this.state.layer.delete(item[0]);
+          }
         }
       }
     }

@@ -172,7 +172,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   private drawToFramebuffer(src: Framebuffer, dst: Framebuffer, rc: RenderContext) {
     // bind explosion texture
     
-    const EXPLOSION_SIZE = 0.2;
+    const EXPLOSION_SIZE = 0.55;
     let gl = this.getContext().getGLContext();
     
     let explosionCenterCoord = vec4.create();
