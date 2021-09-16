@@ -21,13 +21,13 @@ export class PowerupTile extends GameTile {
     this.power = power;
     switch (id) {
       case TileID.POWER_BOMB:
-        this.col = [0.0, 0.2, 1.0, 1.0];
+        this.col = [0.0, 0.15, .75, 1.0];
         break;
         case TileID.POWER_RADIUS:
-        this.col = [1.0, 0.0, 0.0, 1.0];
+        this.col = [.75, 0.0, 0.0, 1.0];
         break;
       case TileID.POWER_SPEED:
-        this.col = [1.0, 0.28, 0.00, 1.0];
+        this.col = [.75, 0.21, 0.00, 1.0];
     }
 
     this.time = 0;

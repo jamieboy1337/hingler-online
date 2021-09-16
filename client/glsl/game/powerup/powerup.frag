@@ -20,6 +20,6 @@ void main() {
   float F = pow(D, 3.0);
   // f should slightly brighten the color
   vec3 col = vColor.rgb;
-  col = col * 0.7 + (((F + S) * 0.2) * col);
+  col = col * 0.5 + (((F + S) * 0.2) * col);
   gl_FragColor = vec4(col, 1.0);
 }

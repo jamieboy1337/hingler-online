@@ -14,13 +14,20 @@ export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputStat
 const knightSpeed = 1.5;
 const BOMB_RADIUS = 1;
 
-const TERM_SHOCK_COEFF = (1 / 200);
+const TERM_SHOCK_COEFF = (1 / 450);
+const TERM_SHOCK_INIT_VELO = 1.0;
+
+const BASE_SPEED_POWERUP = 0.1;
+
+// todo: draw colored outline around stronger tiles, brighten them?
 
 
 // todo: add grades of powerups
 // higher grades = better adders
 const CRATE_POWERUP_CHANCE = .1;
 const KNIGHT_POWERUP_CHANCE = .6;
+
+const BASE_SPEED = 3.0;
 
 interface ExplosionRecord {
   time: number;
@@ -73,7 +80,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
 
     this.maxBombCount = 1;
-    this.speed = 4.5;
+    this.speed = BASE_SPEED;
     this.radius = 1;
 
     this.termShockPos = -40;
@@ -109,7 +116,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
     this.knightKills = 0;
     this.maxBombCount = 1;
-    this.speed = 4.5;
+    this.speed = BASE_SPEED;
     this.radius = 1;
     this.playerdead = false;
     this.state = new SinglePlayerMapState(11);
@@ -241,7 +248,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         this.radius++;
         break;
       case TileID.POWER_SPEED:
-        this.speed += 0.25;
+        this.speed += BASE_SPEED_POWERUP;
     }
   }
 
@@ -533,7 +540,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   }
 
   private shockFunc(t: number) {
-    return (TERM_SHOCK_COEFF * t * t) + 1.0 * t - 25;
+    return (TERM_SHOCK_COEFF * t * t) + TERM_SHOCK_INIT_VELO * t - 25;
   }
 
   private handleBombPlace() {
@@ -691,7 +698,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private getRandomKnightPowerup() {
     let seed = Math.random();
-    if (seed > 0.8) {
+    if (seed > 0.925) {
       return TileID.POWER_BOMB;
     } else {
       return TileID.POWER_SPEED;
