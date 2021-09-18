@@ -41,7 +41,7 @@ interface KnightState {
   direction: PlayerInputState;
 }
 
-const EXPLOSION_DUR = 0.15;
+const EXPLOSION_DUR = 0.02;
 // implement as game object so that we can receive update from root object
 // alternatively: we give it to some manager component which promises to update it
 // the manager component can handle dialogue, etc.
@@ -196,9 +196,6 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
           velo[1] = this.speed * delta;
       }
     }
-    
-    // clear explosions
-    this.clearExplosions();
 
 
     this.playerpos = this.stepInstance(this.playerpos, velo, true);
@@ -238,6 +235,23 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         }
       }
     }
+    
+    // purge layer instances which are behind the term shock
+    for (let inst of this.state.layer) {
+      if (inst[1].position[0] < (this.termShockPos - 2)) {
+        this.state.layer.delete(inst[0]);
+      }
+    }
+    
+    // purge enemies which are behind the term shock
+    for (let enemy of this.state.enemy) {
+      if (enemy[1].position[0] < (this.termShockPos - 2)) {
+        this.state.enemy.delete(enemy[0]);
+      }
+    }
+
+    // clear explosions
+    this.clearExplosions();
 
   }
 

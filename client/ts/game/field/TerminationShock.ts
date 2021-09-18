@@ -17,4 +17,8 @@ export class TerminationShock extends GameModel {
     this.filter = new ExplosionFilter(ctx, this, center);
     cam.addFilter(this.filter);
   }
+
+  setBlur(dist: number) {
+    this.filter.blurMag = dist;
+  }
 }

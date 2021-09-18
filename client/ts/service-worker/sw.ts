@@ -68,6 +68,7 @@ const filesToCache = [
   "/res/lavaworld.glb",
   "/res/loading.png",
   "/res/mappack.glb",
+  "/res/mountainworld.glb",
   "/res/terminationshock.glb",
   "/res/test.glb",
   "/res/untitled.glb",

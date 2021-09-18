@@ -41,6 +41,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   private colUnif : WebGLUniformLocation;
   private depthUnif : WebGLUniformLocation;
   private explosionUnif : WebGLUniformLocation;
+  private blurDist : WebGLUniformLocation;
   private explosionZ : WebGLUniformLocation;
 
   private explosionColorShader : WebGLProgram;
@@ -57,6 +58,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
 
   vpMat : ReadonlyMat4;
   tex : Texture;
+  blurMag : number;
 
   // blur 8x8 = 64, run 3 times for effectively smooth steps in 24 texfetches
 
@@ -68,6 +70,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     this.explosionFramebuffer = new ColorFramebuffer(ctx, ctx.getScreenDims());
     this.explosionSwap = new ColorFramebuffer(ctx, ctx.getScreenDims());
     this.blur = new RadialBlur(ctx);
+    this.blurMag = 0.55;
 
     this.glowShader = null;
     this.explosionColorShader = null;
@@ -97,6 +100,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     this.depthUnif = gl.getUniformLocation(prog, "uDepth");
     this.explosionUnif = gl.getUniformLocation(prog, "uExplosion");
     this.glowCenter = gl.getUniformLocation(prog, "glowCenter");
+    this.blurDist = gl.getUniformLocation(prog, "dist");
   }
 
   private bindUniformsColor(prog: WebGLProgram) {
@@ -162,7 +166,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     gl.uniformMatrix4fv(this.vpMatUnif, false, this.vpMat);
 
     gl.uniform2fv(this.resolutionUnif, this.getContext().getScreenDims());
-    gl.uniform1f(this.explosionZ, this.explosion.getPosition()[0]);
+    // some weird shit when z is less than 0
+    gl.uniform1f(this.explosionZ, this.explosion.getPosition()[0] + 50);
     this.tex.bindToUniform(this.depthUnifCol, 1);
 
     model.bindAttribute(AttributeType.POSITION, this.posLocColor);
@@ -184,11 +189,11 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     
     this.blur.center = [explosionCenterCoord[0], explosionCenterCoord[1]];
     this.blur.sampleCount = 8;
-    this.blur.size = EXPLOSION_SIZE;
+    this.blur.size = this.blurMag;
     
     this.blur.runFilter(this.explosionFramebuffer, this.explosionSwap, rc);
     
-    this.blur.size = EXPLOSION_SIZE / 8;
+    this.blur.size = this.blurMag / 8;
     this.blur.runFilter(this.explosionSwap, this.explosionFramebuffer, rc);
     
     gl.useProgram(this.glowShader);
@@ -210,6 +215,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     // src to swap, swap to src, then run the rest
     
     gl.uniform2fv(this.glowCenter, explosionCenterCoord.slice(0, 2));
+    gl.uniform1f(this.blurDist, this.blurMag / 64);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 

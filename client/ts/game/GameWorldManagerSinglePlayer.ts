@@ -20,7 +20,11 @@ import { EnemyInfo } from "./ui/EnemyInfo";
 const MOVE_IMG = "../res/img/chewingcharacter_animated.gif";
 const STILL_IMG = "../res/img/charactermini_still.png";
 
-const GRASS_LEN = 8;
+const GRASS_LEN = 6;
+const BEACH_LEN = 8;
+const MOUNTAIN_LEN = 11;
+const LAVA_LEN = 15;
+
 
 const GAMMA_POW = 2.2;
 
@@ -125,6 +129,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.tile = new TileManagerSinglePlayer(ctx, cam, this.field);
 
     this.field.setGrassLength(GRASS_LEN);
+    this.field.setBeachLength(BEACH_LEN);
 
     let mapmgr = new MapManager(ctx, conn, this.input, this.tile);
 
@@ -226,6 +231,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.spotShadow.color = lightCol;
     this.ambient.intensity = ambIntensity;
     // map distance from player to termshock
+
+
     // 20 - like 4 or 5 : turn the screen redder, lower the ambient
 
 
@@ -369,6 +376,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       this.cam.setPosition(posRes);
       this.cam.setRotationQuat(this.slerp(rot, rotDest, t));
       this.spotShadow.intensity = this.spotShadow.intensity * (1 - t);
+      
       this.cam.fov = this.cam.fov * (1 - t) + 35 * t;
     } else if (!this.resetState) {
       this.resetState = true;

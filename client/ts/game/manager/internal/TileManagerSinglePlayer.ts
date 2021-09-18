@@ -134,7 +134,6 @@ export class TileManagerSinglePlayer implements TileManager {
   }
 
   updateTiles(state: GameMapState, players: Map<number, PlayerState>) {
-    this.termShock.setPosition(this.shockLoc * 2 + this.origin[0], 0, 0);
     // figure out where the player is (later)
     // fetch only the tiles around them
     // update those
@@ -144,12 +143,17 @@ export class TileManagerSinglePlayer implements TileManager {
     if (!players.has(1)) {
       throw Error("Single player not available :(");
     }
-
+    
     if (!this.players.has(1)) {
       let guy = new PlayerGameObject(this.ctx);
       this.players.set(1, guy);
       this.root.addChild(guy);
     }
+    
+    // configure our blur effect
+    this.termShock.setPosition(this.shockLoc * 2 + this.origin[0], 0, 0);
+    let blurMag = 1.0 - Math.min(Math.max((playerInfo.position[0] - this.shockLoc - 5) / 10, 0), 1);
+    this.termShock.setBlur(0.05 + (blurMag * 0.5));
 
     let playerObject = this.players.get(1);
     offset[0] = (2 * playerInfo.position[0]) + this.origin[0];
@@ -176,6 +180,9 @@ export class TileManagerSinglePlayer implements TileManager {
 
     if (playerInfo.dead) {
       playerObject.getSpot().intensity = Math.min(this.deathDelta * 4, 1);
+      if (this.shockLoc - (playerInfo.position[0]) > 4.0) {
+        playerObject.getSpot().intensity = 0;
+      }
       this.deathDelta += this.ctx.getDelta();
       playerObject.setPivotRotation(Math.min(this.deathDelta * 90, 90));
     } else {
