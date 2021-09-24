@@ -46,7 +46,9 @@ export class CounterDigit {
     window.addEventListener("resize", () => {
       // assume that we'll only have to resize counters when the window fucks up
       this.heightCache = 0;
-    })
+    });
+
+    this.updateDigitState();
   }
 
   toggleAnimation(animate: boolean) {
@@ -60,6 +62,7 @@ export class CounterDigit {
     let low = (this.anchor + 9) % 10;
     let mid = this.anchor % 10;
     let hi = (this.anchor + 1) % 10;
+    // might be really slow :(
     this.digitTop.textContent = low.toString();
     this.digitMiddle.textContent = mid.toString();
     this.digitBottom.textContent = hi.toString();
@@ -84,6 +87,7 @@ export class CounterDigit {
 
     elem.appendChild(this.digitStyle);
     this.heightCache = this.digitMiddle.clientHeight;
+    
     this.updateDigitState();
   }
 
@@ -94,7 +98,8 @@ export class CounterDigit {
 
   setValue(val: number) {
     val = (val < 0 ? -val : val);
-    this.value = val % 10;
+    let res = val % 10;
+    this.value = res;
     this.anchor = Math.round(this.value);
     this.updateDigitState();
   }

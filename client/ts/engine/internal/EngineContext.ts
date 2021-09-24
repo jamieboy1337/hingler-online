@@ -22,6 +22,8 @@ export class EngineContext implements GameContext {
   private renderer: Renderer;
   private passOffset: number;
 
+  private dims: [number, number];
+
   readonly mobile: boolean;
 
   private getGLProxy(gl: WebGLRenderingContext) {
@@ -55,6 +57,8 @@ export class EngineContext implements GameContext {
     this.passOffset = 0;
     this.glContext = canvas.getContext("webgl");
     this.gltfLoader = new GLTFLoaderImpl(this.loader, this);
+    this.updateScreenDims();
+    window.addEventListener("resize", this.updateScreenDims.bind(this));
     this.mobile = mobileCheck();
 
     let gl = this.glContext;
@@ -79,6 +83,10 @@ export class EngineContext implements GameContext {
         this.passOffset++;
       }
     })
+  }
+
+  private updateScreenDims() {
+    this.dims = [this.canvas.clientWidth, this.canvas.clientHeight];
   }
 
   // TODO: add method to switch scenes.
@@ -115,8 +123,7 @@ export class EngineContext implements GameContext {
   getScreenDims() {
     // testing: https://docs.cypress.io/api/commands/viewport#Syntax
     // note: this is slow, cache once a frame instead
-    let dims : [number, number] = [this.canvas.clientWidth, this.canvas.clientHeight];
-    return dims;
+    return this.dims;
   }
 
   step() {
