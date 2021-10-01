@@ -27,6 +27,7 @@ export class TileFactoryStub implements TileFactory {
 
   
   knight: PBRInstanceFactory;
+  crab: PBRInstanceFactory;
   
   powerupPromise: Task<GLTFScene>;
 
@@ -41,6 +42,7 @@ export class TileFactoryStub implements TileFactory {
     this.crateFactory = null;
     this.explosionFactory = null;
     this.knight = null;
+    this.crab = null;
 
     this.speedPower = new Task();
     this.bombPower =  new Task();
@@ -63,6 +65,7 @@ export class TileFactoryStub implements TileFactory {
     this.wallFactory = scene.getPBRInstanceFactory("Cube.001");
     this.bombFactory = scene.getPBRInstanceFactory("Bomb");
     this.knight = (scene.getPBRInstanceFactory("knight"));
+    this.crab = scene.getPBRInstanceFactory("crab");
     this.scenePromise.resolve(scene);
   }
 
@@ -92,6 +95,10 @@ export class TileFactoryStub implements TileFactory {
           return this.getBomb();
         case TileID.ENEMY_KNIGHT:
           return this.getKnight();
+        case TileID.ENEMY_CRAB:
+          // cringe code
+          // side note: if enemy is null, game crashes -- enemy should never be null, so its OK
+          return this.getCrab();
         case TileID.POWER_SPEED:
           return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.speedPower.getFuture()), id);
         case TileID.POWER_BOMB:
@@ -178,6 +185,19 @@ export class TileFactoryStub implements TileFactory {
     } else {
       this.scenePromise.future.wait().then((_) => {
         loadtask.resolve(this.knight.getInstance());
+      });
+    }
+
+    return new KnightTile(this.ctx, loadtask.getFuture());
+  }
+
+  private getCrab() {
+    let loadtask : Task<PBRInstance> = new Task();
+    if (this.scenePromise.getFuture().valid()) {
+      loadtask.resolve(this.crab.getInstance());
+    } else {
+      this.scenePromise.future.wait().then((_) => {
+        loadtask.resolve(this.crab.getInstance());
       });
     }
 

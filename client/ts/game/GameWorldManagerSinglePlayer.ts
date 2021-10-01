@@ -123,13 +123,17 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.lastBomb = this.conn.getBombMax();
     this.lastSpeed = this.conn.getSpeed();
     
-    
     this.input = new InputManagerImpl(ctx);
     this.field = new FieldManagerSinglePlayer(ctx, 11);
     this.tile = new TileManagerSinglePlayer(ctx, cam, this.field);
 
     this.field.setGrassLength(GRASS_LEN);
     this.field.setBeachLength(BEACH_LEN);
+
+    conn.knightStart = 20;
+    conn.crabStart = GRASS_LEN * 24 + 2;
+
+    // set connection lengths as well
 
     let mapmgr = new MapManager(ctx, conn, this.input, this.tile);
 
@@ -139,6 +143,13 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(mapmgr);
     this.addChild(cam);
     cam.setAsActive();
+
+    // connection needs some awareness of when beach starts
+    // how best to provide that?
+
+    // - use mapmanager to handle that, instead of passing values to each component
+    //   mapmanager requires a reference to field, but thats nbd
+    //   i think this is a good route, considering that map manager is pretty lightweight atm
 
     let spot = new SpotLightObject(ctx);
     let amb = new AmbientLightObject(ctx);

@@ -7,6 +7,7 @@ export enum TileID {
   BOMB = 16,
   
   ENEMY_KNIGHT = 32,
+  ENEMY_CRAB = 33,
 
   POWER_SPEED = 64,
   POWER_BOMB = 65,

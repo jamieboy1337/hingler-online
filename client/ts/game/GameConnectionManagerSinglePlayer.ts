@@ -28,6 +28,7 @@ const POWERUP_IDS = [TileID.POWER_BOMB, TileID.POWER_RADIUS, TileID.POWER_SPEED]
 // higher grades = better adders
 const CRATE_POWERUP_CHANCE = .1;
 const KNIGHT_POWERUP_CHANCE = 1.0;
+const CRAB_POWERUP_CHANCE = 1.0;
 
 const BASE_SPEED = 3.0;
 
@@ -70,6 +71,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private scoreElem: HTMLElement;
 
   private knightKills: number;
+  private crabKills: number;
 
   private bombCollision: Set<number>;
 
@@ -107,6 +109,23 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
 
     this.knightKills = 0;
+    this.crabKills = 0;
+  }
+
+  get knightStart() {
+    return this.state.knightStart;
+  }
+
+  get crabStart() {
+    return this.state.crabStart;
+  }
+
+  set knightStart(val: number) {
+    this.state.knightStart = val;
+  }
+
+  set crabStart(val: number) {
+    this.state.crabStart = val;
   }
 
   get killerIsDead() {
@@ -117,6 +136,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.playerpos = [0, 0];
     this.bombCount = 0;
     this.knightKills = 0;
+    this.crabKills = 0;
     this.maxBombCount = 1;
     this.speed = BASE_SPEED;
     this.radius = 1;
@@ -178,6 +198,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
 
     this.moveKnights(delta);
+    this.moveCrabs(delta);
     let velo : [number, number] = [0, 0];
     // snag current motion state
 
@@ -418,32 +439,11 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         let init : [number, number] = [pos[0], pos[1]];
         let fin = this.stepInstance(init, velo);
 
+        // calculate floor of old and new positions
+        // if they change, try to change direction
         if (fin[0] === pos[0] && fin[1] === pos[1]) {
-          // randomize direction
-          let randDirInd = Math.floor(Math.random() * 4);
-          let randDir : PlayerInputState;
-          // check in that direction
-          let sign : [number, number];
-          let tile : TileID;
-          let i = -1;
-          do {
-            randDir = PLAYER_MOTION_STATES[randDirInd % 4];
-            sign = this.getSignFromDirection(randDir);
-            let tileCoord = [Math.floor(fin[0]) + sign[0], Math.floor(fin[1]) + sign[1]];
-            tile = this.state.getTile(tileCoord[0], tileCoord[1]);
-            i++;
-            randDirInd++;
-            // note: we need a layer check here as well :(
-          } while ((tile === TileID.CRATE || tile === TileID.WALL) && i < 4);
-
-          if (i >= 4) {
-            randDir = PlayerInputState.MOVE_DOWN;
-          }
-
-          data.direction = randDir;
+          data.direction = this.pickFreeDirection(fin);
         }
-
-        // perform an explosion check on our knight -- are they on an explosion tile?
 
         data.position[0] = fin[0];
         data.position[1] = fin[1];
@@ -460,7 +460,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
           // gone!
           this.state.enemy.delete(inst[0]);
           let roll = Math.random();
-          if (roll < KNIGHT_POWERUP_CHANCE) {
+          if (roll < CRAB_POWERUP_CHANCE) {
             let inst = new LayerInstance();
             inst.type = this.getRandomKnightPowerup();
             inst.position = [Math.round(fin[0]), Math.round(fin[1]), 0];
@@ -472,6 +472,97 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         
       }
     }
+  }
+
+  private moveCrabs(delta: number) {
+    // note: bad iteration.
+    //       probably find the crabs beforehand and pass them as a param
+
+    // also note: most of this shit is enemy agnostic, factor in speed.
+    for (let inst of this.state.enemy) {
+      if (inst[1].type === TileID.ENEMY_CRAB) {
+        let data = inst[1];
+        // use a function to return a signed direction bit
+        let velo = this.getSignFromDirection(data.direction);
+        velo[0] *= 1.5 * delta;
+        velo[1] *= 1.5 * delta;
+
+        let pos = inst[1].position;
+        let init : [number, number] = [pos[0], pos[1]];
+        let fin = this.stepInstance(init, velo);
+
+        // pick a new direction (same as knight)
+        let floordif = [Math.floor(pos[0]) - Math.floor(fin[0]), Math.floor(pos[1]) - Math.floor(fin[1])];
+        if (fin[0] === pos[0] && fin[1] === pos[1]) {
+          data.direction = this.pickFreeDirection(fin);
+          
+        } else if (floordif[0] !== 0 || floordif[1] !== 0) {
+          // advanced to a new tile -- check if we can turn
+          let dir = this.pickFreeDirection(fin);
+          // if the direction opposes the one we are traveling in, ignore it
+          if (Math.floor(PLAYER_MOTION_STATES.indexOf(dir) / 2) !== Math.floor(PLAYER_MOTION_STATES.indexOf(data.direction) / 2)) {
+            // applies to L/R, and U/D -- we already handled the turn around case so this won't apply
+            data.direction = dir;
+            // recenter on tile to avoid slight offset
+            data.position = [Math.round(pos[0]), Math.round(pos[1]), data.position[2]];
+          } else {
+            data.position[0] = fin[0];
+            data.position[1] = fin[1];
+          }
+        } else {
+          data.position[0] = fin[0];
+          data.position[1] = fin[1];
+        }
+
+
+        if (data.position[0] < this.termShockPos) {
+          this.state.enemy.delete(inst[0]);
+          continue;
+        }
+
+
+        this.state.enemy.set(inst[0], data);
+        let tile = this.state.getTile(Math.round(data.position[0]), Math.round(data.position[1]));
+        if (tile === TileID.EXPLOSION) {
+          // gone!
+          this.state.enemy.delete(inst[0]);
+          let roll = Math.random();
+          if (roll < CRAB_POWERUP_CHANCE) {
+            let inst = new LayerInstance();
+            inst.type = this.getRandomKnightPowerup();
+            inst.position = [Math.round(data.position[0]), Math.round(data.position[1]), 0];
+            this.state.layer.set(this.state.nextID++, inst);
+          }
+          // spawn a powerup potentially
+          this.crabKills++;
+        }
+      }
+    }
+  }
+
+  // attempts to find a free direction which the player can move in
+  private pickFreeDirection(pos: [number, number]) {
+    let randDirInd = Math.floor(Math.random() * 4);
+    let randDir : PlayerInputState;
+    // check in that direction
+    let sign : [number, number];
+    let tile : TileID;
+    let i = -1;
+    do {
+      randDir = PLAYER_MOTION_STATES[randDirInd % 4];
+      sign = this.getSignFromDirection(randDir);
+      let tileCoord = [Math.floor(pos[0]) + sign[0], Math.floor(pos[1]) + sign[1]];
+      tile = this.state.getTile(tileCoord[0], tileCoord[1]);
+      i++;
+      randDirInd++;
+      // note: we need a layer check here as well :(
+    } while ((tile === TileID.CRATE || tile === TileID.WALL) && i < 4);
+
+    if (i >= 4) {
+      randDir = PlayerInputState.MOVE_DOWN;
+    }
+
+    return randDir;
   }
 
   private getSignFromDirection(dir: PlayerInputState) : [number, number] {
@@ -722,6 +813,10 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private getRandomKnightPowerup() {
     let seed = Math.random();
+    // need to reduce the influence of these powerups
+    // add an outline for more intense versions?
+    // silver and gold if its more intense
+    // and then reduce the intensity of the base ver
     if (seed > 0.925) {
       return TileID.POWER_BOMB;
     } else {

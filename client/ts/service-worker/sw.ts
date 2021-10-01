@@ -64,6 +64,7 @@ const filesToCache = [
   "/res/fieldgrass.glb",
   "/res/grass.glb",
   "/res/grassworld.glb",
+  "/res/grassworld_new.glb",
   "/res/hemisphere_explosion.glb",
   "/res/lavaworld.glb",
   "/res/loading.png",

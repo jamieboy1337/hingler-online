@@ -9,27 +9,21 @@ import { CornField } from "../../../field/CornField";
 import { FieldManager } from "../../FieldManager";
 
 const grassFieldNames = [
-  "grass0",
-  "grass1",
-  "grass-1"
-];
-
-const resourceNames = [
-  "corn"
+  "field_grass",
+  "field_rock",
+  "tile_grass"
 ];
 
 export class GrassFieldManager implements FieldManager {
   private ctx: GameContext;
   private seed: number;
   private models: Array<Task<PBRModel>>;
-  private resources: Array<Task<PBRInstanceFactory>>;
   private tilemodel: Task<PBRModel>;
 
   private width: number;
   constructor(ctx: GameContext, width: number) {
     this.seed = Math.floor(Math.random() * 4294967295);
     this.models = [];
-    this.resources = [];
     this.ctx = ctx;
     this.width = width;
 
@@ -39,20 +33,12 @@ export class GrassFieldManager implements FieldManager {
       this.models.push(new Task<PBRModel>());
     }
 
-    for (let i = 0; i < resourceNames.length; i++) {
-      this.resources.push(new Task<PBRInstanceFactory>());
-    }
-
     let loader = ctx.getGLTFLoader();
 
-    loader.loadAsGLTFScene("../res/fieldgrass.glb")
+    loader.loadAsGLTFScene("../res/grassworld_new.glb")
       .then(scene => {
         for (let i = 0; i < grassFieldNames.length; i++) {
           this.models[i].resolve(scene.getPBRModel(grassFieldNames[i]));
-        }
-
-        for (let i = 0; i < resourceNames.length; i++) {
-          this.resources[i].resolve(scene.getPBRInstanceFactory(resourceNames[i]));
         }
       });
 
@@ -64,7 +50,8 @@ export class GrassFieldManager implements FieldManager {
 
   getFieldModel(n: number) {
     let origin = new GameObject(this.ctx);
-    if (n === 0) {
+    // dummy number, avoid this behavior for now
+    if (n === -15) {
       let child = new GamePBRModel(this.ctx, this.models[2].getFuture());
       origin.addChild(child);
       child.setPosition(0, 0, -this.width);
@@ -75,30 +62,28 @@ export class GrassFieldManager implements FieldManager {
     } else {
       xorshift32_seed(this.seed + n);
       let prob = xorshift32_float();
-      let modelTop : GameObject;
-      let modelBot : GameObject;
+      let fieldNear = new GamePBRModel(this.ctx, this.models[0].getFuture());
+      let fieldFar = new GamePBRModel(this.ctx, this.models[0].getFuture());
+
+      fieldNear.setPosition(-12, 0, 0);
+      fieldFar.setPosition(12, 0, 0);
+
+      origin.addChild(fieldNear);
+      origin.addChild(fieldFar);
+
       if (prob > 0.8) {
-        modelTop = new CornField(this.ctx, this.models[1].getFuture(), this.resources[0].getFuture(), this.seed + 1);
-        modelBot = new CornField(this.ctx, this.models[1].getFuture(), this.resources[0].getFuture(), this.seed + 1);
-      } else {
-        modelTop = new GamePBRModel(this.ctx, this.models[0].getFuture());
-        modelBot = new GamePBRModel(this.ctx, this.models[0].getFuture());
+        let rock = new GamePBRModel(this.ctx, this.models[1].getFuture());
+        rock.setPosition(0, 0, 0);
+        origin.addChild(rock);
       }
-
-      modelTop.setPosition(0, 0, -this.width);
-      modelBot.setPosition(0, 0, this.width);
-      modelBot.setRotationEuler(0, 180, 0);
-
-      origin.addChild(modelTop);
-      origin.addChild(modelBot);
     }
 
-    let tileNear = new GamePBRModel(this.ctx, this.tilemodel.getFuture());
-    let tileFar  = new GamePBRModel(this.ctx, this.tilemodel.getFuture());
-    origin.addChild(tileNear);
-    origin.addChild(tileFar);
+    let tileNear = new GamePBRModel(this.ctx, this.models[2].getFuture());
+    let tileFar  = new GamePBRModel(this.ctx, this.models[2].getFuture());
     tileNear.setPosition(-12, 0, 0);
     tileFar.setPosition(12, 0, 0);
+    origin.addChild(tileNear);
+    origin.addChild(tileFar);
 
     return origin;
   }
