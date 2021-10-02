@@ -11,7 +11,8 @@ import { FieldManager } from "../../FieldManager";
 const grassFieldNames = [
   "field_grass",
   "field_rock",
-  "tile_grass"
+  "tile_grass",
+  "field_pit"
 ];
 
 export class GrassFieldManager implements FieldManager {
@@ -72,7 +73,7 @@ export class GrassFieldManager implements FieldManager {
       origin.addChild(fieldFar);
 
       if (prob > 0.8) {
-        let rock = new GamePBRModel(this.ctx, this.models[1].getFuture());
+        let rock = new GamePBRModel(this.ctx, this.models[3].getFuture());
         rock.setPosition(0, 0, 0);
         origin.addChild(rock);
       }

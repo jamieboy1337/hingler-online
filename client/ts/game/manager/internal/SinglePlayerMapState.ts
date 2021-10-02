@@ -38,7 +38,7 @@ export class SinglePlayerMapState implements GameMapState {
 
   fetchTiles(x: number, y: number, dx: number, dy: number) {
     // generate tiles up to our desired value and add them to the cache
-    this.generateTiles(x + dx);
+    this.generateTiles(x + dx + 1);
     return this.cache.slice(x, y, dx, dy);
   }
 

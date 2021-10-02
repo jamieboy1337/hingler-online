@@ -141,13 +141,18 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.speed = BASE_SPEED;
     this.radius = 1;
     this.playerdead = false;
-    this.state = new SinglePlayerMapState(11);
+    let stateReplace = new SinglePlayerMapState(11);
 
     for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < this.state.dims[1]; j++) {
-        this.state.setTile(i, j, TileID.EMPTY);
+      for (let j = 0; j < stateReplace.dims[1]; j++) {
+        stateReplace.setTile(i, j, TileID.EMPTY);
       }
     }
+
+    stateReplace.knightStart = this.state.knightStart;
+    stateReplace.crabStart = this.state.crabStart;
+
+    this.state = stateReplace;
 
     this.time = 0;
   }
@@ -490,28 +495,33 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
         let pos = inst[1].position;
         let init : [number, number] = [pos[0], pos[1]];
         let fin = this.stepInstance(init, velo);
+        let finround = fin.map(Math.round) as [number, number];
 
         // pick a new direction (same as knight)
         let floordif = [Math.floor(pos[0]) - Math.floor(fin[0]), Math.floor(pos[1]) - Math.floor(fin[1])];
+
+        // my guess: fin only applies in one direction -- up then left, our floor decrements on the up, and our floor decrements on the left, meaning that we would try to turn twice.
+        // soln: apply the difference between round and fin, to the direction of travel
         if (fin[0] === pos[0] && fin[1] === pos[1]) {
-          data.direction = this.pickFreeDirection(fin);
-          
-        } else if (floordif[0] !== 0 || floordif[1] !== 0) {
-          // advanced to a new tile -- check if we can turn
-          let dir = this.pickFreeDirection(fin);
-          // if the direction opposes the one we are traveling in, ignore it
-          if (Math.floor(PLAYER_MOTION_STATES.indexOf(dir) / 2) !== Math.floor(PLAYER_MOTION_STATES.indexOf(data.direction) / 2)) {
+          data.direction = this.pickFreeDirection(finround);
+        } else {
+          let dir = this.pickFreeDirection(finround);
+          if ((floordif[0] !== 0 || floordif[1] !== 0) && (Math.floor(PLAYER_MOTION_STATES.indexOf(dir) / 2) !== Math.floor(PLAYER_MOTION_STATES.indexOf(data.direction) / 2))) {
+            // advanced to a new tile -- check if we can turn
+            // if the direction opposes the one we are traveling in, ignore it
+            // reduce boolean -- move pickfreedirection call outside of if check and merge
             // applies to L/R, and U/D -- we already handled the turn around case so this won't apply
+            let tile = finround;
+            let del = [fin[0] - tile[0], fin[1] - tile[1]].map(Math.abs);
+            let deltaMax = Math.max(del[0], del[1]);
+            let sign = this.getSignFromDirection(dir);
             data.direction = dir;
-            // recenter on tile to avoid slight offset
-            data.position = [Math.round(pos[0]), Math.round(pos[1]), data.position[2]];
+            // offset in new direction of travel, by the distance we've traveled from the tile
+            data.position = [Math.round(pos[0]) + (deltaMax * sign[0]), Math.round(pos[1]) + (deltaMax * sign[1]), data.position[2]];
           } else {
             data.position[0] = fin[0];
             data.position[1] = fin[1];
           }
-        } else {
-          data.position[0] = fin[0];
-          data.position[1] = fin[1];
         }
 
 
@@ -547,22 +557,55 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     // check in that direction
     let sign : [number, number];
     let tile : TileID;
+    let layers: [number, LayerInstance][];
+    let tileCoord : [number, number];
     let i = -1;
     do {
       randDir = PLAYER_MOTION_STATES[randDirInd % 4];
       sign = this.getSignFromDirection(randDir);
-      let tileCoord = [Math.floor(pos[0]) + sign[0], Math.floor(pos[1]) + sign[1]];
+      tileCoord = [Math.floor(pos[0]) + sign[0], Math.floor(pos[1]) + sign[1]];
       tile = this.state.getTile(tileCoord[0], tileCoord[1]);
       i++;
       randDirInd++;
-      // note: we need a layer check here as well :(
-    } while ((tile === TileID.CRATE || tile === TileID.WALL) && i < 4);
+      layers = this.state.layer.getEnemiesAtCoordinate(tileCoord[0], tileCoord[1]);
+      // double check coords!!!
 
+      // note: we need a layer check here as well :(
+      
+    } while ((
+
+            // tile is not full
+            (tile === TileID.CRATE || tile === TileID.WALL) 
+
+              // still directions to check
+            
+
+            // ensure we don't point oob
+            || pos[0] + sign[0] < 0
+            || (pos[1] + sign[1]) < 0
+            || (pos[1] + sign[1]) >= 11
+
+            // check for bombs
+            || this.blockingLayerExists(tileCoord, layers))
+          
+          && i < 4);
     if (i >= 4) {
       randDir = PlayerInputState.MOVE_DOWN;
     }
 
     return randDir;
+  }
+
+  private blockingLayerExists(pos: [number, number], layers: [number, LayerInstance][]) {
+    // allows our free direction check to also ensure no bombs exist at a location
+    for (let l of layers) {
+      let layer = l[1];
+      if (layer.type === TileID.BOMB && layer.position[0] === pos[0] && layer.position[1] === pos[1]) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private getSignFromDirection(dir: PlayerInputState) : [number, number] {
