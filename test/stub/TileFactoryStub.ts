@@ -28,6 +28,7 @@ export class TileFactoryStub implements TileFactory {
   
   knight: PBRInstanceFactory;
   crab: PBRInstanceFactory;
+  goat: Task<PBRInstanceFactory>;
   
   powerupPromise: Task<GLTFScene>;
 
@@ -43,6 +44,7 @@ export class TileFactoryStub implements TileFactory {
     this.explosionFactory = null;
     this.knight = null;
     this.crab = null;
+    this.goat = new Task();
 
     this.speedPower = new Task();
     this.bombPower =  new Task();
@@ -66,6 +68,7 @@ export class TileFactoryStub implements TileFactory {
     this.bombFactory = scene.getPBRInstanceFactory("Bomb");
     this.knight = (scene.getPBRInstanceFactory("knight"));
     this.crab = scene.getPBRInstanceFactory("crab");
+    this.goat.resolve(scene.getPBRInstanceFactory("goat"));
     this.scenePromise.resolve(scene);
   }
 
@@ -99,13 +102,16 @@ export class TileFactoryStub implements TileFactory {
           // cringe code
           // side note: if enemy is null, game crashes -- enemy should never be null, so its OK
           return this.getCrab();
+        case TileID.ENEMY_GOAT:
+          return new KnightTile(this.ctx, this.loadInstanceFromFactory(this.goat.getFuture()));
         case TileID.POWER_SPEED:
           return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.speedPower.getFuture()), id);
         case TileID.POWER_BOMB:
           return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.bombPower.getFuture()), id);
         case TileID.POWER_RADIUS:
           return new PowerupTile(this.ctx, this.getPowerupBaseFuture(), this.loadInstanceFromFactory(this.radiusPower.getFuture()), id);
-        
+        default:
+          console.error("Encountered invalid TileID: " + id);
       }
     }
 

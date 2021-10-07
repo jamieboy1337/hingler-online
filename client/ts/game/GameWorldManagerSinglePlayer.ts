@@ -47,6 +47,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
   private counter: Counter;
   private knightKills: EnemyInfo;
+  private crabKills: EnemyInfo;
+  private goatKills: EnemyInfo;
 
   private scoreCounter: Counter;
 
@@ -132,6 +134,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     conn.knightStart = 20;
     conn.crabStart = GRASS_LEN * 24 + 2;
+    conn.goatStart = (GRASS_LEN + BEACH_LEN) * 24 + 2;
 
     // set connection lengths as well
 
@@ -173,8 +176,16 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     document.getElementById("score-display").prepend(this.counter.getElement());
     this.counter.getElement().id = "score-counter";
 
+    let enemyInfo = document.getElementById("enemy-info");
+
     this.knightKills = new EnemyInfo("../res/img/portrait_knight_final.png");
-    document.getElementById("enemy-info").appendChild(this.knightKills.getElement());
+    enemyInfo.appendChild(this.knightKills.getElement());
+
+    this.crabKills = new EnemyInfo("../res/img/portrait_crab_final.png");
+    enemyInfo.appendChild(this.crabKills.getElement());
+
+    this.goatKills = new EnemyInfo("../res/img/portrait_goat_final.png");
+    enemyInfo.appendChild(this.goatKills.getElement());
   
     this.scoreCounter = new Counter(8);
     document.getElementById("score-counter-screen").prepend(this.scoreCounter.getElement());
@@ -372,6 +383,12 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
         let knightKills = Math.min(Math.max(t * 30, 0), this.conn.getKnightKillCount());
         this.knightKills.setValue(knightKills);
+
+        let crabKills = Math.min(Math.max(t * 30, 0), this.conn.getCrabKillCount());
+        this.crabKills.setValue(crabKills);
+
+        let goatKills = Math.min(Math.max(t * 30, 0), this.conn.getGoatKillCount());
+        this.goatKills.setValue(goatKills);
       }
 
       this.resetState = false;

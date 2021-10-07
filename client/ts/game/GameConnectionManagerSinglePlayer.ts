@@ -7,12 +7,17 @@ import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
 import { shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
-import { LayerInstance } from "./tile/LayerInstance";
+import { GoatInstance, LayerInstance } from "./tile/LayerInstance";
 
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 
 const knightSpeed = 1.5;
 const BOMB_RADIUS = 1;
+
+const GOAT_BASE_SPEED = 1.0;
+const GOAT_MAX_SPEED  = 4.0;
+const GOAT_ACCEL_DUR  = .25;
+const GOAT_STUN_TIME  = 2.5;
 
 const TERM_SHOCK_COEFF = (1 / 450);
 const TERM_SHOCK_INIT_VELO = 0.75;
@@ -72,6 +77,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   private knightKills: number;
   private crabKills: number;
+  private goatKills: number;
 
   private bombCollision: Set<number>;
 
@@ -110,6 +116,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     this.knightKills = 0;
     this.crabKills = 0;
+    this.goatKills = 0;
   }
 
   get knightStart() {
@@ -120,12 +127,20 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     return this.state.crabStart;
   }
 
+  get goatStart() {
+    return this.state.goatStart;
+  }
+
   set knightStart(val: number) {
     this.state.knightStart = val;
   }
 
   set crabStart(val: number) {
     this.state.crabStart = val;
+  }
+
+  set goatStart(val: number) {
+    this.state.goatStart = val;
   }
 
   get killerIsDead() {
@@ -137,6 +152,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
     this.knightKills = 0;
     this.crabKills = 0;
+    this.goatKills = 0;
     this.maxBombCount = 1;
     this.speed = BASE_SPEED;
     this.radius = 1;
@@ -151,6 +167,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     stateReplace.knightStart = this.state.knightStart;
     stateReplace.crabStart = this.state.crabStart;
+    stateReplace.goatStart = this.state.goatStart;
 
     this.state = stateReplace;
 
@@ -159,6 +176,14 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
   getKnightKillCount() {
     return this.knightKills;
+  }
+
+  getCrabKillCount() {
+    return this.crabKills;
+  }
+
+  getGoatKillCount() {
+    return this.goatKills;
   }
 
   getMapState() {
@@ -204,6 +229,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
 
     this.moveKnights(delta);
     this.moveCrabs(delta);
+    this.moveGoats(delta);
     let velo : [number, number] = [0, 0];
     // snag current motion state
 
@@ -479,6 +505,184 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     }
   }
 
+  // moveGoats
+  // goats will move slightly slower than other NPCs...
+  // but if they have sightline on the player, they will charge.
+  // (distance of 16 tiles probably, trace straight line along axis to player)
+
+  // have this function only step a single instance at a time
+  // we'll call the funcs by type
+  private moveGoats(delta: number) {
+    for (let inst of this.state.enemy) {
+      if (inst[1].type === TileID.ENEMY_GOAT) {
+        let goat = inst[1] as GoatInstance;
+
+        // check if the player is visible from this new position
+        // first: check if the player is on an axis (diff between rounded x or y is 0)
+
+        // only do this if we pass a tile boundary
+
+        let velo = this.getSignFromDirection(goat.direction);
+
+        const speedT = Math.min(goat.runTime / GOAT_ACCEL_DUR, 1.0);
+        const speed = (speedT * GOAT_MAX_SPEED) + ((1.0 - speedT) * GOAT_BASE_SPEED);
+
+        if (goat.runTime > 0) {
+          goat.runTime += delta;
+        }
+
+        velo[0] *= speed * delta;
+        velo[1] *= speed * delta;
+        
+        let pos = goat.position;
+        let init : [number, number] = [pos[0], pos[1]];
+
+        let fin = this.stepInstance(init, velo);
+
+        if (fin[0] === pos[0] && fin[1] === pos[1]) {
+          if (goat.runTime > 0) {
+            goat.runTime = 0;
+            goat.stunTime = GOAT_STUN_TIME;
+          } else {
+            goat.direction = this.pickFreeDirection(fin.map(Math.round) as [number, number]);
+          }
+        }
+
+        const finFloor = fin.map(Math.floor) as [number, number];
+        const posFloor = pos.map(Math.floor) as [number, number];
+
+        // detect new tile
+        let chargePass = (finFloor[0] !== posFloor[0] || finFloor[1] !== posFloor[1]);
+
+        const adjust = Math.max(Math.abs(fin[0] - pos[0]), Math.abs(fin[1] - pos[1]));
+
+        let dir = goat.direction;
+        if (goat.runTime <= 0) {
+          let playerTile = this.playerpos.map(Math.round) as [number, number];
+          let goatTile = goat.position.map(Math.round) as [number, number];
+          let playerDelta = [playerTile[0] - goatTile[0], playerTile[1] - goatTile[1]];
+          let playerDeltaRound = playerDelta.map(Math.round);
+          
+          let signCurrent = this.getSignFromDirection(dir);
+          for (let i = 0; i < 2; i++) {
+            if (signCurrent[1 - i] !== 0 && playerDeltaRound[i] === 0) {
+              // player has appeared in a direction parallel to line of travel -- charge!
+              chargePass = true;
+            } 
+          }
+
+          // if the player is in a direction parallel to our direction of movement, check.
+          // - first, check the deltaround. raise a flag if (sign of dir[n] !== 0 && deltaround[n] === 0)
+          if (chargePass && (playerDeltaRound[0] === 0 || playerDeltaRound[1] === 0) && (playerDeltaRound[0] !== playerDeltaRound[1])) {
+            // then: step along our tiles and see if there are no blocks between goat and player
+            let dirArray = playerDeltaRound.map(Math.sign);
+            // temp: ensure this contains what we expect
+            let blocked = false;
+            let tile : TileID;
+            while (goatTile[0] !== playerTile[0] || goatTile[1] !== playerTile[1]) {
+              // step goat tile in direction of sign
+              tile = this.state.getTile(goatTile[0], goatTile[1]);
+              if (tile === TileID.CRATE || tile === TileID.WALL) {
+                blocked = true;
+                break;
+              }
+
+              // check for bombs possibly in the way
+              for (let layer of this.state.layer.getEnemiesAtCoordinate(goatTile[0], goatTile[1])) {
+                if (layer[1].position[0] === goatTile[0] && layer[1].position[1] === goatTile[1]) {
+                  blocked = true;
+                  break;
+                }
+              }
+
+              goatTile[0] += dirArray[0];
+              goatTile[1] += dirArray[1];
+            }
+
+            // free line to player! 
+            // lastly: change our direction to the player's, and charge.
+
+            if (!blocked) {
+              if (playerDeltaRound[1] === 0) {
+                if (playerDelta[0] > 0) {
+                  dir = PlayerInputState.MOVE_RIGHT;
+                } else {
+                  dir = PlayerInputState.MOVE_LEFT;
+                }
+              } else {
+                if (playerDelta[1] > 0) {
+                  dir = PlayerInputState.MOVE_DOWN;
+                } else {
+                  dir = PlayerInputState.MOVE_UP;
+                }
+              }
+
+              // non zero epsilon, so it's not equal to 0.
+              goat.runTime = .00001;
+            }
+          }
+        }
+
+        if (dir !== goat.direction) {
+          // the goat switched directions as a consequence of seeing the player at a tile boundary
+          let sign = this.getSignFromDirection(dir);
+          goat.direction = dir;
+          goat.position[0] = Math.round(fin[0]) + sign[0] * adjust;
+          goat.position[1] = Math.round(fin[1]) + sign[1] * adjust;
+        }
+
+        if (fin[0] < this.termShockPos) {
+          this.state.enemy.delete(inst[0]);
+          continue;
+        }
+
+        goat.position[0] = fin[0];
+        goat.position[1] = fin[1];
+
+        this.state.enemy.set(inst[0], goat);
+        let tile = this.state.getTile(Math.round(fin[0]), Math.round(fin[1]));
+        if (tile === TileID.EXPLOSION) {
+          this.state.enemy.delete(inst[0]);
+          
+          let power = new LayerInstance();
+          power.type = this.getRandomKnightPowerup();
+          power.position = [Math.round(fin[0]), Math.round(fin[1]), 0];
+          this.state.layer.set(this.state.nextID++, power);
+          this.goatKills++;
+        }
+        // need to write a custom payload
+        // charge time as a var (= 0, handles speed ramp up)
+        // charge time will be re-zero'd when we hit a wall, and we'll also need a freeze time
+        // probably want to put the instance in a "freeze" state
+        // lastly: how do we control the eye texture?
+        // need some way to "fish out" the PBR material
+
+        // return the material, either instanced or uninstanced, via a scene func
+        // write it into the instance?
+        // separate the eye model, and swap it out as needed <-- this is the solution which works best with the engine :(
+
+        // we don't currently expose the scaffolding necessary for the client to reach in and customize each material attached to a PBR Model
+        // there's no way to really distinguish them from one another on load
+
+        // imo the best alternative is just to swap flat models, it makes sense for now :(
+        // OR
+        // we have the eyes up front as a separate model, and we fuck with their materials
+        // the one caveat is that we also might want to skin the eyes later, and so that might be a pain
+        // we want some executive control over their PBR material (texture) but we're also stuck with PBR
+        
+        // load body, load eyes
+        // the eyes will have weights as well, so we can just use the same armature!
+        // we swap out the eyes, each of which is attached to that same armature
+
+        // models point to an animation wrapper which controls an armature
+        // the animation wrapper packages up the armature data into something which agrees w notions of joints and weights
+
+        // wrapper which associates model data with anim -- we can fetch everything from one class
+        // then we can just apply the model data to the models in shader and we're good :)
+      }
+    }
+  }
+
   private moveCrabs(delta: number) {
     // note: bad iteration.
     //       probably find the crabs beforehand and pass them as a param
@@ -517,7 +721,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
             let sign = this.getSignFromDirection(dir);
             data.direction = dir;
             // offset in new direction of travel, by the distance we've traveled from the tile
-            data.position = [Math.round(pos[0]) + (deltaMax * sign[0]), Math.round(pos[1]) + (deltaMax * sign[1]), data.position[2]];
+            data.position = [Math.round(fin[0]) + (deltaMax * sign[0]), Math.round(fin[1]) + (deltaMax * sign[1]), data.position[2]];
           } else {
             data.position[0] = fin[0];
             data.position[1] = fin[1];

@@ -2,7 +2,7 @@
 
 import { PLAYER_MOTION_STATES } from "../../GameConnectionManagerSinglePlayer";
 import { GameMapState } from "../../GameMapState";
-import { EnemyInstance, LayerInstance } from "../../tile/LayerInstance";
+import { EnemyInstance, GoatInstance, LayerInstance } from "../../tile/LayerInstance";
 import { TileID } from "../../tile/TileID";
 import { TileAtlas } from "../../TileAtlas";
 import { GridTileGenerator } from "../../tilegen/GridTileGenerator";
@@ -20,6 +20,7 @@ export class SinglePlayerMapState implements GameMapState {
 
   knightStart: number;
   crabStart: number;
+  goatStart: number;
   constructor(len: number) {
     this.gen = new GridTileGenerator(len);
     this.len = len;
@@ -71,25 +72,50 @@ export class SinglePlayerMapState implements GameMapState {
         // set 
         if (genTiles[j] === TileID.EMPTY && i > this.knightStart && (Math.random() < 0.03)) {
           // tracking ID :(
-          let enemy = new EnemyInstance();
-          enemy.position = [i, j, 0];
-          if (i > (this.crabStart)) {
-            enemy.type = TileID.ENEMY_CRAB;
+          let type : TileID;
+          if (i > (this.goatStart)) {
+            type = TileID.ENEMY_GOAT;
+          } else if (i > (this.crabStart)) {
+            type = TileID.ENEMY_CRAB;
           } else {
-            enemy.type = TileID.ENEMY_KNIGHT;
+            type = TileID.ENEMY_KNIGHT;
           }
 
-          // 30 percent chance of "downgrading" to previous enemy type
-          // 70 pct cur zone
-          // 21 pct last zone
-          // 6.3 pct of zone before that
-          // 2.7 pct even earlier... etc
-          while (enemy.type > TileID.ENEMY_KNIGHT && Math.random() < 0.3) {
-            enemy.type--;
+          
+          // 25 percent chance of "downgrading" to previous enemy type
+          // 75 pct cur zone
+          // 18.75 pct last zone
+          // 4.5625 pct of zone before that
+          // 1.140625 pct even earlier... etc
+          while (type > TileID.ENEMY_KNIGHT && Math.random() < 0.25) {
+            type--;
+          }
+          
+          let enemy : EnemyInstance;
+          switch (type) {
+            case TileID.ENEMY_GOAT:
+              enemy = new GoatInstance();
+              break;
+            case TileID.ENEMY_CRAB:
+            case TileID.ENEMY_KNIGHT:
+              enemy = new EnemyInstance();
+              break;
           }
 
+          enemy.type = type;
+          enemy.position = [i, j, 0];
           enemy.direction = PLAYER_MOTION_STATES[Math.floor(Math.random() * 4)];
-          this.enemy.set(this.nextID++, enemy);
+
+          if (enemy.type === TileID.ENEMY_GOAT) {
+            let enemyGoat = enemy as GoatInstance;
+            enemyGoat.runTime = 0;
+            enemyGoat.stunTime = 0;
+            console.log(enemyGoat);
+            // :sade:
+            this.enemy.set(this.nextID++, enemyGoat);
+          } else {
+            this.enemy.set(this.nextID++, enemy);
+          }
         }
       }
     }

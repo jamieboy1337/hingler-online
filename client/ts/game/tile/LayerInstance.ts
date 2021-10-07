@@ -37,3 +37,22 @@ export class EnemyInstance extends LayerInstance implements LayerInstanceInterfa
     return res;
   }
 }
+
+export class GoatInstance extends EnemyInstance implements LayerInstanceInterface<GoatInstance> {
+  runTime: number;
+  // indicates how long the goat has been dashing for
+
+  stunTime: number;
+  // indicates how long the goat has been stunned for
+
+  copyInstance() : GoatInstance {
+    // lots of redundant code :(
+    let goat = new GoatInstance();
+    goat.position = vec3.copy(vec3.create(), this.position);
+    goat.type = this.type;
+    goat.direction = this.direction;
+    goat.runTime = this.runTime;
+    goat.stunTime = this.stunTime;
+    return goat;
+  }
+}
