@@ -63,20 +63,21 @@ export class GrassFieldManager implements FieldManager {
     } else {
       xorshift32_seed(this.seed + n);
       let prob = xorshift32_float();
-      let fieldNear = new GamePBRModel(this.ctx, this.models[0].getFuture());
-      let fieldFar = new GamePBRModel(this.ctx, this.models[0].getFuture());
-
-      fieldNear.setPosition(-12, 0, 0);
-      fieldFar.setPosition(12, 0, 0);
-
-      origin.addChild(fieldNear);
-      origin.addChild(fieldFar);
-
+      
       if (prob > 0.8) {
         let rock = new GamePBRModel(this.ctx, this.models[3].getFuture());
         rock.setPosition(0, 0, 0);
         origin.addChild(rock);
+      } else {
+        let fieldNear = new GamePBRModel(this.ctx, this.models[0].getFuture());
+        let fieldFar = new GamePBRModel(this.ctx, this.models[0].getFuture());
+        fieldNear.setPosition(-12, 0, 0);
+        fieldFar.setPosition(12, 0, 0);
+  
+        origin.addChild(fieldNear);
+        origin.addChild(fieldFar);
       }
+
     }
 
     let tileNear = new GamePBRModel(this.ctx, this.models[2].getFuture());
