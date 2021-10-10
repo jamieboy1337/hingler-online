@@ -61,6 +61,14 @@ export class EngineContext implements GameContext {
     window.addEventListener("resize", this.updateScreenDims.bind(this));
     this.mobile = mobileCheck();
 
+    // doesn't work -- if we ctor a new engine context w a new scene,
+    // this will be irrelevant.
+    // alt: wipe the cache on swap doesn't work, because there's too many
+    // assets being exchanged.
+    // having all files loaded into mem is a bad idea
+
+    // new context sounds like the best solution...
+    // maybe move this to a separate method, which runs when the ctx takes control?
     let gl = this.glContext;
     gl.clearColor(0, 0, 0, 1);
     gl.enable(gl.DEPTH_TEST);
@@ -124,6 +132,18 @@ export class EngineContext implements GameContext {
     // testing: https://docs.cypress.io/api/commands/viewport#Syntax
     // note: this is slow, cache once a frame instead
     return this.dims;
+  }
+
+  // we should kickstart the engine, and then forget this object
+  deployContext() {
+    this.step();
+    requestAnimationFrame(this.computeFrame.bind(this));
+  }
+
+  private computeFrame() {
+    this.drawFrame();
+    this.step();
+    requestAnimationFrame(this.computeFrame.bind(this));
   }
 
   step() {
