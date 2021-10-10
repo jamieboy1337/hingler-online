@@ -1,3 +1,5 @@
+import { Future } from "../../../../ts/util/task/Future";
+import { Task } from "../../../../ts/util/task/Task";
 import { FileLike } from "./FileLike";
 import { FileLikeWeb } from "./internal/FileLikeWeb";
 
@@ -9,15 +11,19 @@ export class FileLoader {
 
   private loadedFiles: Map<string, FileLikeWeb>;
   private workerPath: Promise<void>;
-    private res: () => void;
-    private rej: (any) => void;
+  private res: () => void;
+  private rej: (any) => void;
+  private static workerLoaded: Task<void> = null;
 
   constructor() {
     console.log("all good");
     this.loadedFiles = new Map();
-    this.workerPath = new Promise((re, rj) => { this.res = re; this.rej = rj; });
+    this.workerPath = new Promise((re, rj) => { this.res = re; this.rej = rj; });;
 
-    if ("serviceWorker" in navigator) {
+    // serviceworker needs to be a singleton!!!
+    // 
+    if ("serviceWorker" in navigator && FileLoader.workerLoaded === null) {
+      FileLoader.workerLoaded = new Task();
       console.log("jenkem planet");
       this.cb();
     } else {
@@ -29,9 +35,11 @@ export class FileLoader {
 
   private async cb() {
     console.log("test");
+    // raise a boolean flag if the serviceworker is registered
     window.navigator.serviceWorker.register("../sw.js", {}).then((reg) => {
       console.log("serviceworker registered~~~");
       this.res();
+      FileLoader.workerLoaded.resolve();
     }, (err) => {
       console.error("could not register serviceworker :(");
       this.rej(err);
@@ -40,6 +48,11 @@ export class FileLoader {
 
   async open(path: string) : Promise<FileLike> {
     await this.workerPath;
+
+    if (FileLoader.workerLoaded !== null) {
+      // this should always be false -- wait for the resolution of the workerloaded singleton
+      await FileLoader.workerLoaded.getFuture().wait();
+    }
     let res : FileLikeWeb;
     
     if (this.loadedFiles.has(path)) {
