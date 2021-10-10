@@ -57,12 +57,7 @@ export class Renderer {
   constructor(ctx: EngineContext, scene: Scene) {
     this.ctx = ctx;
     this.gl = ctx.getGLContext();
-
-    let gl = this.gl;
     this.scene = scene;
-    gl.clearColor(0, 0, 0, 1);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
     this.primaryFB = new ColorFramebuffer(ctx, ctx.getScreenDims());
     this.swapFB = new ColorFramebuffer(ctx, ctx.getScreenDims());
   }

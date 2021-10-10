@@ -12,7 +12,8 @@ module.exports = [{
     client: "./client/index",
     drawtest2: "./client/ts/drawtest2",
     maptest: "./client/ts/maptest",
-    countertest: "./client/ts/countertest"
+    countertest: "./client/ts/countertest",
+    swaptest: "./client/ts/swaptest"
   },
 
   mode: "development",

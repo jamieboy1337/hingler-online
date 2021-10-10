@@ -36,7 +36,7 @@ async function main() {
   });
   
   let loader = new FileLoader();
-  let ctx = new EngineContext(canvas);
+  let ctx = new EngineContext(canvas, null);
   let modelLoader = new GLTFLoaderImpl(loader, ctx);
   model = (await modelLoader.loadGLTFModel("../data/test.glb"))[0];
   // build shader, get program

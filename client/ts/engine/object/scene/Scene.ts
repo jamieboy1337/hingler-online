@@ -42,6 +42,7 @@ export abstract class Scene {
     this.gameRoot = new GameObjectRoot(this.ctx);
     this.initialize(this.ctx).then(() => {
       this.initialized = true;
+      this.initFuture.resolve();
     });
   }
 

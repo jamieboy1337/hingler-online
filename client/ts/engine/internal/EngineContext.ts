@@ -7,6 +7,7 @@ import { FileLoader } from "../loaders/FileLoader";
 import { GLTFLoaderImpl } from "../loaders/internal/GLTFLoaderImpl";
 import { Renderer } from "./Renderer";
 import { mobileCheck } from "../../../../ts/util/MobileCheck";
+import { SceneSwapImpl } from "../object/scene/internal/SceneSwapImpl";
 
 /**
  * INTERNAL ONLY.
@@ -16,13 +17,18 @@ export class EngineContext implements GameContext {
   private lastDelta: number;
   private loader: FileLoader;
   private gltfLoader: GLTFLoaderImpl;
-  private glContext: WebGLRenderingContext;
-  private canvas: HTMLCanvasElement;
+  glContext: WebGLRenderingContext;
+  canvas: HTMLCanvasElement;
   private scene: Scene;
   private renderer: Renderer;
   private passOffset: number;
 
   private dims: [number, number];
+
+  private swapContext : EngineContext;
+  private swapObject : SceneSwapImpl;
+
+  private windowListener: () => void;
 
   readonly mobile: boolean;
 
@@ -49,16 +55,35 @@ export class EngineContext implements GameContext {
     return gl;
   } 
 
-  constructor(canvas: HTMLCanvasElement, scene?: Scene) {
+  // create a new constructor which allows this scene to borrow assets from
+  // the last ctx
+  constructor(init: HTMLCanvasElement | EngineContext, scene: Scene) {
     this.lastDelta = 0; 
     this.lastTimePoint = perf.now();
     this.loader = new FileLoader();
-    this.canvas = canvas;
     this.passOffset = 0;
-    this.glContext = canvas.getContext("webgl");
+
+    if (init instanceof EngineContext) {
+      this.canvas = init.canvas;
+      this.glContext = init.glContext;
+    } else {
+      this.canvas = init;
+      this.glContext = init.getContext("webgl");
+    }
+
     this.gltfLoader = new GLTFLoaderImpl(this.loader, this);
+
+    
+
+    this.swapContext = null;
+    this.swapObject = null;
+
     this.updateScreenDims();
-    window.addEventListener("resize", this.updateScreenDims.bind(this));
+
+    this.windowListener = this.updateScreenDims.bind(this);
+
+    // will this event listener stick around forever?
+    window.addEventListener("resize", this.windowListener);
     this.mobile = mobileCheck();
 
     // doesn't work -- if we ctor a new engine context w a new scene,
@@ -70,10 +95,6 @@ export class EngineContext implements GameContext {
     // new context sounds like the best solution...
     // maybe move this to a separate method, which runs when the ctx takes control?
     let gl = this.glContext;
-    gl.clearColor(0, 0, 0, 1);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-
     gl.clearColor(0, 0, 0, 1);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -134,17 +155,42 @@ export class EngineContext implements GameContext {
     return this.dims;
   }
 
+  loadNewScene(scene: Scene) {
+    // create a new context with this ctx and our passed scene as its initial arg
+    let newContext = new EngineContext(this, scene);
+    let swap = new SceneSwapImpl(newContext, scene);
+
+    this.swapContext = newContext;
+    this.swapObject = swap;
+    // note: we might want to borrow shit from another scene ig
+    return swap;
+  }
+
+  private glSetup() {
+    let gl = this.glContext;
+    gl.clearColor(0, 0, 0, 1);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+  }
+
   // we should kickstart the engine, and then forget this object
   deployContext() {
+    // perform our gl setup here
+    this.glSetup();
     this.step();
     requestAnimationFrame(this.computeFrame.bind(this));
   }
 
   private computeFrame() {
     this.drawFrame();
-    this.step();
     // put swap code here
-    requestAnimationFrame(this.computeFrame.bind(this));
+    if (this.swapObject !== null && this.swapObject.canSwap()) {
+      console.log("swappable!!!");
+      requestAnimationFrame(this.swapContext.deployContext.bind(this.swapContext));
+    } else {
+      this.step();
+      requestAnimationFrame(this.computeFrame.bind(this));
+    }
   }
 
   step() {
