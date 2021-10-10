@@ -1,3 +1,4 @@
+import { Task } from "../../../../../ts/util/task/Task";
 import { GameContext } from "../../GameContext";
 import { GameObject } from "../game/GameObject";
 import { GameObjectRoot } from "./internal/GameObjectRoot";
@@ -12,10 +13,12 @@ export abstract class Scene {
   private gameRoot: GameObjectRoot;
   private ctx: GameContext;
   private initialized: boolean;
+  private initFuture: Task<void>;
   
   constructor() {
     this.initialized = false;
     this.gameRoot = null;
+    this.initFuture = new Task();
   }
 
   /**
@@ -44,6 +47,10 @@ export abstract class Scene {
 
   isInitialized() : boolean {
     return this.initialized;
+  }
+
+  waitUntilInitialized() {
+    return this.initFuture.getFuture().wait();
   }
 
   isLoaded() : boolean {

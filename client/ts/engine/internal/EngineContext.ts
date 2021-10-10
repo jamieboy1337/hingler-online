@@ -143,6 +143,7 @@ export class EngineContext implements GameContext {
   private computeFrame() {
     this.drawFrame();
     this.step();
+    // put swap code here
     requestAnimationFrame(this.computeFrame.bind(this));
   }
 

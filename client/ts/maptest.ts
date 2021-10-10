@@ -27,12 +27,5 @@ function resizeCanvas() {
 
 function configureEngine() {
   engine = new EngineContext(canvas, new MapSceneTest());
-  engine.step();
-  requestAnimationFrame(stepEngine);
-}
-
-function stepEngine() {
-  engine.drawFrame();
-  engine.step();
-  requestAnimationFrame(stepEngine);
+  engine.deployContext();
 }
