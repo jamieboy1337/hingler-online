@@ -185,7 +185,8 @@ export class EngineContext implements GameContext {
     this.drawFrame();
     // put swap code here
     if (this.swapObject !== null && this.swapObject.canSwap()) {
-      console.log("swappable!!!");
+      // update delta before deploying, so we don't get a long frame time since init
+      this.swapContext.updateDelta();
       requestAnimationFrame(this.swapContext.deployContext.bind(this.swapContext));
     } else {
       this.step();

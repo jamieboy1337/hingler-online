@@ -1,5 +1,5 @@
 import { EngineContext } from "./engine/internal/EngineContext";
-import { MapSceneTest } from "../../test/mapscenetest";
+import { SplashScreenScene } from "./game/splashscreen/SplashScreen";
 
 window.addEventListener("load", main);
 
@@ -26,6 +26,6 @@ function resizeCanvas() {
 }
 
 function configureEngine() {
-  engine = new EngineContext(canvas, new MapSceneTest());
+  engine = new EngineContext(canvas, new SplashScreenScene());
   engine.deployContext();
 }

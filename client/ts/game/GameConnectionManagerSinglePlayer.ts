@@ -217,7 +217,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       // ignore frames before loading is complete
       return;
     } else if (!this.loaded) {
-      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("overlay").classList.add("hidden");
       this.loaded = true;
       // give us a reset for the sake of it
       this.time = 0;
