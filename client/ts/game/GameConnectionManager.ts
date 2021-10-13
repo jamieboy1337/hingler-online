@@ -1,7 +1,6 @@
 import { GameMapState } from "./GameMapState";
 import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
-import { TileFactory } from "./tile/TileFactory";
 
 // interface which facilitates game state management
 
