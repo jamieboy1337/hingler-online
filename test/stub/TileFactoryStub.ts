@@ -29,6 +29,7 @@ export class TileFactoryStub implements TileFactory {
   knight: PBRInstanceFactory;
   crab: PBRInstanceFactory;
   goat: Task<PBRInstanceFactory>;
+  pipebomb: Task<PBRInstanceFactory>;
   
   powerupPromise: Task<GLTFScene>;
 
@@ -45,6 +46,8 @@ export class TileFactoryStub implements TileFactory {
     this.knight = null;
     this.crab = null;
     this.goat = new Task();
+    this.pipebomb = new Task();
+
 
     this.speedPower = new Task();
     this.bombPower =  new Task();
@@ -69,6 +72,7 @@ export class TileFactoryStub implements TileFactory {
     this.knight = (scene.getPBRInstanceFactory("knight"));
     this.crab = scene.getPBRInstanceFactory("crab");
     this.goat.resolve(scene.getPBRInstanceFactory("goat"));
+    this.pipebomb.resolve(scene.getPBRInstanceFactory("pipebomb"));
     this.scenePromise.resolve(scene);
   }
 
@@ -102,6 +106,8 @@ export class TileFactoryStub implements TileFactory {
           // cringe code
           // side note: if enemy is null, game crashes -- enemy should never be null, so its OK
           return this.getCrab();
+        case TileID.PIPE_BOMB:
+          return new BombTile(this.ctx, this.loadInstanceFromFactory(this.pipebomb.getFuture()));
         case TileID.ENEMY_GOAT:
           return new KnightTile(this.ctx, this.loadInstanceFromFactory(this.goat.getFuture()));
         case TileID.POWER_SPEED:
