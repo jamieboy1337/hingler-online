@@ -27,7 +27,6 @@ export class CornField extends GameObject {
       let field = this.field.get();
       let corn = this.corn.get().getInstance();
       let mat = this.getTransformationMatrix();
-
       field.drawPBR(mat, rc);
 
       if (!this.rotcache) {
