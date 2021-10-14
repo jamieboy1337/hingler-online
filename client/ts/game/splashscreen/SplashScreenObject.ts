@@ -47,6 +47,8 @@ export class SplashScreenObject extends GameObject {
 
     if (this.swapGood && this.swap.getFractionLoaded() > 0.999) {
       this.swap.swap().then(() => {
+        window.removeEventListener("click", this.windowcb);
+        window.removeEventListener("touchstart", this.windowcb);
         document.body.removeChild(this.starttext);
       });
     }

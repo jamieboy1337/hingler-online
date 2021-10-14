@@ -5,6 +5,7 @@ export enum TileID {
   WALL = 3,
   
   BOMB = 16,
+  PIPE_BOMB = 17,
   
   ENEMY_KNIGHT = 32,
   ENEMY_CRAB = 33,

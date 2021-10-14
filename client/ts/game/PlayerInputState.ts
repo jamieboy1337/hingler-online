@@ -9,6 +9,7 @@ export enum PlayerInputState {
   MOVE_UP,
   MOVE_DOWN,
   BOMB_PLACE,
+  PIPE_BOMB_PLACE,
   BOMB_DETONATE,
   STOP
 };

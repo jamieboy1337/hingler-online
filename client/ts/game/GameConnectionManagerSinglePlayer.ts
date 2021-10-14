@@ -73,6 +73,8 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
   private detonations: Set<ExplosionRecord>;
   private time: number;
 
+  private pipeBombInventory: number;
+
   private scoreElem: HTMLElement;
 
   private knightKills: number;
@@ -90,6 +92,9 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     this.bombCount = 0;
 
     this.maxBombCount = 1;
+
+    // for nowz >:)
+    this.pipeBombInventory = 16;
     this.speed = BASE_SPEED;
     this.radius = 1;
 
@@ -396,7 +401,7 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     // todo: use enemymap to greatly limit number of layers checked
 
     for (let inst of this.state.layer.values()) {
-      if (inst.type !== TileID.BOMB) {
+      if (inst.type !== TileID.BOMB && inst.type !== TileID.PIPE_BOMB) {
         continue;
       }
 
@@ -766,6 +771,17 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
           // place a bomb at the player's location
           this.handleBombPlace();
           break;
+        case PlayerInputState.PIPE_BOMB_PLACE:
+          if (this.pipeBombInventory <= 0) {
+            break;
+          }
+          
+          // temp
+          console.log(this.pipeBombInventory);
+          if (this.handleBombPlace(TileID.PIPE_BOMB)) {
+            this.pipeBombInventory--;
+          }
+          break;
         case PlayerInputState.BOMB_DETONATE:
           this.handleBombDetonate();
           break;
@@ -801,49 +817,57 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     return (TERM_SHOCK_COEFF * t * t) + TERM_SHOCK_INIT_VELO * t - 25;
   }
 
-  private handleBombPlace() {
+  private handleBombPlace(type?: TileID) {
+
+    let bombType : TileID;
+    if (type === undefined) {
+      bombType = TileID.BOMB;
+    } else {
+      bombType = type;
+    }
     // max out
     if (this.bombCount >= this.maxBombCount) {
-      return;
+      return false;
     }
     let bombPos : vec3 = [Math.round(this.playerpos[0]), Math.round(this.playerpos[1]), 0];
     for (let id of this.state.layer.keys()) {
       let inst = this.state.layer.get(id);
       let pos = inst.position;
       if (pos[0] === bombPos[0] && pos[1] === bombPos[1]) {
-        return;
+        return false;
       }
     }
 
     let id = this.state.nextID++;
     let layer = new LayerInstance();
-    layer.type = TileID.BOMB;
+    layer.type = bombType;
     layer.position = bombPos;
 
     this.state.layer.set(id, layer);
     this.bombCount++;
 
     this.bombCollision.add(id);
+
+    return true;
   }
 
   private handleBombDetonate() {
     let bombIDs = [];
+    let pipeBombIDs = [];
     for (let id of this.state.layer.keys()) {
       let inst = this.state.layer.get(id);
-      if (inst.type === TileID.BOMB) {
-        bombIDs.push(id);
+      switch (inst.type) {
+        case TileID.BOMB:
+          bombIDs.push(id);
+          break;
+        case TileID.PIPE_BOMB:
+          pipeBombIDs.push(id);
+          break;
       }
     }
 
     let explosionTiles = [];
     for (let id of bombIDs) {
-      // get the bomb's position
-      // step along the x and y axes, placing explosions as we go
-      // bomb radius is determined by distance
-      // if we hit a wall, stop
-      // if we hit a crate, destroy it and stop.
-
-      // TODO: add special bombs which slightly tweak this behavior.
       let pos = this.state.layer.get(id).position;
 
       let dist = 0;
@@ -912,6 +936,27 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
       this.state.layer.delete(id);
 
     }
+
+    let sign = [0, 0];
+    for (let id of pipeBombIDs) {
+      let pos = this.state.layer.get(id).position;
+      
+      for (let i = 0; i < 4; i++) {
+        sign[0] = (i < 2 ? (i < 1 ? 1 : -1) : 0);
+        sign[1] = (i >= 2 ? (i < 3 ? 1 : -1) : 0);
+        for (let j = Math.min(i, 1); j <= this.radius; j++) {
+          let explosionPos = [(sign[0] * j + pos[0]), (sign[1] * j + pos[1])];
+          if (this.createExplosion(explosionPos[0], explosionPos[1]) === 0) {
+            // ignores crates
+            break;
+          } else {
+            explosionTiles.push(explosionPos);
+          }
+        }
+      } 
+
+      this.state.layer.delete(id);
+    }
     
     for (let tile of explosionTiles) {
       let delType = this.state.getTile(tile[0], tile[1]);
@@ -976,5 +1021,5 @@ export class GameConnectionManagerSinglePlayer extends GameObject implements Gam
     } else {
       return (tile !== TileID.CRATE ? 2 : 1);
     }
-  }
+  } 
 }
