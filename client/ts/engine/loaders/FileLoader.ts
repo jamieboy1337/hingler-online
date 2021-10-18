@@ -12,7 +12,7 @@ export class FileLoader {
   private loadedFiles: Map<string, FileLikeWeb>;
   private workerPath: Promise<void>;
   private res: () => void;
-  private rej: (any) => void;
+  private rej: (_: any) => void;
   private static workerLoaded: Task<void> = null;
 
   constructor() {
@@ -36,13 +36,18 @@ export class FileLoader {
   private async cb() {
     console.log("test");
     // raise a boolean flag if the serviceworker is registered
-    window.navigator.serviceWorker.register("../sw.js", {}).then((reg) => {
+    window.navigator.serviceWorker.register("../sw.js", {}).then((_) => {
       console.log("serviceworker registered~~~");
       this.res();
       FileLoader.workerLoaded.resolve();
     }, (err) => {
       console.error("could not register serviceworker :(");
-      this.rej(err);
+      // for some reason this occurs on the pentium silver
+      // not sure what the underlying cause is, i'll look into it
+      // either way, make sure this doesn't throw forever
+      // supported but crashes
+      console.error(err);
+      this.res();
     })
   }
 

@@ -1,6 +1,3 @@
-import { mat4, vec2, vec3, vec4 } from "gl-matrix";
-import { GLAttribute } from "../gl/GLAttribute";
-
 // triangle will bundle our attribs up into something like this
 export interface Vertex {
   readonly position: Float32Array;

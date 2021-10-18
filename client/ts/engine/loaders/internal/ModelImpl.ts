@@ -105,7 +105,7 @@ export interface ModelInstance {
   indices: GLIndex;
 }
 
-export class ModelImpl implements Model {
+export class ModelImpl extends Model {
   readonly instances: Array<ModelInstance>;
 
   posLocation: number;
@@ -116,6 +116,7 @@ export class ModelImpl implements Model {
   weightLocation: Array<number>;
   
   constructor(instances: Array<ModelInstance>) {
+    super();
     this.instances = instances;
     this.posLocation = -1;
     this.normLocation = -1;

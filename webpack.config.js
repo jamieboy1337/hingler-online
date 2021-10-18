@@ -47,7 +47,8 @@ module.exports = [{
     drawtest: "./test/browser/drawtest",
     simpletest: "./test/browser/simpletest",
     shadertest: "./test/browser/shadertest",
-    modeltest: "./test/browser/modeltest"
+    modeltest: "./test/browser/modeltest",
+    watertest: "./test/browser/watertest"
   },
 
   mode: "development",

@@ -120,7 +120,7 @@ export class ShaderProgramBuilder {
     }
     
     let res: () => void;
-    let rej: () => void;
+    let rej: (e?: any) => void;
     let progress : Promise<void> = new Promise((resolve, reject) => {
       res = resolve;
       rej = reject;
@@ -136,7 +136,7 @@ export class ShaderProgramBuilder {
       fragShader = await this.createShaderFromFile_(this.fragPath, gl.FRAGMENT_SHADER);
     } catch (e) {
       console.error(e);
-      rej();
+      rej(e);
     }
 
     let prog = gl.createProgram();

@@ -63,6 +63,7 @@ export class GLIndexImpl implements GLIndex {
         this.byteSize = 2;
         break;
       case DataType.FLOAT:
+      case DataType.UNSIGNED_INT:
         this.byteSize = 4;
         break;
       default:
@@ -84,6 +85,9 @@ export class GLIndexImpl implements GLIndex {
         break;
       case DataType.UNSIGNED_SHORT:
         this.accessFunc = this.buffer.getUint16.bind(buffer);
+        break;
+      case DataType.UNSIGNED_INT:
+        this.accessFunc = this.buffer.getInt32.bind(buffer);
         break;
       case DataType.FLOAT:
         this.accessFunc = this.buffer.getFloat32.bind(buffer);
