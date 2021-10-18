@@ -14,8 +14,8 @@ cypress/support/
 cypress/screenshots/
 cypress/reports/
 
-Session.vim
-session.vim
+*.vim
+
 
 .nyc_output
 
