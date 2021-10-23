@@ -89,7 +89,7 @@ export class Renderer {
     for (let light of lights) {
       // skip until spotlights are definitely working
       // skip lights which won't contribute to final image
-      if (light.intensity < 0.001) {
+      if (light.intensity < 0.0001) {
         continue;
       }
 
@@ -106,7 +106,6 @@ export class Renderer {
       ambLightInfo.push(new AmbientLightStruct(this.ctx, light));
     }
 
-    // gl.disable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
 
     let cam = this.findActiveCamera(this.scene.getGameObjectRoot());
@@ -204,11 +203,7 @@ export class Renderer {
    * @returns Texture, or null if the index was invalid.
    */
   getPass(index: number) : TextureDisplay {
-    if (index < 0 || index >= this.getPassCount()) {
-      return null;
-    }
-
-    return this.renderPasses[index];
+    return this.renderPasses[Math.min(Math.max(Math.floor(index), 0), this.getPassCount() - 1)];
   } 
 
   private findSpotLights(root: GameObject) : Array<SpotLightObject> {
@@ -244,7 +239,7 @@ export class Renderer {
     // provide the fb in context? or rebind it on each pass
     let fb = light._getShadowFramebuffer();
     fb.bindFramebuffer(this.gl.FRAMEBUFFER);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
     let dim = fb.dims;
     this.gl.viewport(0, 0, dim[0], dim[1]);
     this.scene.getGameObjectRoot().renderChildren(rc);

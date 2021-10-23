@@ -21,5 +21,5 @@ void main() {
   // f should slightly brighten the color
   vec3 col = vColor.rgb;
   col = col * 0.5 + (((F + S) * 0.2) * col);
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
 }

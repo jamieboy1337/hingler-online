@@ -19,7 +19,6 @@ vec3 grad(float hash) {
     // And corresponds to the face of its dual, the rhombic dodecahedron
     vec3 cuboct = cube;
     int zero = int(hash / 16.0);
-    // vec3 cubeprod = vec3(step(0.5, ceil(hash / 16.0)), min(step(hash, 16.0) + step(32.0, hash), 1.0), step(hash, 32.0));
     if (zero == 0) {
         cuboct = vec3(0.0, cuboct.yz);
     } else if (zero == 1) {

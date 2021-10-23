@@ -18,6 +18,22 @@ import { PBRInstancedMaterial } from "./PBRInstancedMaterial";
 import { PBRMaterial } from "./PBRMaterial";
 import { TextureDummy } from "./TextureDummy";
 
+interface SpotLightUniform {
+  position: WebGLUniformLocation;
+  direction: WebGLUniformLocation;
+  fov: WebGLUniformLocation;
+  falloff: WebGLUniformLocation;
+  intensity: WebGLUniformLocation;
+  color: WebGLUniformLocation;
+  transform: WebGLUniformLocation;
+  shadowSize: WebGLUniformLocation;
+  shadowtex: WebGLUniformLocation;
+
+  atten_const: WebGLUniformLocation;
+  atten_linear: WebGLUniformLocation;
+  atten_quad: WebGLUniformLocation;
+}
+
 // todo: merge this and instanced?
 // create a single unified material which supports instancing
 export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMaterial { 
@@ -30,6 +46,9 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
 
   private modelMatrixIndex: number;
   private normalBuffer: GLBufferImpl;
+
+  private spotLightUniforms: Array<SpotLightUniform>;
+  private spotLightUniformsNoShadow: Array<SpotLightUniform>;
    
   vpMat: mat4;
   modelMat: mat4;
@@ -103,6 +122,9 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     this.emission = null;
     vec4.zero(this.emissionFactor);
 
+    this.spotLightUniforms = [];
+    this.spotLightUniformsNoShadow = [];
+
     this.cameraPos = vec3.create();
 
     this.modelMatrixIndex = -1;
@@ -157,6 +179,50 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
     };
 
     this.progWrap = new GLProgramWrap(gl, this.prog);
+
+    for (let i = 0; i < 8; i++) {
+      let uni = {} as SpotLightUniform;
+      const ext = (i % 2 === 1 ? "_no_shadow" : "");
+      const flad = Math.floor(i / 2);
+      uni.position = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].position`);
+      uni.direction = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].dir`);
+      uni.fov = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].fov`);
+      uni.falloff = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].falloffRadius`);
+      uni.intensity = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].intensity`);
+      uni.color = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].color`);
+      uni.transform = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].lightTransform`);
+      uni.shadowSize = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].shadowSize`);
+      if (i % 2 === 0) {
+        uni.shadowtex = gl.getUniformLocation(prog, `texture_spotlight[${flad}]`);
+      }
+
+      uni.atten_const = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].a.atten_const`);
+      uni.atten_linear = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].a.atten_linear`);
+      uni.atten_quad = gl.getUniformLocation(prog, `spotlight${ext}[${flad}].a.atten_quad`);
+
+      (i % 2 === 0 ? this.spotLightUniforms : this.spotLightUniformsNoShadow).push(uni);
+    }
+  }
+
+  private bindSpotLightStruct(s: SpotLightStruct, loc: SpotLightUniform) {
+    const gl = this.ctx.getGLContext();
+    gl.uniform3fv(loc.position, s.position);
+    gl.uniform3fv(loc.direction, s.dir);
+    gl.uniform1f(loc.fov, s.fov);
+    gl.uniform1f(loc.falloff, s.falloffRadius);
+    gl.uniform1f(loc.intensity, s.intensity);
+    gl.uniform4fv(loc.color, s.color);
+
+    if (s.hasShadow()) {
+      s.shadowTex.bindToUniform(loc.shadowtex, s.getShadowTextureIndex());
+    }
+
+    gl.uniformMatrix4fv(loc.transform, false, s.lightTransform);
+    gl.uniform2fv(loc.shadowSize, s.shadowSize);
+
+    gl.uniform1f(loc.atten_const, s.attenuation.atten_const);
+    gl.uniform1f(loc.atten_linear, s.attenuation.atten_linear);
+    gl.uniform1f(loc.atten_quad, s.attenuation.atten_quad);
   }
 
   setSpotLight(light: Array<SpotLightStruct>) {
@@ -199,10 +265,10 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
         for (let i = 0; i < this.spot.length; i++) {
           if (this.spot[i].hasShadow() && shadowSpot < 4) {
             this.spot[i].setShadowTextureIndex(shadowSpot + 8);
-            this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${shadowSpot}]`, true);
+            this.bindSpotLightStruct(this.spot[i], this.spotLightUniforms[shadowSpot]);
             shadowSpot++;
           } else {
-            this.spot[i].bindToUniformByName(this.progWrap, `spotlight_no_shadow[${noShadowSpot}]`, false);
+            this.bindSpotLightStruct(this.spot[i], this.spotLightUniformsNoShadow[noShadowSpot]);
             noShadowSpot++;
           }
         }
@@ -310,11 +376,11 @@ export class PBRMaterialImpl implements Material, PBRMaterial, PBRInstancedMater
       if (this.spot) {
         for (let i = 0; i < this.spot.length; i++) {
           if (this.spot[i].hasShadow() && shadowSpot < 4) {
-            this.spot[i].setShadowTextureIndex(i + 8);
-            this.spot[i].bindToUniformByName(this.progWrap, `spotlight[${shadowSpot}]`, true);
+            this.spot[i].setShadowTextureIndex(shadowSpot + 8);
+            this.bindSpotLightStruct(this.spot[i], this.spotLightUniforms[shadowSpot]);
             shadowSpot++;
           } else {
-            this.spot[i].bindToUniformByName(this.progWrap, `spotlight_no_shadow[${noShadowSpot}]`, false);
+            this.bindSpotLightStruct(this.spot[i], this.spotLightUniformsNoShadow[noShadowSpot]);
             noShadowSpot++;
           }
         }

@@ -88,11 +88,7 @@ export class InstancedModelImpl implements InstancedModel {
               buf.buf.disableInstancedVertexAttribute(attrib);
             }
           }
-
-          for (let record of this.instances.values()) {
-            record.offset = 0;
-          }
-
+          
           this.enabledAttributes = new Set();
           this.attributeToBuffer = new Map();
         }

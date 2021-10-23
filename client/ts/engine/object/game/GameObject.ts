@@ -30,7 +30,6 @@ export class GameObject extends EngineObject {
     vec3.zero(this.position);
 
     this.scale = vec3.create();
-    vec3.zero(this.scale);
     vec3.set(this.scale, 1, 1, 1);
 
     this.rotation = quat.create();

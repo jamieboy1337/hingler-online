@@ -49,6 +49,11 @@ export class GameModel extends GameObject {
     this.model = model;
   }
 
+  // temp in case something is fucky here
+  protected getModel() {
+    return this.model;
+  }
+
   /**
    * draws this model with `material`. Does not modify material state.
    * @param rc - the render context associated with this draw call.
@@ -57,6 +62,7 @@ export class GameModel extends GameObject {
   drawModel(rc: RenderContext, material: Material) {
     let info = rc.getActiveCameraInfo();
     if (this.model) {
+      // this is a lazy fallback
       if (rc.getRenderPass() === RenderPass.SHADOW) {
         this.shadowTex.modelMat = this.getTransformationMatrix();
         this.shadowTex.shadowMat = info.vpMatrix;

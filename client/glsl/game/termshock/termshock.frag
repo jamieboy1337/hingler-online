@@ -38,5 +38,5 @@ void main() {
   grad /= 2.0;
 
   vec4 col = getGradient(gradientCols, gradientStops, grad);
-  gl_FragColor = vec4(vec3(col.xyz), 1.0);
+  gl_FragColor = vec4(vec3(pow(col.xyz, vec3(1.0 / 2.2))), 1.0);
 }

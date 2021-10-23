@@ -9,6 +9,8 @@ import { Renderer } from "./Renderer";
 import { mobileCheck } from "../../../../ts/util/MobileCheck";
 import { SceneSwapImpl } from "../object/scene/internal/SceneSwapImpl";
 
+let uintext: OES_element_index_uint = undefined;
+
 /**
  * INTERNAL ONLY.
  */
@@ -85,19 +87,22 @@ export class EngineContext implements GameContext {
     // will this event listener stick around forever?
     window.addEventListener("resize", this.windowListener);
     this.mobile = mobileCheck();
-
-    // doesn't work -- if we ctor a new engine context w a new scene,
-    // this will be irrelevant.
-    // alt: wipe the cache on swap doesn't work, because there's too many
-    // assets being exchanged.
-    // having all files loaded into mem is a bad idea
-
-    // new context sounds like the best solution...
-    // maybe move this to a separate method, which runs when the ctx takes control?
+   
+    // DEBUG LINE!!!
+    // this.glContext = this.getGLProxy(this.glContext);
+    
     let gl = this.glContext;
     gl.clearColor(0, 0, 0, 1);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
+    gl.clearDepth(1.0);
+
+    if (uintext === undefined) {
+      uintext = gl.getExtension("OES_element_index_uint");
+      if (uintext === null) {
+        console.warn("Could not load uint index extension!");
+      }
+    }
 
     this.scene = scene;
     this.renderer = new Renderer(this, this.scene);
@@ -115,6 +120,8 @@ export class EngineContext implements GameContext {
   }
 
   private updateScreenDims() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
     this.dims = [this.canvas.clientWidth, this.canvas.clientHeight];
   }
 
@@ -206,7 +213,7 @@ export class EngineContext implements GameContext {
     if (this.scene && this.scene.isInitialized()) {
       let passCount = this.renderer.getPassCount();
       if (passCount > 0) {
-        let disp = this.renderer.getPass(Math.abs(passCount - 1));
+        let disp = this.renderer.getPass(Math.floor((this.lastTimePoint / 1000) % 2));
         this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
         this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
         disp.drawTexture();

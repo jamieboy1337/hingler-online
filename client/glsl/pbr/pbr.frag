@@ -56,16 +56,17 @@ void main() {
   }
 
   vec3 N = v_norm;
-  if (use_norm != 0) {
-    // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
-    vec3 norm_tex = normalize(texture2D(tex_norm, v_tex).rgb * 2.0 - 1.0);
-    N = TBN * norm_tex;
-  }
+  // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+  vec3 norm_tex = normalize(texture2D(tex_norm, v_tex).rgb * 2.0 - 1.0);
+  N = TBN * norm_tex * step(0.5, float(use_norm)) + N * step(float(use_norm), 0.5);
 
   // get rough at tex, use as roughness, store in float rough;
   vec2 metal_rough = texture2D(tex_metal_rough, v_tex).bg;
   float metal = metal_rough.x * metal_factor;
   float rough = metal_rough.y * rough_factor;
+
+  metal += metal_factor * float(1 - use_metal_rough);
+  rough += rough_factor * float(1 - use_metal_rough);
 
   if (use_metal_rough == 0) {
     metal = metal_factor;
@@ -78,7 +79,6 @@ void main() {
       break;
     }
 
-    vec3 light_vector = normalize(spotlight[i].position - v_pos.xyz);
     col += getSpotLightColorPBR(spotlight[i], camera_pos, v_pos.xyz, spot_coord[i], C, N, rough, metal, texture_spotlight[i]);
   }
 
@@ -87,7 +87,6 @@ void main() {
       break;
     }
 
-    vec3 light_vector = normalize(spotlight_no_shadow[i].position - v_pos.xyz);
     col += getSpotLightColorPBR(spotlight_no_shadow[i], camera_pos, v_pos.xyz, C, N, rough, metal);
   }
 
@@ -105,5 +104,5 @@ void main() {
     col += vec4(texture2D(tex_emission, v_tex).rgb, 0.0);
   }
 
-  gl_FragColor = vec4(col.xyz, 1.0);
+  gl_FragColor = vec4(pow(col.xyz, vec3(1.0 / 2.2)), 1.0);
 }

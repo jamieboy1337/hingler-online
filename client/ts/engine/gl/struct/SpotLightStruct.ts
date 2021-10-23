@@ -68,14 +68,16 @@ export class SpotLightStruct implements GLSLStruct {
     this.index = index;
   }
 
+  getShadowTextureIndex() {
+    return this.index;
+  }
+
   bindToUniformByName(prog: GLProgramWrap, name: string, enableShadow?: boolean) {
     let gl = this.gl;
     
     // resolves if undefined
     let useShadow = (!!enableShadow) && (this.shadowTex !== null);
     
-    // this is the biggest performance hit
-    // invent a wrapper so that we don't need to fetch these locations a bunch of times
     const posLoc =        prog.getUniformLocation(name + ".position");
     const dirLoc =        prog.getUniformLocation(name + ".dir");
     const fovLoc =        prog.getUniformLocation(name + ".fov");

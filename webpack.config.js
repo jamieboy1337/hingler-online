@@ -13,7 +13,8 @@ module.exports = [{
     drawtest2: "./client/ts/drawtest2",
     maptest: "./client/ts/maptest",
     countertest: "./client/ts/countertest",
-    swaptest: "./client/ts/swaptest"
+    swaptest: "./client/ts/swaptest",
+    watertest: "./client/ts/watertest"
   },
 
   mode: "development",
@@ -47,8 +48,7 @@ module.exports = [{
     drawtest: "./test/browser/drawtest",
     simpletest: "./test/browser/simpletest",
     shadertest: "./test/browser/shadertest",
-    modeltest: "./test/browser/modeltest",
-    watertest: "./test/browser/watertest"
+    modeltest: "./test/browser/modeltest"
   },
 
   mode: "development",

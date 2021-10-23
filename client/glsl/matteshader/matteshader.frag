@@ -38,7 +38,9 @@ void main() {
     vec3 light_vector = spotlight[i].position - position_v.xyz;
     light_vector = normalize(light_vector);
     float n_b = max(dot(light_vector.xyz, normal_v), 0.0);
-    col += getSpotLightColorPBR(spotlight[i], camera_pos, position_v.xyz, spot_coord[i], surface_color.rgb, normal_v, 0.35, 0.0, texture_spotlight[i]);
+    // col += getSpotLightColorPBR(spotlight[i], camera_pos, position_v.xyz, spot_coord[i], surface_color.rgb, normal_v, 0.35, 0.0, texture_spotlight[i]);
+    vec4 light_col = getSpotLightColor(spotlight[i], position_v.xyz);
+    col += n_b * light_col;
   }
 
   for (int i = 0; i < 16; i++) {
@@ -46,10 +48,10 @@ void main() {
       break;
     }
 
-    vec3 light_vector = spotlight[i].position - position_v.xyz;
+    vec3 light_vector = spotlight_no_shadow[i].position - position_v.xyz;
     light_vector = normalize(light_vector);
     float n_b = max(dot(light_vector.xyz, normal_v), 0.0);
-    vec4 light_col = getSpotLightColor(spotlight[i], position_v.xyz);
+    vec4 light_col = getSpotLightColor(spotlight_no_shadow[i], position_v.xyz);
     col += n_b * light_col;
   }
 

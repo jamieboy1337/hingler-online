@@ -26,10 +26,6 @@ export class PlaneModel extends ModelImpl {
     // texcoords 0 - 1 on wh
     // tangents in one of those directions lol
     // no weights, no joints
-    
-    if (subs > 255) {
-      throw Error("Cannot currently handle more than 255 subdivisions due to ushort overflow");
-    }
 
     let gl = ctx.getGLContext();
 
@@ -87,17 +83,20 @@ export class PlaneModel extends ModelImpl {
     let indexbuf = new GLBufferImpl(gl);
     let indexOffset = 0;
     const korn = (subs - 1);
+
+    const setFunc = (subs > 250 ? indexbuf.setUint32.bind(indexbuf) : indexbuf.setUint16.bind(indexbuf));
+    const offset = (subs > 250 ? 4 : 2);
     for (let i = 0; i < korn; i++) {
       for (let j = 0; j < korn; j++) {
-        indexbuf.setUint16(indexOffset, i * subs + j, true);
-        indexbuf.setUint16(indexOffset + 2, i * subs + j + 1, true);
-        indexbuf.setUint16(indexOffset + 4, (i + 1) * subs + j + 1, true);
+        setFunc(indexOffset, (i + 1) * subs + j + 1, true);
+        setFunc(indexOffset + offset, i * subs + j + 1, true);
+        setFunc(indexOffset + 2 * offset, i * subs + j, true);
         
-        indexbuf.setUint16(indexOffset + 6, i * subs + j, true);
-        indexbuf.setUint16(indexOffset + 8, (i + 1) * subs + j + 1, true);
-        indexbuf.setUint16(indexOffset + 10, (i + 1) * subs + j, true);
+        setFunc(indexOffset + 3 * offset, (i + 1) * subs + j, true);
+        setFunc(indexOffset + 4 * offset, (i + 1) * subs + j + 1, true);
+        setFunc(indexOffset + 5 * offset, i * subs + j, true);
 
-        indexOffset += 12;
+        indexOffset += 6 * offset;
       }
     }
     
@@ -105,7 +104,7 @@ export class PlaneModel extends ModelImpl {
     const accInd : Accessor = {
       bufferView: 0,
       byteOffset: 0,
-      componentType: gl.UNSIGNED_SHORT,
+      componentType: (subs > 250 ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT),
       count: (korn * korn * 6),
       min: [0],
       max: [subs * subs],
