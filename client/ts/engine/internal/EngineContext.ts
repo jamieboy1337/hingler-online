@@ -213,7 +213,7 @@ export class EngineContext implements GameContext {
     if (this.scene && this.scene.isInitialized()) {
       let passCount = this.renderer.getPassCount();
       if (passCount > 0) {
-        let disp = this.renderer.getPass(Math.floor((this.lastTimePoint / 1000) % 2));
+        let disp = this.renderer.getPass(Math.abs(this.renderer.getPassCount() - 1));
         this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
         this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
         disp.drawTexture();

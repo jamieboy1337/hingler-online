@@ -51,10 +51,9 @@ uniform int wavecount;
 
 
 void main() {
-  vec4 surfaceCol = getGradient(gradientCols, gradientStops, 0.1 * vHeight + 0.13);
-  vec4 bump = vec4(0.0);
-  vec2 travel = (wavelist[0].direction * wavelist[0].phi * 2.0) * time;
-  vec3 noisePos = (1.1 * vPositionOriginal).xyz + vec3(travel.x, time * 0.9, travel.y);
+  vec4 surfaceCol = getGradient(gradientCols, gradientStops, 0.14 * vHeight + 0.12);
+  vec2 travel = (wavelist[0].direction * wavelist[0].phi * 1.4) * time;
+  vec3 noisePos = (1.1 * vec3(vPositionOriginal.x, vPosition.y / 6.0, vPositionOriginal.z)) + vec3(travel.x, time * 0.9, travel.y);
   vec2 noisePosT = 2.2980446 * noisePos.xz;
   // bump += openSimplex2_Classical(noisePos);
 
@@ -64,7 +63,7 @@ void main() {
 
 
 
-  float foamIntensity = foamFactor * (2.0 + bump.w + 1.0) * 0.25 * min(max(vHeight - 0.2, 0.0), 1.0);
+  float foamIntensity = foamFactor * (2.0 + bump_main + 1.0) * 0.45 * min(max(vHeight - 0.2, 0.0), 1.0);
 
   surfaceCol += vec4(vec3(foamIntensity), 0.0);
   vec3 norm = vec3(250.0 * (bump_x - bump_main), 1.0, 250.0 * (bump_z - bump_main));
@@ -90,13 +89,6 @@ void main() {
     col += getSpotLightColorPBR(spotlight_no_shadow[i], camera_pos, vPosition.xyz, surfaceCol.rgb, norm, roughness, METALLIC);
   }
 
-  vec4 pos_ndc = spot_coord[0];
-  pos_ndc /= pos_ndc.w;
-  float depth = pos_ndc.z;
-  pos_ndc *= 0.5;
-  pos_ndc += 0.5;
-  float z = texture2D(texture_spotlight[0], gl_FragCoord.xy / vec2(1920.0, 951.0)).r;
-  float k = (2.0 * 4.0) / (750.0 + 4.0 - z * (750.0 - 4.0));
   // for (int i = 0; i < 4; i++) {
   //   if (i >= ambientCount) {
   //     break;

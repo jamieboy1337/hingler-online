@@ -38,8 +38,12 @@ class WaterModelTest extends GameModel {
   private shadowmat: WaterShadowMaterial;
   private delta: number;
 
+  // vposition is world space
+  // we can slide the ocean model along with the player, and it's fine!
+  // create a sufficiently large plane to follow the camera
   constructor(ctx: GameContext) {
-    super(ctx, new PlaneModel(ctx, 250, 250, 125));
+    // 0.5u works well enough i think
+    super(ctx, new PlaneModel(ctx, 250, 250, 525));
     this.mat = new WaterMaterial(ctx);
     this.shadowmat = new WaterShadowMaterial(ctx);
     this.delta = 0;
@@ -58,9 +62,9 @@ class WaterModelTest extends GameModel {
       wave.direction = vec2.copy(vec2.create(), waveDirection);
       vec2.rotate(wave.direction, wave.direction, [0, 0], (xorshift32_float() - 0.5) * 1.5);
       vec2.normalize(wave.direction, wave.direction);
-      wave.amp = Math.pow(0.5, xorshift32_float() * 2) * 0.7;
+      wave.amp = Math.pow(0.5, xorshift32_float() * 2) * 0.35;
       wave.freq = 2.0 / (wave.amp * ampWavelengthRatio);
-      wave.speed = (0.9 + 2.8 * xorshift32_float()) * .9;
+      wave.speed = (0.9 + 2.8 * xorshift32_float()) * 1.4 * wave.amp;
       wave.steepness = 0.21;
       this.mat.waves.push(wave);
     }
@@ -70,6 +74,7 @@ class WaterModelTest extends GameModel {
 
   update() {
     this.delta += this.getContext().getDelta();
+    this.setPosition(Math.sin(this.delta) * 125.0, 0.0, 0.0);
   }
 
   renderMaterial(rc: RenderContext) {
@@ -129,13 +134,11 @@ class WaterScene extends Scene {
     light.atten_linear = 0;
     light.atten_const = 1;
 
-    light.setShadows(false);
+    light.setShadows(true);
     
     root.addChild(light);
     light.setPosition(-120, 125, 0);
     light.lookAt(0, 0, 0);
-
-    light.setShadowDims(2048, 2048);
 
     root.addChild(anchor);
     root.addChild(floor);

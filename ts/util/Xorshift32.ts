@@ -1,6 +1,8 @@
 
 let s: number = 3662;
 const int32_max = 4294967295;
+// up to 53 bits in mantissa, i cant multiply more because the computer will be cross with me
+const int_greebler = 481029;
 
 /**
  * @returns a random 32 bit integer.
@@ -14,7 +16,9 @@ export function xorshift32() {
   x &= -1;
   let res = s;
   s = x;
-  return res;
+  // introduce a large multiplication op to greeble our results a bit
+
+  return (res * int_greebler) % int32_max;
 }
 
 /**

@@ -52,6 +52,7 @@ export class SpotLightObject extends GameObject implements SpotLight {
       console.error(err);
       throw Error(err);
     }
+    
     this.fb.setFramebufferSize(dims);
   }
 
