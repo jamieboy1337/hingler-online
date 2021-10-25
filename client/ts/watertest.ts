@@ -74,7 +74,6 @@ class WaterModelTest extends GameModel {
 
   update() {
     this.delta += this.getContext().getDelta();
-    this.setPosition(Math.sin(this.delta) * 125.0, 0.0, 0.0);
   }
 
   renderMaterial(rc: RenderContext) {

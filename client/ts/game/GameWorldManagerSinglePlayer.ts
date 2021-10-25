@@ -1,18 +1,15 @@
 import { mat4, quat, vec3, vec4 } from "gl-matrix";
-import { Task } from "../../../ts/util/task/Task";
 import { GameContext } from "../engine/GameContext";
-import { Model } from "../engine/model/Model";
 import { GameCamera } from "../engine/object/game/GameCamera";
 import { GameObject } from "../engine/object/game/GameObject";
 import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
-import { TerminationShock } from "./field/TerminationShock";
+import { FXAAFilter } from "./filter/FXAAFilter";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
 import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
 import { TileManagerSinglePlayer } from "./manager/internal/TileManagerSinglePlayer";
-import { TileManager } from "./manager/TileManager";
 import { MapManager } from "./MapManager";
 import { Counter } from "./ui/Counter";
 import { EnemyInfo } from "./ui/EnemyInfo";
@@ -147,6 +144,9 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(cam);
     cam.setAsActive();
 
+    const fxaa = new FXAAFilter(ctx);
+    cam.addFilter(fxaa);
+
     // connection needs some awareness of when beach starts
     // how best to provide that?
 
@@ -213,8 +213,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     amb.color = [0.5, 0.5, 0.5, 1.0];
     amb.intensity = 0.3;
 
-    cam.setPosition(0, 70, 32);
-    cam.fov = 18;
+    cam.setPosition(0, 49, 32);
+    cam.fov = 21;
     cam.near = 1.0;
     cam.far = 250.0;
     cam.lookAt(0, 0, 0);

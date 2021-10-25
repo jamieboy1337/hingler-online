@@ -168,14 +168,14 @@ export class ShaderProgramBuilder {
       let log = gl.getShaderInfoLog(shader);
       console.error(log);
       gl.deleteShader(shader);
-      this.printParsedShaderWithLineNumbers(contents);
+      this.printParsedShaderWithLineNumbers(contents, shaderPath);
       throw Error(log);
     }
 
     return shader;
   }
 
-  private printParsedShaderWithLineNumbers(shader: string) {
+  private printParsedShaderWithLineNumbers(shader: string, path: string) {
     let lines = shader.split(/\r?\n/);
     let breaks = Math.ceil(Math.log10(lines.length + 1)) + 2;
     for (let i = 0; i < lines.length; i++) {
@@ -183,6 +183,6 @@ export class ShaderProgramBuilder {
       lines[i] = numstr + lines[i];
     }
 
-    console.warn(lines.join("\r\n"));
+    console.warn(`Error in ${path}: \n${lines.join("\r\n")}`);
   }
 }
