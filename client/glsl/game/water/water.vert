@@ -4,6 +4,7 @@ precision highp int;
 
 #include <water.inc.glsl>
 #include <../../includes/opensimplex.inc.glsl>
+#include <../../includes/perlin.inc.glsl>
 #include <../../includes/spotlight/spotlight.inc.glsl>
 
 attribute vec4 position;
@@ -58,17 +59,18 @@ void main() {
   vPosition = 1.0 * particleInfluence + worldPos.xyz;
 
   // get noise here
-  vec4 noise = vec4(0.0);
-  vec3 samplePos = 1.5 * vPosition + vec3(0.0, time * 0.3, 0.0);
-  noise += 0.03 * openSimplex2_Classical(samplePos);
+  // vec4 noise = vec4(0.0);
+  // vec3 samplePos = 1.5 * vPosition + vec3(0.0, time * 0.3, 0.0);
+  // noise += 0.03 * openSimplex2_Classical(samplePos);
 
-  vec3 N = normalize(vec3(0.0, 1.0, 0.0) + normalInfluence + vec3(noise.x, 0.0, noise.z));
+  // vec3 N = normalize(vec3(0.0, 1.0, 0.0) + normalInfluence + vec3(noise.x, 0.0, noise.z));
+  vec3 N = normalize(vec3(0.0, 1.0, 0.0) + normalInfluence);
   vec3 T = normalize(vec3(0.0, 0.0, 1.0) + tangentInfluence);
   vec3 B = normalize(cross(N, T));
   TBN = mat3(T, B, N);
   vNormal = N;
 
-  foamFactor = (openSimplex2_Classical(0.1 * worldPos.xyz).w + 1.0) * 0.5;
+  foamFactor = (noise2d(0.5 * worldPos.xy) + 1.0) * 0.5;
   foamFactor = pow(foamFactor, 1.6);
   vHeight = particleInfluence.y;
   worldPos = vec4(vPosition.xyz, worldPos.w);

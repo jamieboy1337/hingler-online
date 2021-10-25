@@ -40,8 +40,16 @@ uniform int wavecount;
 
 #define WAVE_COLOR vec3(0.05, 0.111, 0.15)
 #define METALLIC 0.005
-#define ROUGH 0.08
+#define ROUGH 0.6
 #define FACTORS 1
+
+// higher spec platforms: simplex perturbations in vert normal, perlin perturbation in frag, low (0.1 - 0.15) roughness
+// lower  spec platforms: no perturbations, higher (0.5 - 0.7) roughness
+
+// how to communicate necessity of changing specs?
+// later we can add an option menu
+// for now, we can use frame times to tweak it on the fly
+// if frame times are long, we'll bump down to the lower spec ver (cut some effects)
 
 
 // devise color mapping based on height, like in blender ver
@@ -52,22 +60,22 @@ uniform int wavecount;
 
 void main() {
   vec4 surfaceCol = getGradient(gradientCols, gradientStops, 0.14 * vHeight + 0.12);
-  vec2 travel = (wavelist[0].direction * wavelist[0].phi * 1.4) * time;
-  vec3 noisePos = (1.1 * vec3(vPositionOriginal.x, vPosition.y / 6.0, vPositionOriginal.z)) + vec3(travel.x, time * 0.9, travel.y);
-  vec2 noisePosT = 2.2980446 * noisePos.xz;
+  // vec2 travel = (wavelist[0].direction * wavelist[0].phi * 1.4) * time;
+  // vec3 noisePos = (1.1 * vec3(vPositionOriginal.x, vPosition.y / 6.0, vPositionOriginal.z)) + vec3(travel.x, time * 0.9, travel.y);
+  // vec2 noisePosT = 2.2980446 * noisePos.xz;
   // bump += openSimplex2_Classical(noisePos);
 
-  float bump_main = noise3d(noisePos) + noise2d(noisePosT) * 0.4;
-  float bump_x = noise3d(noisePos + vec3(0.0001, 0.0, 0.0)) + noise2d(noisePosT + vec2(0.0001, 0.0)) * 0.4;
-  float bump_z = noise3d(noisePos + vec3(0.0, 0.0, 0.0001)) + noise2d(noisePosT + vec2(0.0, 0.0001)) * 0.4;
+  // float bump_main = noise3d(noisePos) + noise2d(noisePosT) * 0.4;
+  // float bump_x = noise3d(noisePos + vec3(0.0001, 0.0, 0.0)) + noise2d(noisePosT + vec2(0.0001, 0.0)) * 0.4;
+  // float bump_z = noise3d(noisePos + vec3(0.0, 0.0, 0.0001)) + noise2d(noisePosT + vec2(0.0, 0.0001)) * 0.4;
 
 
 
-  float foamIntensity = foamFactor * (2.0 + bump_main + 1.0) * 0.45 * min(max(vHeight - 0.2, 0.0), 1.0);
+  float foamIntensity = foamFactor * 0.45 * min(max(vHeight - 0.2, 0.0), 1.0);
 
   surfaceCol += vec4(vec3(foamIntensity), 0.0);
-  vec3 norm = vec3(250.0 * (bump_x - bump_main), 1.0, 250.0 * (bump_z - bump_main));
-  norm = normalize(norm);
+  // vec3 norm = vec3(250.0 * (bump_x - bump_main), 1.0, 250.0 * (bump_z - bump_main));
+  vec3 norm = vNormal;
 
   float roughness = mix(ROUGH, 0.9, foamIntensity);
 
