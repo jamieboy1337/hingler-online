@@ -6,14 +6,18 @@ uniform sampler2D col;
 uniform sampler2D lum;
 uniform vec2 resolution;
 
-#define FXAA_TRIM 0.0312
-#define FXAA_TRIM_LOCAL 0.063
+#define FXAA_TRIM 0.03125
+#define FXAA_TRIM_LOCAL 0.125
 
 varying vec2 vCoord;
 // simple for now
 
 float gLum(vec2 v) {
   return texture2D(lum, v).r;
+}
+
+float getEdgeStep(int i) {
+  return pow(2.0, floor(float(i) * 0.5 + 1.0));
 }
 
 // https://catlikecoding.com/unity/tutorials/custom-srp/fxaa/
@@ -36,8 +40,11 @@ vec4 fxaa(vec2 m) {
   float lumTest = step(max(FXAA_TRIM, lumaMax * FXAA_TRIM_LOCAL), lumaRan);
 
   if (lumaRan < max(FXAA_TRIM, lumaMax * FXAA_TRIM_LOCAL)) {
-    // return vec4(vec3(0.0), 1.0);
-    return texture2D(col, m);
+    #ifdef DEBUG
+      return vec4(vec3(0.0), 1.0);
+    #else
+      return texture2D(col, m);
+    #endif
   }
 
   vec2 nw = m + vec2(-o.x, o.y);
@@ -67,37 +74,29 @@ vec4 fxaa(vec2 m) {
     + abs(swL - 2.0 * sL + seL);
 
   float isHorizontal = step(vertical, horizontal);
-  vec2 stepSize = vec2(1.0 - isHorizontal, isHorizontal) * o;
+  float isVertical = 1.0 - isHorizontal;
+  vec2 stepSize = vec2(isVertical, isHorizontal) * o;
 
   // compute gradients in either direction of our step, plus and minus
   // blend into the pixel whose single step gradient is greater
   float pLum, nLum;
-  if (isHorizontal > 0.5) {
-    pLum = nL;
-    nLum = sL;
-  } else {
-    pLum = eL;
-    nLum = wL;
-  }
-
-  float targLuma = pLum;
+  pLum = isHorizontal * nL + isVertical * eL;
+  nLum = isHorizontal * sL + isVertical * wL;
 
   // negative gradient is greater
   float gradP = mL - pLum;
   float gradN = mL - nLum;
-  float edgeGrad = gradP;
   
   float dif = step(0.0, abs(gradP) - abs(gradN));
-  if (dif < 0.5) {
-    stepSize = -stepSize;
-    targLuma = nLum;
-    edgeGrad = gradN;
-  }
+
+  stepSize *= (2.0 * dif - 1.0);
+  float targLuma = pLum * dif + nLum * (1.0 - dif);
+  float edgeGrad = gradP * dif + gradN * (1.0 - dif);
 
   float edgeLuma = (mL + targLuma) * 0.5;
 
   // edgestep perpendicular to our gradient
-  vec2 edgeStep = vec2(isHorizontal, 1.0 - isHorizontal) * o;
+  vec2 edgeStep = vec2(isHorizontal, isVertical) * o;
 
   // land on the edge
   vec2 cur = m + (stepSize * 0.5);
@@ -106,8 +105,8 @@ vec4 fxaa(vec2 m) {
   float lumGradPos, lumGradNeg;
 
 
-  for (int i = 0; i < 99; i++) {
-    cur += edgeStep;
+  for (int i = 0; i < 8; i++) {
+    cur += edgeStep * getEdgeStep(i);
     lumGradPos = gLum(cur) - edgeLuma;
     if (abs(lumGradPos) > gradThresh) {
       break;
@@ -118,8 +117,8 @@ vec4 fxaa(vec2 m) {
 
   cur = m + (stepSize * 0.5);
 
-  for (int i = 0; i < 99; i++) {
-    cur -= edgeStep;
+  for (int i = 0; i < 8; i++) {
+    cur -= edgeStep * getEdgeStep(i);
     lumGradNeg = gLum(cur) - edgeLuma;
     if (abs(lumGradNeg) > gradThresh) {
       break;
@@ -130,13 +129,18 @@ vec4 fxaa(vec2 m) {
 
   float pos = step(distToEdgePos, distToEdgeNeg);
   float delta = (pos * lumGradPos + (1.0 - pos) * lumGradNeg);
-  if (int(sign(delta)) != int(sign(edgeGrad))) {
-    float edgeFilter = 0.5 - (min(distToEdgePos, distToEdgeNeg) / (distToEdgePos + distToEdgeNeg));
-    filter = max(filter, edgeFilter);
-  }
+
+  // 0 if same, 1 if diff
+  float comp = abs(step(0.0, delta) - step(0.0, edgeGrad));
+  float edgeFilter = 0.5 - (min(distToEdgePos, distToEdgeNeg) / (distToEdgePos + distToEdgeNeg));
+  filter = max(filter, comp * edgeFilter);
 
   // return vec4(vec3(filter), 1.0);
-  return texture2D(col, m + stepSize * filter);
+  #ifdef DEBUG
+    return vec4(1.0, 0.0, 0.0, 1.0);
+  #else
+    return texture2D(col, m + stepSize * filter);
+  #endif
 }
 
 
