@@ -8,6 +8,7 @@ import { GLTFLoaderImpl } from "../loaders/internal/GLTFLoaderImpl";
 import { Renderer } from "./Renderer";
 import { mobileCheck } from "../../../../ts/util/MobileCheck";
 import { SceneSwapImpl } from "../object/scene/internal/SceneSwapImpl";
+import { ShaderEnv } from "../gl/ShaderEnv";
 
 let uintext: OES_element_index_uint = undefined;
 
@@ -24,19 +25,20 @@ export class EngineContext implements GameContext {
   private scene: Scene;
   private renderer: Renderer;
   private passOffset: number;
-
   private dims: [number, number];
 
   private swapContext : EngineContext;
   private swapObject : SceneSwapImpl;
 
+  private varMap: Map<string, any>;
+  private shaderCache: ShaderEnv;
   private windowListener: () => void;
 
   readonly mobile: boolean;
 
   private getGLProxy(gl: WebGLRenderingContext) {
     gl = new Proxy(gl, {
-      get: function(target, prop, receiver) {
+      get: function(target, prop, _) {
         let res = target[prop];
         if (typeof res === "function") {
           let func = res as Function;
@@ -63,8 +65,9 @@ export class EngineContext implements GameContext {
     this.lastDelta = 0; 
     this.lastTimePoint = perf.now();
     this.loader = new FileLoader();
-    this.passOffset = 0;
-
+    
+    // copy over env???
+    // nah we'll standardize its initialization
     if (init instanceof EngineContext) {
       this.canvas = init.canvas;
       this.glContext = init.glContext;
@@ -75,10 +78,12 @@ export class EngineContext implements GameContext {
 
     this.gltfLoader = new GLTFLoaderImpl(this.loader, this);
 
-    
-
     this.swapContext = null;
     this.swapObject = null;
+
+    this.passOffset = 0;
+
+    this.shaderCache = new ShaderEnv();
 
     this.updateScreenDims();
 
@@ -171,6 +176,24 @@ export class EngineContext implements GameContext {
     this.swapObject = swap;
     // note: we might want to borrow shit from another scene ig
     return swap;
+  }
+
+  setContextVar(key: string, value: any) {
+    const SHADER_VAR_PREFIX = "SHADER_";
+    const ind = key.indexOf(SHADER_VAR_PREFIX);
+    if (ind !== -1) {
+      this.shaderCache.setShaderVar(key.substring(ind + SHADER_VAR_PREFIX.length), value);
+    }
+
+    this.varMap.set(key, value);
+  }
+
+  getContextVar(key: string) {
+    return this.varMap.get(key);
+  }
+
+  getShaderEnv() {
+    return this.shaderCache.getShaderEnv();
   }
 
   private glSetup() {

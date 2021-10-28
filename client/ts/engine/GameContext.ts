@@ -49,4 +49,25 @@ export interface GameContext {
    * @param scene - The scene which will be loaded.
    */
   loadNewScene(scene: Scene) : SceneSwap;
+
+  /**
+   *  Stores a variable in this context's environment
+   *  @param key - the key used to identify the desired environment variable.
+   *  @param value - the value associated with key.
+   */ 
+  setContextVar(key: string, value: any) : void;
+
+  /**
+   *  Fetches a variable from this context.
+   *  @param key - the key associated with the desired var.
+   *  @returns the associated environment var, or null if DNE.
+   */ 
+  getContextVar(key: string) : any;
+  // template this function??
+  
+  /**
+   *  @returns a list of glsl #defines for all environment variables prefixed
+   *  with `SHADER_`.
+   */ 
+  getShaderEnv() : string;
 }
