@@ -23,7 +23,7 @@ export class ShaderEnv {
    *  @param val - typically a number -- assumed null otherwise
    *  @param integer - optional param indicates if a number should be stored as an integer. default: false
    */ 
-  setShaderVar(key: string, val: any, integer?: boolean) {
+  setShaderVar(key: string, val?: any, integer?: boolean) {
     // differentiating ints from floats?
     let defVal = val;
     // ensure bad types dont fuck shit up
@@ -52,7 +52,7 @@ export class ShaderEnv {
             line = line.concat(` ${Math.floor(def.val).toString()}`);
           } else {
             // floating point
-            const lineP = def.val.toPrecision(1);
+            const lineP = def.val.toFixed(1);
             const lineV = def.val.toString();
             line = line.concat(` ${(lineP.length > lineV.length ? lineP : lineV)}`);
           }

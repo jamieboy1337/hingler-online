@@ -16,7 +16,6 @@ export class FileLoader {
   private static workerLoaded: Task<void> = null;
 
   constructor() {
-    console.log("all good");
     this.loadedFiles = new Map();
     this.workerPath = new Promise((re, rj) => { this.res = re; this.rej = rj; });;
 
