@@ -3,6 +3,7 @@ node_modules/
 ts-out/
 client/js/
 client/service-worker/js/
+client/engine/
 server/js/
 
 test/js/
@@ -15,8 +16,6 @@ cypress/screenshots/
 cypress/reports/
 
 *.vim
-
-
 .nyc_output
 
 client/sw.js
