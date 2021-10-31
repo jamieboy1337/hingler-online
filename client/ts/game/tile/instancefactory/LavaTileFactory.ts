@@ -1,8 +1,8 @@
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { GLTFScene } from "../../../../../hingler-party/client/ts/engine/loaders/GLTFScene";
+import { PBRInstanceFactory } from "../../../../../hingler-party/client/ts/engine/model/PBRInstanceFactory";
 import { TileFactoryStub } from "../../../../../test/stub/TileFactoryStub";
 import { Task } from "../../../../../ts/util/task/Task";
-import { GameContext } from "../../../engine/GameContext";
-import { GLTFScene } from "../../../engine/loaders/GLTFScene";
-import { PBRInstanceFactory } from "../../../engine/model/PBRInstanceFactory";
 import { GameTile } from "../GameTile";
 import { WallTile } from "../generic/WallTile";
 import { TileFactory } from "../TileFactory";

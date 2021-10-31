@@ -4,7 +4,6 @@ import { PLAYER_MOTION_STATES } from "../../GameConnectionManagerSinglePlayer";
 import { GameMapState } from "../../GameMapState";
 import { EnemyInstance, GoatInstance, LayerInstance } from "../../tile/LayerInstance";
 import { TileID } from "../../tile/TileID";
-import { TileAtlas } from "../../TileAtlas";
 import { GridTileGenerator } from "../../tilegen/GridTileGenerator";
 import { TileGrid } from "../../TileGrid";
 import { EnemyMap } from "./EnemyMap";

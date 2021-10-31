@@ -1,7 +1,7 @@
 import { mat4 } from "gl-matrix";
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { RenderContext, RenderPass } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { Future } from "../../../../../ts/util/task/Future";
-import { GameContext } from "../../../engine/GameContext";
-import { RenderContext, RenderPass } from "../../../engine/render/RenderContext";
 import { GameTile } from "../GameTile";
 import { ExplosionInstance } from "../instancefactory/instance/ExplosionInstance";
 

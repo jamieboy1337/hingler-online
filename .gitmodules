@@ -1,0 +1,3 @@
+[submodule "hingler-party"]
+	path = hingler-party
+	url = git@github.com:jamieboy1337/hingler-party.git

@@ -1,4 +1,4 @@
-import { GameContext } from "../../../engine/GameContext";
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
 import { PlayerInputState } from "../../PlayerInputState";
 import { InputManager, InputType, KeyListenerID } from "../InputManager";
 

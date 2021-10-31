@@ -1,7 +1,4 @@
 import { vec3 } from "gl-matrix";
-import { GameCamera } from "../../engine/object/game/GameCamera";
-import { GameObject } from "../../engine/object/game/GameObject";
-import { GameMapState } from "../GameMapState";
 
 /**
  * Establishes the "bounds" of this camera.

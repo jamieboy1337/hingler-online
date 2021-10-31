@@ -1,9 +1,9 @@
-import { GameContext } from "./engine/GameContext";
-import { GameObject } from "./engine/object/game/GameObject";
-import { Scene } from "./engine/object/scene/Scene";
-import { SceneSwap } from "./engine/object/scene/SceneSwap";
+import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
+import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
+import { GameObject } from "../../hingler-party/client/ts/engine/object/game/GameObject";
+import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
+import { SceneSwap } from "../../hingler-party/client/ts/engine/object/scene/SceneSwap";
 import { MapSceneTest } from "../../test/mapscenetest";
-import { EngineContext } from "./engine/internal/EngineContext";
 
 class SwapObjectTest extends GameObject {
   private j: SceneSwap;

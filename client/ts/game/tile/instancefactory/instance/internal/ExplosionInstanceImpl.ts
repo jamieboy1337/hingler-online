@@ -1,5 +1,5 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
-import { RenderContext } from "../../../../../engine/render/RenderContext";
+import { RenderContext } from "../../../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { ExplosionInstance } from "../ExplosionInstance";
 
 export class ExplosionInstanceImpl extends ExplosionInstance {

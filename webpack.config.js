@@ -45,40 +45,6 @@ module.exports = [{
   ],
 
   entry: {
-    drawtest: "./test/browser/drawtest",
-    simpletest: "./test/browser/simpletest",
-    shadertest: "./test/browser/shadertest",
-    modeltest: "./test/browser/modeltest"
-  },
-
-  mode: "development",
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: "ts-loader"
-      }
-    ]
-  },
-
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js']
-  },
-
-  output: {
-    filename: "[name].js",
-    path: path.resolve(__dirname, "test/browser/js")
-  }
-},
-
-{
-  plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /perf_hooks/
-    })
-  ],
-
-  entry: {
     sw: "./client/ts/service-worker/sw.ts"
   },
 

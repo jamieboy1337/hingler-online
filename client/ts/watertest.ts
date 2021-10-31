@@ -1,17 +1,14 @@
-// test files for our plane
-
-import {vec2, vec4} from "gl-matrix";
-import { xorshift32_float, xorshift32_seed } from "../../ts/util/Xorshift32";
-import {GameContext} from "./engine/GameContext";
-import {EngineContext} from "./engine/internal/EngineContext";
-import {MatteMaterial} from "./engine/material/MatteMaterial";
-import {PlaneModel} from "./engine/model/PlaneModel";
-import {GameCamera} from "./engine/object/game/GameCamera";
-import {GameModel} from "./engine/object/game/GameModel";
-import {GameObject} from "./engine/object/game/GameObject";
-import {SpotLightObject} from "./engine/object/game/light/SpotLightObject";
-import { Scene } from "./engine/object/scene/Scene";
-import {RenderContext, RenderPass} from "./engine/render/RenderContext";
+import { vec2 } from "gl-matrix";
+import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
+import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
+import { PlaneModel } from "../../hingler-party/client/ts/engine/model/PlaneModel";
+import { GameCamera } from "../../hingler-party/client/ts/engine/object/game/GameCamera";
+import { GameModel } from "../../hingler-party/client/ts/engine/object/game/GameModel";
+import { GameObject } from "../../hingler-party/client/ts/engine/object/game/GameObject";
+import { SpotLightObject } from "../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
+import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
+import { RenderContext, RenderPass } from "../../hingler-party/client/ts/engine/render/RenderContext";
+import { xorshift32_seed, xorshift32_float } from "../../ts/util/Xorshift32";
 import { WaterMaterial } from "./game/material/water/WaterMaterial";
 import { WaterShadowMaterial } from "./game/material/water/WaterShadowMaterial";
 import { WaveStruct } from "./game/struct/WaveStruct";

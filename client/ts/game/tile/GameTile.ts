@@ -1,5 +1,4 @@
-import { GameObject } from "../../engine/object/game/GameObject";
-import { GamePBRModel } from "../../engine/object/game/GamePBRModel";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 
 /**
  * Represents a single game tile. (note: since we don't have multiple inheritance,

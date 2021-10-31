@@ -1,4 +1,4 @@
-import { GameObject } from "../../engine/object/game/GameObject";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 
 export const FIELD_WIDTH = 24;
 

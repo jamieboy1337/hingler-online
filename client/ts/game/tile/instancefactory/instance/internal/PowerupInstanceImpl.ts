@@ -1,5 +1,5 @@
 import { mat4, vec4 } from "gl-matrix";
-import { RenderContext } from "../../../../../engine/render/RenderContext";
+import { RenderContext } from "../../../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { PowerupInstance } from "../PowerupInstance";
 
 export class PowerupInstanceImpl extends PowerupInstance {

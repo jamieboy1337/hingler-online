@@ -1,13 +1,13 @@
 import { vec2, vec3 } from "gl-matrix";
-import { GameContext } from "../engine/GameContext";
-import { GameObject } from "../engine/object/game/GameObject";
 import { GameConnectionManager } from "./GameConnectionManager";
 import { SinglePlayerMapState } from "./manager/internal/SinglePlayerMapState";
 import { PlayerInputState } from "./PlayerInputState";
 import { PlayerState } from "./PlayerState";
 import { TileID } from "./tile/TileID";
-import { shadersStillCompiling } from "../engine/gl/ShaderProgramBuilder";
 import { EnemyInstance, GoatInstance, LayerInstance } from "./tile/LayerInstance";
+import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
+import { shadersStillCompiling } from "../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 
 export const PLAYER_MOTION_STATES = [PlayerInputState.MOVE_LEFT, PlayerInputState.MOVE_RIGHT, PlayerInputState.MOVE_UP, PlayerInputState.MOVE_DOWN, PlayerInputState.IDLE];
 

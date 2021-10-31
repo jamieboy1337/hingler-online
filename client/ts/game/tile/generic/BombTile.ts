@@ -1,7 +1,7 @@
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { PBRInstance } from "../../../../../hingler-party/client/ts/engine/model/PBRInstance";
+import { RenderContext } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { Future } from "../../../../../ts/util/task/Future";
-import { GameContext } from "../../../engine/GameContext";
-import { PBRInstance } from "../../../engine/model/PBRInstance";
-import { RenderContext } from "../../../engine/render/RenderContext";
 import { GameTile } from "../GameTile";
 
 export class BombTile extends GameTile {

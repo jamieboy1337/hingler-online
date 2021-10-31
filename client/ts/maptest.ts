@@ -1,4 +1,4 @@
-import { EngineContext } from "./engine/internal/EngineContext";
+import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
 import { SplashScreenScene } from "./game/splashscreen/SplashScreen";
 
 window.addEventListener("load", main);

@@ -1,9 +1,10 @@
-import { GameContext } from "../../engine/GameContext";
-import { Framebuffer } from "../../engine/gl/Framebuffer";
-import { ColorFramebuffer } from "../../engine/gl/internal/ColorFramebuffer";
-import { ShaderProgramBuilder } from "../../engine/gl/ShaderProgramBuilder";
-import { PostProcessingFilter } from "../../engine/material/PostProcessingFilter";
-import { RenderContext } from "../../engine/render/RenderContext";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { Framebuffer } from "../../../../hingler-party/client/ts/engine/gl/Framebuffer";
+import { ColorFramebuffer } from "../../../../hingler-party/client/ts/engine/gl/internal/ColorFramebuffer";
+import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { PostProcessingFilter } from "../../../../hingler-party/client/ts/engine/material/PostProcessingFilter";
+import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
+
 
 export class FXAAFilter extends PostProcessingFilter {
   private lumaFramebuffer: Framebuffer;

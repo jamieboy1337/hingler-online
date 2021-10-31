@@ -1,5 +1,5 @@
-import { GameContext } from "../../engine/GameContext";
-import { Scene } from "../../engine/object/scene/Scene";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { Scene } from "../../../../hingler-party/client/ts/engine/object/scene/Scene";
 import { SplashScreenObject } from "./SplashScreenObject";
 
 export class SplashScreenScene extends Scene {

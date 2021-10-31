@@ -1,11 +1,11 @@
 import { mat4 } from "gl-matrix";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { PBRInstanceFactory } from "../../../../hingler-party/client/ts/engine/model/PBRInstanceFactory";
+import { PBRModel } from "../../../../hingler-party/client/ts/engine/model/PBRModel";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { Future } from "../../../../ts/util/task/Future";
 import { xorshift32_float, xorshift32_seed } from "../../../../ts/util/Xorshift32";
-import { GameContext } from "../../engine/GameContext";
-import { PBRInstanceFactory } from "../../engine/model/PBRInstanceFactory";
-import { PBRModel } from "../../engine/model/PBRModel";
-import { GameObject } from "../../engine/object/game/GameObject";
-import { RenderContext } from "../../engine/render/RenderContext";
 
 export class CornField extends GameObject {
   private field: Future<PBRModel>;

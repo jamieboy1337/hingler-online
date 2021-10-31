@@ -1,8 +1,7 @@
 import { ids } from "webpack";
+import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
+import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { TileFactoryStub } from "../../../test/stub/TileFactoryStub";
-import { GameContext } from "../engine/GameContext";
-import { GameObject } from "../engine/object/game/GameObject";
-import { GamePBRModel } from "../engine/object/game/GamePBRModel";
 import { GameConnectionManager } from "./GameConnectionManager";
 import { FieldManager } from "./manager/FieldManager";
 import { InputManager, InputType, MOTION_INPUT } from "./manager/InputManager";

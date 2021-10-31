@@ -1,12 +1,13 @@
-import { GameContext } from "../../engine/GameContext";
-import { GLProgramWrap } from "../../engine/gl/internal/GLProgramWrap";
-import { ShaderProgramBuilder } from "../../engine/gl/ShaderProgramBuilder";
-import { Texture } from "../../engine/gl/Texture";
-import { InstancedModelImpl } from "../../engine/loaders/internal/InstancedModelImpl";
-import { InstancedMaterial } from "../../engine/material/InstancedMaterial";
-import { TextureDummy } from "../../engine/material/TextureDummy";
-import { AttributeType } from "../../engine/model/Model";
-import { RenderContext } from "../../engine/render/RenderContext";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { GLProgramWrap } from "../../../../hingler-party/client/ts/engine/gl/internal/GLProgramWrap";
+import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { Texture } from "../../../../hingler-party/client/ts/engine/gl/Texture";
+import { InstancedModelImpl } from "../../../../hingler-party/client/ts/engine/loaders/internal/InstancedModelImpl";
+import { InstancedMaterial } from "../../../../hingler-party/client/ts/engine/material/InstancedMaterial";
+import { TextureDummy } from "../../../../hingler-party/client/ts/engine/material/TextureDummy";
+import { AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
+
 
 export class InstancedExplosionMaterial implements InstancedMaterial {
   private ctx: GameContext;

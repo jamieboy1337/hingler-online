@@ -7,7 +7,7 @@
   },
 
   "exclude": [
-    "../*/cypress/**/*",
+    "./*/cypress/**/*",
     "./ts-out/*",
     "**/*/sw.ts"
   ]

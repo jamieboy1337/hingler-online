@@ -1,7 +1,7 @@
-import { GameContext } from "../../../engine/GameContext";
-import { InstancedModel } from "../../../engine/model/InstancedModel";
-import { InstancedModelFactory } from "../../../engine/model/InstancedModelFactory";
-import { RenderContext, RenderPass } from "../../../engine/render/RenderContext";
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { InstancedModel } from "../../../../../hingler-party/client/ts/engine/model/InstancedModel";
+import { InstancedModelFactory } from "../../../../../hingler-party/client/ts/engine/model/InstancedModelFactory";
+import { RenderPass, RenderContext } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { InstancedPowerupMaterial } from "../../material/InstancedPowerupMaterial";
 import { ExplosionInstanceImpl } from "./instance/internal/ExplosionInstanceImpl";
 import { PowerupInstanceImpl } from "./instance/internal/PowerupInstanceImpl";

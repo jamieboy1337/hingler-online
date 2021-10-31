@@ -1,15 +1,15 @@
-import { GameContext } from "../../engine/GameContext";
-import { GLBufferImpl } from "../../engine/gl/internal/GLBufferImpl";
-import { ShaderProgramBuilder } from "../../engine/gl/ShaderProgramBuilder";
-import { InstancedModelImpl } from "../../engine/loaders/internal/InstancedModelImpl";
-import { CalculateNormalMatrixFromBuffer } from "../../engine/material/CalculateNormalMatrixFromBuffer";
-import { InstancedMaterial } from "../../engine/material/InstancedMaterial";
-import { AttributeType } from "../../engine/model/Model";
-import { RenderContext } from "../../engine/render/RenderContext";
-
 // a: modelmat (64)
 // b: normmat (36)
 // c: color (16)
+
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { GLBufferImpl } from "../../../../hingler-party/client/ts/engine/gl/internal/GLBufferImpl";
+import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { InstancedModelImpl } from "../../../../hingler-party/client/ts/engine/loaders/internal/InstancedModelImpl";
+import { CalculateNormalMatrixFromBuffer } from "../../../../hingler-party/client/ts/engine/material/CalculateNormalMatrixFromBuffer";
+import { InstancedMaterial } from "../../../../hingler-party/client/ts/engine/material/InstancedMaterial";
+import { AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 
 export class InstancedPowerupMaterial implements InstancedMaterial {
   private ctx: GameContext;

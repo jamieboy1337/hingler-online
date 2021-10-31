@@ -1,15 +1,15 @@
 import { mat4, ReadonlyMat4, vec2, vec4 } from "gl-matrix";
-import { GameContext } from "../../engine/GameContext";
-import { Framebuffer } from "../../engine/gl/Framebuffer";
-import { ColorFramebuffer } from "../../engine/gl/internal/ColorFramebuffer";
-import { ShaderProgramBuilder } from "../../engine/gl/ShaderProgramBuilder";
-import { Texture } from "../../engine/gl/Texture";
-import { Material } from "../../engine/material/Material";
-import { PostProcessingFilter } from "../../engine/material/PostProcessingFilter";
-import { AttributeType, Model } from "../../engine/model/Model";
-import { GameModel } from "../../engine/object/game/GameModel";
-import { GameObject } from "../../engine/object/game/GameObject";
-import { RenderContext } from "../../engine/render/RenderContext";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { Framebuffer } from "../../../../hingler-party/client/ts/engine/gl/Framebuffer";
+import { ColorFramebuffer } from "../../../../hingler-party/client/ts/engine/gl/internal/ColorFramebuffer";
+import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { Texture } from "../../../../hingler-party/client/ts/engine/gl/Texture";
+import { Material } from "../../../../hingler-party/client/ts/engine/material/Material";
+import { PostProcessingFilter } from "../../../../hingler-party/client/ts/engine/material/PostProcessingFilter";
+import { Model, AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { GameModel } from "../../../../hingler-party/client/ts/engine/object/game/GameModel";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { RadialBlur } from "./RadialBlur";
 
 const gradientCols : Array<vec4> = [

@@ -1,7 +1,7 @@
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { SceneSwap } from "../../../../hingler-party/client/ts/engine/object/scene/SceneSwap";
 import { MapSceneTest } from "../../../../test/mapscenetest";
-import { GameContext } from "../../engine/GameContext";
-import { GameObject } from "../../engine/object/game/GameObject";
-import { SceneSwap } from "../../engine/object/scene/SceneSwap";
 
 export class SplashScreenObject extends GameObject {
   private bg: HTMLImageElement;

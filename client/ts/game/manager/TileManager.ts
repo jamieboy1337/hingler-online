@@ -1,5 +1,4 @@
-import { GameObject } from "../../engine/object/game/GameObject";
-import { GameConnectionManager } from "../GameConnectionManager";
+import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { GameMapState } from "../GameMapState";
 import { PlayerState } from "../PlayerState";
 

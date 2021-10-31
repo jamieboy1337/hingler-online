@@ -1,9 +1,9 @@
 import { vec2 } from "gl-matrix";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { PlaneModel } from "../../../../hingler-party/client/ts/engine/model/PlaneModel";
+import { GameModel } from "../../../../hingler-party/client/ts/engine/object/game/GameModel";
+import { RenderContext, RenderPass } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { xorshift32_float, xorshift32_seed } from "../../../../ts/util/Xorshift32";
-import { GameContext } from "../../engine/GameContext";
-import { PlaneModel } from "../../engine/model/PlaneModel";
-import { GameModel } from "../../engine/object/game/GameModel";
-import { RenderContext, RenderPass } from "../../engine/render/RenderContext";
 import { WaterMaterial } from "../material/water/WaterMaterial";
 import { WaterShadowMaterial } from "../material/water/WaterShadowMaterial";
 import { WaveStruct } from "../struct/WaveStruct";

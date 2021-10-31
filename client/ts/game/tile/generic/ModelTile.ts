@@ -1,8 +1,7 @@
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { PBRInstance } from "../../../../../hingler-party/client/ts/engine/model/PBRInstance";
+import { RenderContext } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { Future } from "../../../../../ts/util/task/Future";
-import { GameContext } from "../../../engine/GameContext";
-import { PBRInstance } from "../../../engine/model/PBRInstance";
-import { PBRModel } from "../../../engine/model/PBRModel";
-import { RenderContext, RenderPass } from "../../../engine/render/RenderContext";
 import { GameTile } from "../GameTile";
 
 // generic tile for displaying simple models

@@ -1,8 +1,8 @@
-import { GameContext } from "../engine/GameContext";
-import { GameObject } from "../engine/object/game/GameObject";
-import { GamePBRModel } from "../engine/object/game/GamePBRModel";
-import { SpotLight } from "../engine/object/game/light/SpotLight";
-import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
+import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
+import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { GamePBRModel } from "../../../hingler-party/client/ts/engine/object/game/GamePBRModel";
+import { SpotLight } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLight";
+import { SpotLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
 
 export class PlayerGameObject extends GameObject {
   private pivot: GameObject;

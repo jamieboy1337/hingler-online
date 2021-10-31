@@ -1,7 +1,7 @@
 import { vec2 } from "gl-matrix";
-import { GameContext } from "../../engine/GameContext";
-import { GLSLStruct } from "../../engine/gl/GLSLStruct";
-import { GLProgramWrap } from "../../engine/gl/internal/GLProgramWrap";
+import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { GLSLStruct } from "../../../../hingler-party/client/ts/engine/gl/GLSLStruct";
+import { GLProgramWrap } from "../../../../hingler-party/client/ts/engine/gl/internal/GLProgramWrap";
 
 export class WaveStruct implements GLSLStruct {
   direction : vec2;

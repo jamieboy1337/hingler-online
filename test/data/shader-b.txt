@@ -1,3 +1,0 @@
-#include <shader-a.txt>
-
-abcabc123123

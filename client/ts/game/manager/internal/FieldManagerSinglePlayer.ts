@@ -1,9 +1,9 @@
-import { GameContext } from "../../../engine/GameContext";
 import { FieldManager } from "../FieldManager";
 import { GrassFieldManager } from "./fieldmgr/GrassFieldManager";
 import { LavaFieldManager } from "./fieldmgr/LavaFieldManager";
 import { BeachFieldManager } from "./fieldmgr/BeachFieldManager";
 import { MountainFieldManager } from "./fieldmgr/MountainFieldManager";
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
 
 export class FieldManagerSinglePlayer implements FieldManager {
   private grassmgr: GrassFieldManager;

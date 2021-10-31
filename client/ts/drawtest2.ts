@@ -1,14 +1,13 @@
-import { GameContext } from "./engine/GameContext";
-import { EngineContext } from "./engine/internal/EngineContext";
-import { Model } from "./engine/model/Model";
-import { MatteMaterial } from "./engine/material/MatteMaterial";
-import { TextureAlbedoMaterial } from "./engine/material/TextureAlbedoMaterial";
-import { GameCamera } from "./engine/object/game/GameCamera";
-import { GameModel } from "./engine/object/game/GameModel";
-import { SpotLightObject } from "./engine/object/game/light/SpotLightObject";
-import { Scene } from "./engine/object/scene/Scene";
-import { RenderContext } from "./engine/render/RenderContext";
-
+import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
+import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
+import { MatteMaterial } from "../../hingler-party/client/ts/engine/material/MatteMaterial";
+import { TextureAlbedoMaterial } from "../../hingler-party/client/ts/engine/material/TextureAlbedoMaterial";
+import { Model } from "../../hingler-party/client/ts/engine/model/Model";
+import { GameCamera } from "../../hingler-party/client/ts/engine/object/game/GameCamera";
+import { GameModel } from "../../hingler-party/client/ts/engine/object/game/GameModel";
+import { SpotLightObject } from "../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
+import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
+import { RenderContext } from "../../hingler-party/client/ts/engine/render/RenderContext";
 
 window.addEventListener("load", main);
 

@@ -1,9 +1,9 @@
 import { mat4, quat, vec3, vec4 } from "gl-matrix";
-import { GameContext } from "../engine/GameContext";
-import { GameCamera } from "../engine/object/game/GameCamera";
-import { GameObject } from "../engine/object/game/GameObject";
-import { AmbientLightObject } from "../engine/object/game/light/AmbientLightObject";
-import { SpotLightObject } from "../engine/object/game/light/SpotLightObject";
+import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
+import { GameCamera } from "../../../hingler-party/client/ts/engine/object/game/GameCamera";
+import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { AmbientLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/AmbientLightObject";
+import { SpotLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
 import { FXAAFilter } from "./filter/FXAAFilter";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";

@@ -1,9 +1,9 @@
 import { mat4, ReadonlyMat4 } from "gl-matrix";
-import { GameContext } from "../../../engine/GameContext";
-import { GLProgramWrap } from "../../../engine/gl/internal/GLProgramWrap";
-import { ShaderProgramBuilder } from "../../../engine/gl/ShaderProgramBuilder";
-import { Material } from "../../../engine/material/Material";
-import { AttributeType, Model } from "../../../engine/model/Model";
+import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { GLProgramWrap } from "../../../../../hingler-party/client/ts/engine/gl/internal/GLProgramWrap";
+import { ShaderProgramBuilder } from "../../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
+import { Material } from "../../../../../hingler-party/client/ts/engine/material/Material";
+import { Model, AttributeType } from "../../../../../hingler-party/client/ts/engine/model/Model";
 import { WaveStruct } from "../../struct/WaveStruct";
 
 export class WaterShadowMaterial implements Material {

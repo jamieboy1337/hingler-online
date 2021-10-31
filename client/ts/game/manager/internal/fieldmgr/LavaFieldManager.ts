@@ -1,8 +1,8 @@
+import { GameContext } from "../../../../../../hingler-party/client/ts/engine/GameContext";
+import { PBRModel } from "../../../../../../hingler-party/client/ts/engine/model/PBRModel";
+import { GameObject } from "../../../../../../hingler-party/client/ts/engine/object/game/GameObject";
+import { GamePBRModel } from "../../../../../../hingler-party/client/ts/engine/object/game/GamePBRModel";
 import { Task } from "../../../../../../ts/util/task/Task";
-import { GameContext } from "../../../../engine/GameContext";
-import { PBRModel } from "../../../../engine/model/PBRModel";
-import { GameObject } from "../../../../engine/object/game/GameObject";
-import { GamePBRModel } from "../../../../engine/object/game/GamePBRModel";
 import { FieldManager } from "../../FieldManager";
 
 const lavaFloorNames = [
