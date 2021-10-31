@@ -78,8 +78,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     // either way we have to draw our explosion twice (?)
     // how about we implement the render func elsewhere and expose this one separately?
     new ShaderProgramBuilder(ctx)
-      .withVertexShader("../glsl/explosionglow/explosionglow.vert")
-      .withFragmentShader("../glsl/explosionglow/explosionglow.frag")
+      .withVertexShader("../glsl/game/explosionglow/explosionglow.vert")
+      .withFragmentShader("../glsl/game/explosionglow/explosionglow.frag")
       .build()
       .then(this.bindUniformsGlow.bind(this));
 

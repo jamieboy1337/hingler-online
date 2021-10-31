@@ -38,7 +38,7 @@ export class ShaderProgramBuilder {
     this.vertPath = null;
     this.fragPath = null;
     this.ctx = ctx;
-    this.fileParser = new ShaderFileParser(this.ctx.getFileLoader());
+    this.fileParser = new ShaderFileParser(this.ctx);
 
   }
 
@@ -90,6 +90,19 @@ export class ShaderProgramBuilder {
     }
 
     return progTask.getFuture();
+  }
+
+  static async clearShaderCache() {
+    while (shadersStillCompiling()) {
+      for (let shader of shadersCompiling) {
+        // await the first shader we find
+        // break once its done
+        await shader[1];
+        break;
+      }
+
+      shaderCache.clear();
+    }
   }
 
   /**

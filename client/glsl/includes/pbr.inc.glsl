@@ -1,12 +1,15 @@
 // thank you https://learnopengl.com/PBR/Theory
 
 #include <constants.inc.glsl>
+#include <env>
 
 float distributionGGX(float, float);
 float schlick(float, float);
 float schlickSmith(float, float, float);
 vec3 fresnel(float, vec3);
 
+// low: simpler interaction
+// sample extra simply, ignore fresnel
 vec3 pbr(vec3 pos, vec3 cam_pos, vec3 light_pos, vec3 light_color, vec3 albedo, vec3 normal, float roughness, float metallic) {
   vec3 N = normalize(normal);
   vec3 V = normalize(cam_pos - pos);

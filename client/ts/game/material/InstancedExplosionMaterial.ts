@@ -61,8 +61,8 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     // no way to load textures yet lol
 
     new ShaderProgramBuilder(ctx)
-      .withVertexShader("../glsl/explosion/explosion.vert")
-      .withFragmentShader("../glsl/explosion/explosion.frag")
+      .withVertexShader("../glsl/game/explosion/explosion.vert")
+      .withFragmentShader("../glsl/game/explosion/explosion.frag")
       .build()
       .then(this.configureProgram.bind(this))
       .catch(console.error.bind(console));

@@ -54,8 +54,11 @@ export interface GameContext {
    *  Stores a variable in this context's environment
    *  @param key - the key used to identify the desired environment variable.
    *  @param value - the value associated with key.
+   *  @param opts - additional options specifying how the var might be interpreted:
+   *                  - shaderInteger: true if a shader var should be interpreted as an integer -- ignored for non-shader vars
    */ 
-  setContextVar(key: string, value: any) : void;
+  setContextVar(key: string, value: any, opts?: { shaderInteger: boolean }) : void;
+  // i dont like this opts field but its the only way to get what i need right now
 
   /**
    *  Fetches a variable from this context.

@@ -91,7 +91,7 @@ export class EngineContext implements GameContext {
 
     // will this event listener stick around forever?
     window.addEventListener("resize", this.windowListener);
-    this.mobile = mobileCheck();
+    this.mobile = true;
    
     // DEBUG LINE!!!
     // this.glContext = this.getGLProxy(this.glContext);
@@ -178,11 +178,12 @@ export class EngineContext implements GameContext {
     return swap;
   }
 
-  setContextVar(key: string, value: any) {
+  setContextVar(key: string, value: any, opts?: { shaderInteger: boolean }) {
     const SHADER_VAR_PREFIX = "SHADER_";
     const ind = key.indexOf(SHADER_VAR_PREFIX);
     if (ind !== -1) {
-      this.shaderCache.setShaderVar(key.substring(ind + SHADER_VAR_PREFIX.length), value);
+      const shaderInt = (opts !== undefined ? !!opts.shaderInteger : false);
+      this.shaderCache.setShaderVar(key.substring(ind + SHADER_VAR_PREFIX.length), value, shaderInt);
     }
 
     this.varMap.set(key, value);

@@ -1,13 +1,24 @@
 #version 100
 
+#include <env>
+
 precision highp float;
 
 uniform sampler2D col;
 uniform sampler2D lum;
 uniform vec2 resolution;
 
-#define FXAA_TRIM 0.03125
-#define FXAA_TRIM_LOCAL 0.125
+#ifdef FXAA_HIGH
+  #define FXAA_TRIM 0.03125
+  #define FXAA_TRIM_LOCAL 0.125
+  #define FXAA_ENABLE
+#else 
+  #ifdef FXAA_LOW
+    #define FXAA_TRIM 0.0625
+    #define FXAA_TRIM_LOCAL 0.1866
+    #define FXAA_ENABLE
+  #endif
+#endif
 
 varying vec2 vCoord;
 // simple for now
@@ -20,6 +31,7 @@ float getEdgeStep(int i) {
   return pow(2.0, floor(float(i) * 0.5 + 1.0));
 }
 
+#ifdef FXAA_ENABLE
 // https://catlikecoding.com/unity/tutorials/custom-srp/fxaa/
 vec4 fxaa(vec2 m) {
   vec2 o = vec2(1.0, 1.0) / resolution;
@@ -142,9 +154,17 @@ vec4 fxaa(vec2 m) {
     return texture2D(col, m + stepSize * filter);
   #endif
 }
-
+#endif
 
 
 void main() {
-  gl_FragColor = fxaa(vCoord);
+  #ifndef FXAA_HIGH
+    #ifndef FXAA_LOW
+     gl_FragColor = texture2D(col, vCoord);
+    #else
+      gl_FragColor = fxaa(vCoord);
+    #endif
+  #else
+    gl_FragColor = fxaa(vCoord);
+  #endif
 }
