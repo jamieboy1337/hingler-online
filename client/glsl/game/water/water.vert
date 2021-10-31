@@ -2,10 +2,11 @@
 precision highp float;
 precision highp int;
 
-#include <water.inc.glsl>
-#include <../../includes/opensimplex.inc.glsl>
-#include <../../includes/perlin.inc.glsl>
-#include <../../includes/spotlight/spotlight.inc.glsl>
+#include <opensimplex>
+#include <perlin>
+#include <spotlight>
+
+#include <./water.inc.glsl>
 
 attribute vec4 position;
 

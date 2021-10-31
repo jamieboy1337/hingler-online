@@ -3,8 +3,8 @@
 precision highp float;
 precision highp int;
 
-#include <../../includes/opensimplex.inc.glsl>
-#include <../../includes/gradient.inc.glsl>
+#include <opensimplex>
+#include <gradient>
 
 varying vec4 v_pos;
 

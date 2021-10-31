@@ -3,7 +3,7 @@
 precision highp float;
 precision highp int;
 
-#include <../../includes/radialblur.inc.glsl>
+#include <radialblur>
 
 varying vec2 vTexcoord;
 

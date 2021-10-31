@@ -2,12 +2,13 @@
 precision highp float;
 precision highp int;
 
-#include <../../includes/opensimplex.inc.glsl>
-#include <../../includes/spotlight/spotlight.inc.glsl>
+#include <ambient>
+#include <gradient>
+#include <opensimplex>
+#include <perlin>
+#include <spotlight>
+
 #include <./water.inc.glsl>
-#include <../../includes/ambient.inc.glsl>
-#include <../../includes/gradient.inc.glsl>
-#include <../../includes/perlin.inc.glsl>
 
 varying vec3 vPosition;
 varying vec3 vNormal;
