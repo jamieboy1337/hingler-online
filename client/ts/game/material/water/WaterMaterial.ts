@@ -119,7 +119,7 @@ export class WaterMaterial implements Material {
 
       for (let light of this.lights) {
         if (light.hasShadow() && shadowCount < 3) {
-          light.setShadowTextureIndex(shadowCount + 12);
+          light.setShadowTextureIndex(shadowCount + 4);
           light.bindToUniformByName(this.progWrap, `spotlight[${shadowCount}]`, true);
           shadowCount++;
         } else if (noShadowCount < 4) {

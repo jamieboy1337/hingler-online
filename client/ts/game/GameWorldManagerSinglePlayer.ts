@@ -5,6 +5,7 @@ import { GameCamera } from "../../../hingler-party/client/ts/engine/object/game/
 import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { AmbientLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
+import { SkyboxObject } from "../../../hingler-party/client/ts/engine/object/game/SkyboxObject";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
@@ -142,6 +143,10 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(conn);
     this.addChild(mapmgr);
     this.addChild(cam);
+
+    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
+    this.addChild(skybox);
+
     cam.setAsActive();
 
     const fxaa = new FXAAFilter(ctx);

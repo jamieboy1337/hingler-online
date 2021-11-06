@@ -6,6 +6,7 @@ import { GameCamera } from "../../hingler-party/client/ts/engine/object/game/Gam
 import { GameModel } from "../../hingler-party/client/ts/engine/object/game/GameModel";
 import { GameObject } from "../../hingler-party/client/ts/engine/object/game/GameObject";
 import { SpotLightObject } from "../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
+import { SkyboxObject } from "../../hingler-party/client/ts/engine/object/game/SkyboxObject";
 import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
 import { RenderContext, RenderPass } from "../../hingler-party/client/ts/engine/render/RenderContext";
 import { xorshift32_seed, xorshift32_float } from "../../ts/util/Xorshift32";
@@ -109,6 +110,9 @@ class WaterScene extends Scene {
     let floor = new WaterModelTest(ctx);
     let root = this.getGameObjectRoot();
 
+    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
+    root.addChild(skybox);
+
     anchor.addChild(cam);
     cam.setPosition(0, 12, 40);
     cam.lookAt(0, 0, 0);
@@ -132,7 +136,7 @@ class WaterScene extends Scene {
 
     light.setShadows(true);
     
-    root.addChild(light);
+    // root.addChild(light);
     light.setPosition(-120, 125, 0);
     light.lookAt(0, 0, 0);
 

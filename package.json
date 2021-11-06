@@ -8,7 +8,7 @@
     "npm": "7.x"
   },
   "scripts": {
-    "build": "git submodule init && git submodule update && npm run clean && rm -rf ./client/js && rm -rf ./ts-out && bash ./updatevernum.sh && tsc && npx webpack && node hingler-party/copyProjectResources.ts client",
+    "build": "npm run clean && rm -rf ./client/js && rm -rf ./ts-out && bash ./updatevernum.sh && tsc && npx webpack && node hingler-party/copyProjectResources.ts client",
     "build-debug": "rm -rf ./client/js && rm -rf ./ts-out && tsc && npx webpack",
     "tsc-only": "rm -rf ./ts-out && rm -rf ./client/js && tsc && npx webpack",
     "test": "nyc --reporter=text mocha ts-out/test/*",
