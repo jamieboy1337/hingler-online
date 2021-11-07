@@ -25,7 +25,7 @@ class SpinAnchor extends GameObject {
 
   update() {
     this.t += this.getContext().getDelta();
-    this.setRotationEuler(0, this.t * 8, 0);
+    this.setRotationEuler(this.t * 32.0, this.t * 64.0, 0);
     this.setPosition(0, Math.sin(this.t) * 6 + 6, 0);
   }
 }
@@ -110,7 +110,7 @@ class WaterScene extends Scene {
     let floor = new WaterModelTest(ctx);
     let root = this.getGameObjectRoot();
 
-    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
+    const skybox = new SkyboxObject(ctx, "../res/testhdr2.hdr");
     root.addChild(skybox);
 
     anchor.addChild(cam);
@@ -141,7 +141,7 @@ class WaterScene extends Scene {
     light.lookAt(0, 0, 0);
 
     root.addChild(anchor);
-    root.addChild(floor);
+    // root.addChild(floor);
   }
 };
 

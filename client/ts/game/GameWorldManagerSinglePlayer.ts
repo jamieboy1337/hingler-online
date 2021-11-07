@@ -144,7 +144,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(mapmgr);
     this.addChild(cam);
 
-    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
+    const skybox = new SkyboxObject(ctx, "../res/testhdr2.hdr");
     this.addChild(skybox);
 
     cam.setAsActive();
