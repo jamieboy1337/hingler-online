@@ -14,6 +14,19 @@ import { WaterMaterial } from "./game/material/water/WaterMaterial";
 import { WaterShadowMaterial } from "./game/material/water/WaterShadowMaterial";
 import { WaveStruct } from "./game/struct/WaveStruct";
 
+class SkyboxTwo extends SkyboxObject {
+  private delta : number;
+  constructor(ctx: GameContext, link: string) {
+    super(ctx, link);
+    this.delta = 0;
+  }
+
+  update() {
+    this.delta += this.getContext().getDelta();
+    this.intensity = Math.sin(this.delta * 3) * 0.5 + 0.5;
+  }
+}
+
 class SpinAnchor extends GameObject {
   private t: number;
 
@@ -25,7 +38,7 @@ class SpinAnchor extends GameObject {
 
   update() {
     this.t += this.getContext().getDelta();
-    this.setRotationEuler(this.t * 32.0, this.t * 64.0, 0);
+    this.setRotationEuler(0, this.t * 16.0, 0);
     this.setPosition(0, Math.sin(this.t) * 6 + 6, 0);
   }
 }
@@ -87,6 +100,15 @@ class WaterModelTest extends GameModel {
       this.mat.time = this.delta;
       this.mat.lights = rc.getSpotLightInfo();
       this.mat.camerapos = info.cameraPosition;
+
+      const skyList = rc.getSkybox();
+      if (skyList.length > 0) {
+        const sky = skyList[0];
+        this.mat.cubemapDiffuse = sky.irridance;
+        this.mat.cubemapSpec = sky.specular;
+        this.mat.texBRDF = sky.brdf;
+        this.mat.skyboxIntensity = sky.intensity;
+      }
       this.drawModel(rc, this.mat);
     }
   }
@@ -110,8 +132,10 @@ class WaterScene extends Scene {
     let floor = new WaterModelTest(ctx);
     let root = this.getGameObjectRoot();
 
-    const skybox = new SkyboxObject(ctx, "../res/testhdr2.hdr");
+    const skybox = new SkyboxTwo(ctx, "../res/testhdr2.hdr");
+    const skyboxTwo = new SkyboxTwo(ctx, "../res/testhdr.hdr");
     root.addChild(skybox);
+    root.addChild(skyboxTwo);
 
     anchor.addChild(cam);
     cam.setPosition(0, 12, 40);
@@ -141,7 +165,7 @@ class WaterScene extends Scene {
     light.lookAt(0, 0, 0);
 
     root.addChild(anchor);
-    // root.addChild(floor);
+    root.addChild(floor);
   }
 };
 

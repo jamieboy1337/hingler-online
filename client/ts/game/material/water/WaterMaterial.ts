@@ -1,9 +1,13 @@
 import { mat4, ReadonlyMat4, ReadonlyVec3, vec3 } from "gl-matrix";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { ColorCubemap } from "../../../../../hingler-party/client/ts/engine/gl/ColorCubemap";
+import { Cubemap } from "../../../../../hingler-party/client/ts/engine/gl/Cubemap";
 import { GLProgramWrap } from "../../../../../hingler-party/client/ts/engine/gl/internal/GLProgramWrap";
 import { ShaderProgramBuilder } from "../../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
 import { SpotLightStruct } from "../../../../../hingler-party/client/ts/engine/gl/struct/SpotLightStruct";
+import { Texture } from "../../../../../hingler-party/client/ts/engine/gl/Texture";
 import { Material } from "../../../../../hingler-party/client/ts/engine/material/Material";
+import { TextureDummy } from "../../../../../hingler-party/client/ts/engine/material/TextureDummy";
 import { Model, AttributeType } from "../../../../../hingler-party/client/ts/engine/model/Model";
 import { WaveStruct } from "../../struct/WaveStruct";
 
@@ -36,6 +40,12 @@ export class WaterMaterial implements Material {
     camera_pos: WebGLUniformLocation;
     gradientCols: Array<WebGLUniformLocation>;
     gradientStops: Array<WebGLUniformLocation>;
+    cubemapDiffuse: WebGLUniformLocation;
+    cubemapSpec: WebGLUniformLocation;
+    texBRDF: WebGLUniformLocation;
+    skyboxIntensity: WebGLUniformLocation;
+    specRes: WebGLUniformLocation;
+    useSkybox: WebGLUniformLocation;
   };
 
   lights: Array<SpotLightStruct>;
@@ -45,6 +55,15 @@ export class WaterMaterial implements Material {
   vpMat: ReadonlyMat4;
   waves: Array<WaveStruct>;
   camerapos: ReadonlyVec3;
+
+  cubemapDiffuse: Cubemap;
+  cubemapSpec: Cubemap;
+  texBRDF: Texture;
+  skyboxIntensity: number;
+
+  private placeholderDiffuse: Cubemap;
+  private placeholderSpec: Cubemap;
+  private placeholderTex: TextureDummy;
 
   constructor(ctx: GameContext) {
     this.prog = null;
@@ -57,6 +76,18 @@ export class WaterMaterial implements Material {
     this.waves = [];
     this.lights = [];
     this.camerapos = vec3.create();
+
+    this.cubemapDiffuse = null;
+    this.cubemapSpec = null;
+    this.texBRDF = null;
+
+    this.skyboxIntensity = 1.0;
+
+    this.placeholderDiffuse = new ColorCubemap(ctx, 8);
+    this.placeholderSpec = new ColorCubemap(ctx, 8);
+    this.placeholderTex = new TextureDummy(ctx);
+    
+    this.ctx.getGLExtension("EXT_shader_texture_lod");
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/game/water/water.vert")
@@ -84,7 +115,13 @@ export class WaterMaterial implements Material {
       ambientCount: gl.getUniformLocation(this.prog, "ambientCount"),
       camera_pos: gl.getUniformLocation(this.prog, "camera_pos"),
       gradientCols: [],
-      gradientStops: []
+      gradientStops: [],
+      cubemapDiffuse: gl.getUniformLocation(this.prog, "cubemapDiffuse"),
+      cubemapSpec: gl.getUniformLocation(this.prog, "cubemapSpec"),
+      texBRDF: gl.getUniformLocation(this.prog, "texBRDF"),
+      skyboxIntensity: gl.getUniformLocation(this.prog, "skyboxIntensity"),
+      specRes: gl.getUniformLocation(this.prog, "specRes"),
+      useSkybox: gl.getUniformLocation(this.prog, "useSkybox")
     };
 
     for (let i = 0; i < 4; i++) {
@@ -133,6 +170,22 @@ export class WaterMaterial implements Material {
       gl.uniform1i(this.locs.noSpotCount, noShadowCount);
       gl.uniform1i(this.locs.ambientCount, 0);
       gl.uniform3fv(this.locs.camera_pos, this.camerapos);
+
+      if (this.cubemapDiffuse !== null && this.cubemapSpec !== null && this.texBRDF !== null) {
+        this.cubemapDiffuse.bindToUniform(this.locs.cubemapDiffuse, 8);
+        this.cubemapSpec.bindToUniform(this.locs.cubemapSpec, 9);
+        this.texBRDF.bindToUniform(this.locs.texBRDF, 10);
+        gl.uniform1f(this.locs.specRes, this.cubemapSpec.dims);
+        gl.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
+        gl.uniform1i(this.locs.useSkybox, 1);
+      } else {
+        this.placeholderDiffuse.bindToUniform(this.locs.cubemapDiffuse, 8);
+        this.placeholderSpec.bindToUniform(this.locs.cubemapSpec, 9);
+        this.placeholderTex.bindToUniform(this.locs.texBRDF, 10);
+        gl.uniform1f(this.locs.specRes, 1.0);
+        gl.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
+        gl.uniform1i(this.locs.useSkybox, 0);
+      }
 
       // tba: lights!
       model.bindAttribute(AttributeType.POSITION, this.attribs.pos);

@@ -1,6 +1,9 @@
 #version 100
+
 precision highp float;
 precision highp int;
+
+#define REMOVE_SKYBOX_PBR
 
 #include <opensimplex>
 #include <perlin>

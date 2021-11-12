@@ -1,4 +1,6 @@
 #version 100
+#extension GL_EXT_shader_texture_lod : enable
+
 precision highp float;
 precision highp int;
 
@@ -39,9 +41,16 @@ uniform float gradientStops[4];
 uniform Wave wavelist[4];
 uniform int wavecount;
 
+uniform samplerCube cubemapDiffuse;
+uniform samplerCube cubemapSpec;
+uniform sampler2D texBRDF;
+uniform float skyboxIntensity;
+uniform float specRes;
+uniform int useSkybox;
+
 #define WAVE_COLOR vec3(0.05, 0.111, 0.15)
 #define METALLIC 0.005
-#define ROUGH 0.6
+#define ROUGH 0.02
 #define FACTORS 1
 
 // higher spec platforms: simplex perturbations in vert normal, perlin perturbation in frag, low (0.1 - 0.15) roughness
@@ -61,22 +70,22 @@ uniform int wavecount;
 
 void main() {
   vec4 surfaceCol = getGradient(gradientCols, gradientStops, 0.14 * vHeight + 0.12);
-  // vec2 travel = (wavelist[0].direction * wavelist[0].phi * 1.4) * time;
-  // vec3 noisePos = (1.1 * vec3(vPositionOriginal.x, vPosition.y / 6.0, vPositionOriginal.z)) + vec3(travel.x, time * 0.9, travel.y);
-  // vec2 noisePosT = 2.2980446 * noisePos.xz;
+  vec2 travel = (wavelist[0].direction * wavelist[0].phi * 1.4) * time;
+  vec3 noisePos = (1.1 * vec3(vPositionOriginal.x, vPosition.y / 6.0, vPositionOriginal.z)) + vec3(travel.x, time * 0.9, travel.y);
+  vec2 noisePosT = 2.2980446 * noisePos.xz;
   // bump += openSimplex2_Classical(noisePos);
 
-  // float bump_main = noise3d(noisePos) + noise2d(noisePosT) * 0.4;
-  // float bump_x = noise3d(noisePos + vec3(0.0001, 0.0, 0.0)) + noise2d(noisePosT + vec2(0.0001, 0.0)) * 0.4;
-  // float bump_z = noise3d(noisePos + vec3(0.0, 0.0, 0.0001)) + noise2d(noisePosT + vec2(0.0, 0.0001)) * 0.4;
+  float bump_main = noise3d(noisePos) + noise2d(noisePosT) * 0.4;
+  float bump_x = noise3d(noisePos + vec3(0.0001, 0.0, 0.0)) + noise2d(noisePosT + vec2(0.0001, 0.0)) * 0.4;
+  float bump_z = noise3d(noisePos + vec3(0.0, 0.0, 0.0001)) + noise2d(noisePosT + vec2(0.0, 0.0001)) * 0.4;
 
 
 
   float foamIntensity = foamFactor * 0.45 * min(max(vHeight - 0.2, 0.0), 1.0);
 
   surfaceCol += vec4(vec3(foamIntensity), 0.0);
-  // vec3 norm = vec3(250.0 * (bump_x - bump_main), 1.0, 250.0 * (bump_z - bump_main));
-  vec3 norm = vNormal;
+  vec3 norm = vec3(250.0 * (bump_x - bump_main), 1.0, 250.0 * (bump_z - bump_main));
+  // vec3 norm = vNormal;
 
   float roughness = mix(ROUGH, 0.9, foamIntensity);
 
@@ -105,6 +114,10 @@ void main() {
 
   //   col += vec4(vec3(0.25, 0.5625, 0.78), 1.0) * getAmbientColor(ambient[i]);
   // }
+
+  if (useSkybox > 0) {
+    col += vec4(pbr(vPosition.xyz, camera_pos, cubemapDiffuse, cubemapSpec, texBRDF, surfaceCol.rgb, norm, roughness, METALLIC, specRes) * skyboxIntensity, 0.0);
+  }
 
   // todo: what the fuck is the shadow problem?????
 

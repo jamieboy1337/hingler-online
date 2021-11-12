@@ -16,6 +16,11 @@ struct Wave {
   float phi;
 };
 
+struct WavePack {
+  vec3 directionAmp;
+  vec4 qa_wa_freq_phi;
+};
+
 /**
  *  Returns the influence a single wave has on the particle at pos.
  *  @param w - the wave

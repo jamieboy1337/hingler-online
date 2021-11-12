@@ -33,6 +33,19 @@ enum FieldName {
   LAVA
 };
 
+class SkyboxTwo extends SkyboxObject {
+  private delta: number;
+  constructor(ctx: GameContext, link: string) {
+    super(ctx, link);
+    this.delta = 0;
+  }
+
+  update() {
+    this.delta += this.getContext().getDelta();
+    this.intensity = Math.sin(this.delta * 3) * 0.5 + 0.5;
+  }
+}
+
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
   private ambient : AmbientLightObject;
@@ -144,8 +157,11 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(mapmgr);
     this.addChild(cam);
 
-    const skybox = new SkyboxObject(ctx, "../res/testhdr2.hdr");
+    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
+    const skyboxTwo = new SkyboxTwo(ctx, "../res/testhdr2.hdr");
+    skybox.intensity = 0.3;
     this.addChild(skybox);
+    this.addChild(skyboxTwo);
 
     cam.setAsActive();
 
