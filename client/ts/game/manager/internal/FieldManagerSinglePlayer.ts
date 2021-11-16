@@ -4,12 +4,14 @@ import { LavaFieldManager } from "./fieldmgr/LavaFieldManager";
 import { BeachFieldManager } from "./fieldmgr/BeachFieldManager";
 import { MountainFieldManager } from "./fieldmgr/MountainFieldManager";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
+import { BridgeFieldManager } from "./fieldmgr/BridgeFieldManager";
 
 export class FieldManagerSinglePlayer implements FieldManager {
   private grassmgr: GrassFieldManager;
   private lavamgr: LavaFieldManager;
   private beachmgr: BeachFieldManager;
   private mountmgr: MountainFieldManager;
+  private bridgemgr: BridgeFieldManager;
 
   private grassLen: number;
   private beachLen: number;
@@ -20,6 +22,7 @@ export class FieldManagerSinglePlayer implements FieldManager {
     this.grassmgr = new GrassFieldManager(ctx, this.width);
     this.lavamgr = new LavaFieldManager(ctx, this.width);
     this.beachmgr = new BeachFieldManager(ctx, this.width);
+    this.bridgemgr = new BridgeFieldManager(ctx, this.width);
     this.mountmgr = new MountainFieldManager(ctx, this.width);
 
     this.grassLen = 10;
@@ -35,7 +38,7 @@ export class FieldManagerSinglePlayer implements FieldManager {
     } else if (n < (this.grassLen + this.beachLen)) {
       return this.beachmgr.getFieldModel(n - this.grassLen);
     } else {
-      return this.mountmgr.getFieldModel(n - (this.grassLen + this.beachLen));
+      return this.bridgemgr.getFieldModel(n - (this.grassLen + this.beachLen));
     }
   }
 

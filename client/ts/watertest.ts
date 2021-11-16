@@ -132,10 +132,8 @@ class WaterScene extends Scene {
     let floor = new WaterModelTest(ctx);
     let root = this.getGameObjectRoot();
 
-    const skybox = new SkyboxTwo(ctx, "../res/testhdr2.hdr");
-    const skyboxTwo = new SkyboxTwo(ctx, "../res/testhdr.hdr");
+    const skybox = new SkyboxTwo(ctx, "../res/hdr/hdr_bridge_1k.hdr");
     root.addChild(skybox);
-    root.addChild(skyboxTwo);
 
     anchor.addChild(cam);
     cam.setPosition(0, 12, 40);

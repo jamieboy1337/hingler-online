@@ -5,11 +5,11 @@ import { GameCamera } from "../../../hingler-party/client/ts/engine/object/game/
 import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { AmbientLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
-import { SkyboxObject } from "../../../hingler-party/client/ts/engine/object/game/SkyboxObject";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
 import { InputManagerImpl } from "./manager/internal/InputManagerImpl";
+import { SkyboxManagerSinglePlayer } from "./manager/internal/SkyboxManagerSinglePlayer";
 import { TileManagerSinglePlayer } from "./manager/internal/TileManagerSinglePlayer";
 import { MapManager } from "./MapManager";
 import { Counter } from "./ui/Counter";
@@ -18,8 +18,9 @@ import { EnemyInfo } from "./ui/EnemyInfo";
 const MOVE_IMG = "../res/img/chewingcharacter_animated.gif";
 const STILL_IMG = "../res/img/charactermini_still.png";
 
-const GRASS_LEN = 6;
-const BEACH_LEN = 8;
+const GRASS_LEN = 1;
+const BEACH_LEN = 1;
+const BRIDGE_LEN = 25;
 const MOUNTAIN_LEN = 11;
 const LAVA_LEN = 15;
 
@@ -32,19 +33,6 @@ enum FieldName {
   MOUNTAIN,
   LAVA
 };
-
-class SkyboxTwo extends SkyboxObject {
-  private delta: number;
-  constructor(ctx: GameContext, link: string) {
-    super(ctx, link);
-    this.delta = 0;
-  }
-
-  update() {
-    this.delta += this.getContext().getDelta();
-    this.intensity = Math.sin(this.delta * 3) * 0.5 + 0.5;
-  }
-}
 
 export class GameWorldManagerSinglePlayer extends GameObject {
   private spotShadow : SpotLightObject;
@@ -72,6 +60,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private animImage: HTMLImageElement;
 
   private conn : GameConnectionManagerSinglePlayer;
+
+  private skybox: SkyboxManagerSinglePlayer;
 
   private curfield: FieldName;
 
@@ -115,6 +105,12 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     let conn = new GameConnectionManagerSinglePlayer(ctx);
     this.conn = conn;
 
+    this.skybox = new SkyboxManagerSinglePlayer(ctx);
+    this.addChild(this.skybox);
+
+    this.skybox.fieldLength = GRASS_LEN * 48;
+    this.skybox.beachLength = (BEACH_LEN + 2.5) * 48;
+
     this.statview = document.getElementById("stats-view");
     this.statRadius = document.getElementById("stat-radius");
     this.statBomb = document.getElementById("stat-maxbomb");
@@ -156,12 +152,6 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.addChild(conn);
     this.addChild(mapmgr);
     this.addChild(cam);
-
-    const skybox = new SkyboxObject(ctx, "../res/testhdr.hdr");
-    const skyboxTwo = new SkyboxTwo(ctx, "../res/testhdr2.hdr");
-    skybox.intensity = 0.3;
-    this.addChild(skybox);
-    this.addChild(skyboxTwo);
 
     cam.setAsActive();
 
@@ -234,7 +224,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     amb.color = [0.5, 0.5, 0.5, 1.0];
     amb.intensity = 0.3;
 
-    cam.setPosition(0, 49, 32);
+    cam.setPosition(0, 55.1, 36);
     cam.fov = 21;
     cam.near = 1.0;
     cam.far = 250.0;
@@ -262,6 +252,8 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     let inmotion = false;
     let score = this.conn.getScore();
 
+    this.skybox.updateSkyboxes(score);
+
     let shock = this.conn.getTermShock();
     this.tile.setTermShockPosition(shock);
     let playerpos = this.conn.getPlayerList().get(1).position;
@@ -270,9 +262,10 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     let tShock = Math.pow(Math.min(Math.max((shockDist - 5) / 15, 0.0), 1.0), GAMMA_POW);
     let lightCol = this.colLerp([1, 1, 1, 1], [1, 0.1, 0, 1], tShock);
     let ambIntensity = tShock * 0.3;
-
+    
     this.spotShadow.color = lightCol;
     this.ambient.intensity = ambIntensity;
+    this.skybox.intensityMul = tShock;
     // map distance from player to termshock
 
 
@@ -356,6 +349,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
       newfield = FieldName.GRASS;
     }
 
+    // how do we control skyboxes without too much coupling?
     if (newfield !== this.curfield) {
       let fg = document.getElementById("field-fg") as HTMLImageElement;
       let bg = document.getElementById("field-bg") as HTMLImageElement;
