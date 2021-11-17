@@ -32,8 +32,8 @@ export class SkyboxManagerSinglePlayer extends GameObject {
   }
 
   updateSkyboxes(len: number) {
-    if (len > this.fieldLength + this.beachLength) {
-      const t = (len - this.fieldLength) / 48;
+    if (len > (this.fieldLength + this.beachLength)) {
+      const t = (len - (this.beachLength + this.fieldLength)) / 48;
       this.fieldSkybox.intensity = 0;
       this.beachSkybox.intensity = Math.max(1.0 - t, 0.0) * BASE_BEACH_INTENSITY * this.intensityMul;
       this.bridgeSkybox.intensity = Math.min(1.0, t) * BASE_BRIDGE_INTENSITY * this.intensityMul;

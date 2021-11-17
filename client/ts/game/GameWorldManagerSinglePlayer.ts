@@ -5,6 +5,7 @@ import { GameCamera } from "../../../hingler-party/client/ts/engine/object/game/
 import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { AmbientLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/AmbientLightObject";
 import { SpotLightObject } from "../../../hingler-party/client/ts/engine/object/game/light/SpotLightObject";
+import { WaterField } from "./field/WaterField";
 import { GameConnectionManagerSinglePlayer, PLAYER_MOTION_STATES } from "./GameConnectionManagerSinglePlayer";
 import { InputManager } from "./manager/InputManager";
 import { FieldManagerSinglePlayer } from "./manager/internal/FieldManagerSinglePlayer";
@@ -107,6 +108,10 @@ export class GameWorldManagerSinglePlayer extends GameObject {
 
     this.skybox = new SkyboxManagerSinglePlayer(ctx);
     this.addChild(this.skybox);
+
+    const water = new WaterField(ctx, 60, 240);
+    water.setPosition(0, -3, 0);
+    this.addChild(water);
 
     this.skybox.fieldLength = GRASS_LEN * 48;
     this.skybox.beachLength = (BEACH_LEN + 2.5) * 48;

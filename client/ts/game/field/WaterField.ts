@@ -28,7 +28,7 @@ export class WaterField extends GameModel {
 
     let seed = Math.floor(Math.random() * 400000000);
     xorshift32_seed(Math.floor(Math.random() * 400000000));
-    console.log(`seed: ${seed}`);
+    console.info(`seed: ${seed}`);
 
     const waveDirection = [xorshift32_float() - 0.5, xorshift32_float() - 0.5] as [number, number];
 
@@ -66,6 +66,16 @@ export class WaterField extends GameModel {
       this.mat.time = this.delta;
       this.mat.lights = rc.getSpotLightInfo();
       this.mat.camerapos = info.cameraPosition;
+
+      const skyList = rc.getSkybox();
+      if (skyList.length > 0) {
+        const sky = skyList[0];
+        this.mat.cubemapDiffuse = sky.irridance;
+        this.mat.cubemapSpec = sky.specular;
+        this.mat.texBRDF = sky.brdf;
+        this.mat.skyboxIntensity = sky.intensity;
+      }
+      this.drawModel(rc, this.mat);
       this.drawModel(rc, this.mat);
     }
   }

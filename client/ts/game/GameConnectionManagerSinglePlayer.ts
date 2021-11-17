@@ -35,7 +35,7 @@ const CRATE_POWERUP_CHANCE = .1;
 const KNIGHT_POWERUP_CHANCE = 1.0;
 const CRAB_POWERUP_CHANCE = 1.0;
 
-const BASE_SPEED = 3.0;
+const BASE_SPEED = 12.0;
 
 interface ExplosionRecord {
   time: number;
