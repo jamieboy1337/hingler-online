@@ -156,7 +156,7 @@ class WaterScene extends Scene {
     light.atten_linear = 0;
     light.atten_const = 1;
 
-    light.setShadows(true);
+    light.setShadows(false);
     
     // root.addChild(light);
     light.setPosition(-120, 125, 0);

@@ -1,8 +1,14 @@
 #version 100
 #extension GL_EXT_shader_texture_lod : enable
+#extension GL_OES_standard_derivatives : require
 
-precision highp float;
-precision highp int;
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+  precision highp int;
+#else
+  precision mediump float;
+  precision mediump int;
+#endif
 
 #include <ambient>
 #include <gradient>

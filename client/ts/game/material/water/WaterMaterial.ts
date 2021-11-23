@@ -88,6 +88,7 @@ export class WaterMaterial implements Material {
     this.placeholderTex = new TextureDummy(ctx);
     
     this.ctx.getGLExtension("EXT_shader_texture_lod");
+    this.ctx.getGLExtension("OES_standard_derivatives");
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/game/water/water.vert")
