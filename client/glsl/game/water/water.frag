@@ -1,6 +1,12 @@
-#version 100
-#extension GL_EXT_shader_texture_lod : enable
-#extension GL_OES_standard_derivatives : require
+#include <version>
+
+#include <compatibility>
+#include <env>
+
+#if (WEBGL_VERSION == 1)
+  #extension GL_EXT_shader_texture_lod : enable
+  #extension GL_OES_standard_derivatives : require
+#endif
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
@@ -18,13 +24,13 @@
 
 #include <./water.inc.glsl>
 
-varying vec3 vPosition;
-varying vec3 vNormal;
-varying vec3 vPositionOriginal;
-varying float vHeight;
-varying float foamFactor;
-varying mat3 TBN;
-varying vec4 spot_coord[3];
+VARYING vec3 vPosition;
+VARYING vec3 vNormal;
+VARYING vec3 vPositionOriginal;
+VARYING float vHeight;
+VARYING float foamFactor;
+VARYING mat3 TBN;
+VARYING vec4 spot_coord[3];
 
 uniform float time;
 
@@ -53,6 +59,8 @@ uniform sampler2D texBRDF;
 uniform float skyboxIntensity;
 uniform float specRes;
 uniform int useSkybox;
+
+OUTPUT_FRAGCOLOR
 
 #define WAVE_COLOR vec3(0.05, 0.111, 0.15)
 #define METALLIC 0.005
@@ -96,14 +104,10 @@ void main() {
   float roughness = mix(ROUGH, 0.9, foamIntensity);
 
   vec4 col = vec4(0.0);
-  for (int i = 0; i < 4; i++) {
-    if (i >= spotlightCount) {
-      break;
-    }
 
-    col += getSpotLightColorPBR(spotlight[i], camera_pos, vPosition.xyz, spot_coord[i], surfaceCol.rgb, norm, roughness, METALLIC, texture_spotlight[i]);
-
-  }
+  col += getSpotLightColorPBR(spotlight[0], camera_pos, vPosition.xyz, spot_coord[0], surfaceCol.rgb, norm, roughness, METALLIC, texture_spotlight[0]) * step(0.5, float(spotlightCount));
+  col += getSpotLightColorPBR(spotlight[1], camera_pos, vPosition.xyz, spot_coord[1], surfaceCol.rgb, norm, roughness, METALLIC, texture_spotlight[1]) * step(1.5, float(spotlightCount));
+  col += getSpotLightColorPBR(spotlight[2], camera_pos, vPosition.xyz, spot_coord[2], surfaceCol.rgb, norm, roughness, METALLIC, texture_spotlight[2]) * step(2.5, float(spotlightCount));
 
   for (int i = 0; i < 4; i++) {
     if (i >= spotlightCount_no_shadow) {
@@ -127,5 +131,5 @@ void main() {
 
   // todo: what the fuck is the shadow problem?????
 
-  gl_FragColor = vec4(pow(col.xyz, vec3(1.0 / 2.2)), 1.0);
+  fragColor = vec4(pow(col.xyz, vec3(1.0 / 2.2)), 1.0);
 }

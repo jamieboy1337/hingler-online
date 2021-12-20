@@ -38,7 +38,7 @@ export class InstancedPowerupMaterial implements InstancedMaterial {
 
     this.ctx = ctx;
 
-    this.normBuffer = new GLBufferImpl(this.ctx.getGLContext());
+    this.normBuffer = new GLBufferImpl(this.ctx);
 
     new ShaderProgramBuilder(ctx)
       .withVertexShader("../glsl/game/powerup/powerup.vert")

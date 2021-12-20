@@ -1,5 +1,6 @@
 import { GameContext } from "../../../../../../hingler-party/client/ts/engine/GameContext";
 import { GLTFScene } from "../../../../../../hingler-party/client/ts/engine/loaders/GLTFScene";
+import { InstancedModel } from "../../../../../../hingler-party/client/ts/engine/model/InstancedModel";
 import { PBRInstanceFactory } from "../../../../../../hingler-party/client/ts/engine/model/PBRInstanceFactory";
 import { PBRModel } from "../../../../../../hingler-party/client/ts/engine/model/PBRModel";
 import { GameObject } from "../../../../../../hingler-party/client/ts/engine/object/game/GameObject";
@@ -25,12 +26,14 @@ export class BridgeFieldManager implements FieldManager {
   private fieldmodels: Array<Task<PBRModel>>;
   private tilemodels: Array<Task<PBRModel>>;
   private grassBlade: Task<PBRInstanceFactory>;
+  private grassInstance: Task<InstancedModel>;
 
   constructor(ctx: GameContext, width: number) {
     this.ctx = ctx;
     this.fieldmodels = [];
     this.tilemodels = [];
     this.grassBlade = new Task();
+    this.grassInstance = new Task();
     
     for (let i = 0; i < bridgeFieldNames.length; i++) {
       this.fieldmodels.push(new Task());
@@ -59,7 +62,7 @@ export class BridgeFieldManager implements FieldManager {
     }
 
     if (n < 2) {
-      field = new BeachGrassField(this.ctx, this.fieldmodels[0].getFuture(), this.grassBlade.getFuture(), n);
+      field = new BeachGrassField(this.ctx, this.fieldmodels[0].getFuture(), this.grassInstance.getFuture(), n);
     } else if (n < 3) {
       field = new GamePBRModel(this.ctx, this.fieldmodels[1].getFuture());
     } else {
@@ -92,5 +95,6 @@ export class BridgeFieldManager implements FieldManager {
     }
 
     this.grassBlade.resolve(scene.getPBRInstanceFactory(grassResource));
+    this.grassInstance.resolve(scene.getInstancedModel(grassResource));
   }
 }

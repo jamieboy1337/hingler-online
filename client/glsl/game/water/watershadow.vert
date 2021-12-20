@@ -1,10 +1,12 @@
-#version 100
+#include <version>
 precision highp float;
 precision highp int;
 
+#include <compatibility>
+
 #include <water.inc.glsl>
 
-attribute vec4 position;
+ATTRIB vec4 position;
 
 uniform mat4 modelMatrix;
 uniform mat4 vpMatrix;

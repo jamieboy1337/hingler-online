@@ -1,14 +1,19 @@
-#version 100
+#include <version>
 
 // add some highlight, give it some glow
 
 precision highp float;
 
-varying vec4 vPosition;
-varying vec3 vNormal;
-varying vec4 vColor;
+#include <env>
+#include <compatibility>
+
+VARYING vec4 vPosition;
+VARYING vec3 vNormal;
+VARYING vec4 vColor;
 
 uniform vec3 camPos;
+
+OUTPUT_FRAGCOLOR
 
 void main() {
   // use fresnel to determine lighting
@@ -21,5 +26,5 @@ void main() {
   // f should slightly brighten the color
   vec3 col = vColor.rgb;
   col = col * 0.5 + (((F + S) * 0.2) * col);
-  gl_FragColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
+  fragColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
 }

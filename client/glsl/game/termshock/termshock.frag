@@ -1,12 +1,15 @@
-#version 100
+#include <version>
 
 precision highp float;
 precision highp int;
 
+#include <compatibility>
+#include <env>
+
 #include <opensimplex>
 #include <gradient>
 
-varying vec4 v_pos;
+VARYING vec4 v_pos;
 
 uniform vec2 resolution;
 uniform sampler2D uDepth;
@@ -16,10 +19,12 @@ uniform float gradientStops[4];
 
 uniform float explosionZ;
 
+OUTPUT_FRAGCOLOR
+
 void main() {
   float depth = gl_FragCoord.z;
   vec2 texcoord = (gl_FragCoord.xy / resolution);
-  float fbDepth = texture2D(uDepth, texcoord).r;
+  float fbDepth = TEXTURE2D(uDepth, texcoord).r;
 
   if (depth > fbDepth) {
     discard;
@@ -38,5 +43,5 @@ void main() {
   grad /= 2.0;
 
   vec4 col = getGradient(gradientCols, gradientStops, grad);
-  gl_FragColor = vec4(vec3(pow(col.xyz, vec3(1.0 / 2.2))), 1.0);
+  fragColor = vec4(vec3(pow(col.xyz, vec3(1.0 / 2.2))), 1.0);
 }

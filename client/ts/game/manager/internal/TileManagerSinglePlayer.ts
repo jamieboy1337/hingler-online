@@ -372,22 +372,61 @@ export class TileManagerSinglePlayer implements TileManager {
   }
 
   private handleFieldTiles(playerPos: vec2, yTop: number, yBottom: number) {
+    // this normally preps everything at once
+    // now we need to initialize it the first time through
     let fieldIndex = Math.max(Math.round(playerPos[0] / 24) - 1, 0);
-    if (fieldIndex !== this.fieldIndex) {
-      // update models, update positions
+    // update only the one which just popped in
+    if (this.fieldIndex === -1) {
       for (let i = 0; i < this.fieldPieces.length; i++) {
-        let piece = this.fieldmgr.getFieldModel(fieldIndex + i);
-        if (this.fieldPieces[i]) {
+        const index = i;
+        const offset = i;
+        this.handleFieldTile(index, offset);
+      }
+    } else if (fieldIndex !== this.fieldIndex) {
+      // update models, update positions
+      let delta = fieldIndex - this.fieldIndex;
+      if (delta < 0) {
+        // we've slipped back
+        let rShift = Math.abs(delta);
+        for (let i = 0; i < rShift; i++) {
+          this.root.removeChild(this.fieldPieces[this.fieldPieces.length - 1 - i].getId());
+        }
+
+        for (let i = this.fieldPieces.length - 1; i >= rShift; i--) {
+          this.fieldPieces[i] = this.fieldPieces[i - rShift];
+        }
+
+        for (let i = 0; i < rShift; i++) {
+          const index = i;
+          const offset = fieldIndex + i;
+          this.handleFieldTile(index, offset);
+        }
+      } else {
+        // delta > 0
+        for (let i = 0; i < delta; i++) {
           this.root.removeChild(this.fieldPieces[i].getId());
         }
 
-        this.root.addChild(piece);
-        this.fieldPieces[i] = piece;
-        piece.setPosition((fieldIndex + i) * (48.0) + this.origin[0] - 1, 0, 0);
+        for (let i = 0; i < delta; i++) {
+          this.fieldPieces[i] = this.fieldPieces[i + 1];
+        }
+
+        for (let i = 0; i < delta; i++) {
+          const index = this.fieldPieces.length - 1 - i;
+          const offset = fieldIndex + index;
+          this.handleFieldTile(index, offset);
+        }
       }
     }
 
     this.fieldIndex = fieldIndex;
+  }
+
+  private handleFieldTile(index: number, offset: number) {
+    const piece = this.fieldmgr.getFieldModel(offset);
+    this.root.addChild(piece);
+    this.fieldPieces[index] = piece;
+    piece.setPosition(offset * 48.0 + this.origin[0] - 1, 0, 0);
   }
 
   private handleFloorTiles(playerPos: vec2) {

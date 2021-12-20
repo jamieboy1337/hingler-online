@@ -109,9 +109,10 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.skybox = new SkyboxManagerSinglePlayer(ctx);
     this.addChild(this.skybox);
 
-    const water = new WaterField(ctx, 60, 240);
-    water.setPosition(0, -3, 0);
-    this.addChild(water);
+    // slow as fucking shit
+    // const water = new WaterField(ctx, 60, 240);
+    // water.setPosition(0, -3, 0);
+    // this.addChild(water);
 
     this.skybox.fieldLength = GRASS_LEN * 48;
     this.skybox.beachLength = (BEACH_LEN + 2.5) * 48;

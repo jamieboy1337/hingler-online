@@ -1,17 +1,22 @@
-#version 100
+#include <version>
 
 precision highp float;
 precision highp int;
 
+#include <compatibility>
+
 #include <radialblur>
 
-varying vec2 vTexcoord;
+
+VARYING vec2 vTexcoord;
 
 uniform sampler2D uBlurColor;
 uniform vec2 glowCenter;
 uniform int samples;
 uniform float blurSize;
 
+OUTPUT_FRAGCOLOR
+
 void main() {
-  gl_FragColor = radialBlur(uBlurColor, glowCenter, vTexcoord, blurSize, samples);
+  fragColor = radialBlur(uBlurColor, glowCenter, vTexcoord, blurSize, samples);
 }

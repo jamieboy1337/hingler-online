@@ -14,7 +14,8 @@ module.exports = [{
     maptest: "./client/ts/maptest",
     countertest: "./client/ts/countertest",
     swaptest: "./client/ts/swaptest",
-    watertest: "./client/ts/watertest"
+    watertest: "./client/ts/watertest",
+    tangenttest: "./client/ts/tangenttest"
   },
 
   mode: "development",

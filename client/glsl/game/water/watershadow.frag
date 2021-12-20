@@ -1,5 +1,12 @@
-#version 100
+#include <version>
+
+precision highp float;
+precision highp int;
+
+#include <compatibility>
+
+OUTPUT_FRAGCOLOR
 
 void main() {
-  gl_FragColor = vec4(1.0);
+  fragColor = vec4(1.0);
 }

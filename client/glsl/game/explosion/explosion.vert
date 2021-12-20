@@ -1,23 +1,25 @@
-#version 100
+#include <version>
 
 precision highp float;
 
-attribute vec4 position;
-attribute vec2 texcoord;
-attribute mat4 model_matrix;
+#include <compatibility>
 
-attribute float threshold;
-attribute vec4 color;
-attribute vec3 noise_offset;
+ATTRIB vec4 position;
+ATTRIB vec2 texcoord;
+ATTRIB mat4 model_matrix;
+
+ATTRIB float threshold;
+ATTRIB vec4 color;
+ATTRIB vec3 noise_offset;
 
 uniform mat4 camera_matrix;
 
-varying vec4 v_pos;
-varying vec2 v_tex;
+VARYING vec4 v_pos;
+VARYING vec2 v_tex;
 
-varying float v_threshold;
-varying vec4 v_col;
-varying vec3 v_noise_offset;
+VARYING float v_threshold;
+VARYING vec4 v_col;
+VARYING vec3 v_noise_offset;
 
 void main() {
   v_pos = model_matrix * position;

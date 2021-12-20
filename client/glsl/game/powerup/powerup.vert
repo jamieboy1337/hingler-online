@@ -1,14 +1,16 @@
-#version 100
+#include <version>
 
-attribute vec4 aPosition;
-attribute vec3 aNormal;
-attribute vec4 aColor;
-attribute mat4 aModelMat;
-attribute mat3 aNormalMat;
+#include <compatibility>
 
-varying vec4 vPosition;
-varying vec3 vNormal;
-varying vec4 vColor;
+ATTRIB vec4 aPosition;
+ATTRIB vec3 aNormal;
+ATTRIB vec4 aColor;
+ATTRIB mat4 aModelMat;
+ATTRIB mat3 aNormalMat;
+
+VARYING vec4 vPosition;
+VARYING vec3 vNormal;
+VARYING vec4 vColor;
 
 uniform mat4 vpMat;
 

@@ -8,12 +8,12 @@
     "npm": "7.x"
   },
   "scripts": {
-    "build": "npm run clean && rm -rf ./client/js && rm -rf ./ts-out && bash ./updatevernum.sh && tsc && npx webpack && node hingler-party/copyProjectResources.ts client",
+    "build": "npm run clean && rm -rf ./client/js && rm -rf ./ts-out && bash ./updatevernum.sh && tsc && npx webpack && node hingler-party/copyProjectResources.ts client && node hingler-party/copyProjectResources.ts ./test && cp -r hingler-party/test/data ./test/data",
     "build-debug": "rm -rf ./client/js && rm -rf ./ts-out && tsc && npx webpack",
     "tsc-only": "rm -rf ./ts-out && rm -rf ./client/js && tsc && npx webpack",
-    "test": "nyc --reporter=text mocha ts-out/test/*",
+    "test": "mocha ts-out/test/* ts-out/hingler-party/test/*",
     "start": "node ./ts-out/server/index.js",
-    "clean": "rm -rf test/browser/js && rm -rf client/js"
+    "clean": "rm -rf test/browser/js && rm -rf client/js && rm -rf test/data"
   },
   "repository": {
     "type": "git",

@@ -6,6 +6,7 @@ client/service-worker/js/
 client/engine/
 server/js/
 
+test/engine
 test/js/
 test/browser/js/
 test/browser/mocha.css
@@ -21,3 +22,7 @@ cypress/reports/
 client/sw.js
 
 desktop.ini
+
+.VSCodeCounter
+
+test/data

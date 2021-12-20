@@ -1,6 +1,9 @@
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
 import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
+import { RenderType } from "../../hingler-party/client/ts/engine/internal/performanceanalytics";
+import { FillMaterial } from "../../hingler-party/client/ts/engine/material/FillMaterial";
+import { Model } from "../../hingler-party/client/ts/engine/model/Model";
 import { PlaneModel } from "../../hingler-party/client/ts/engine/model/PlaneModel";
 import { GameCamera } from "../../hingler-party/client/ts/engine/object/game/GameCamera";
 import { GameModel } from "../../hingler-party/client/ts/engine/object/game/GameModel";
@@ -9,6 +12,11 @@ import { SpotLightObject } from "../../hingler-party/client/ts/engine/object/gam
 import { SkyboxObject } from "../../hingler-party/client/ts/engine/object/game/SkyboxObject";
 import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
 import { RenderContext, RenderPass } from "../../hingler-party/client/ts/engine/render/RenderContext";
+import { CatmullRomSpline } from "../../hingler-party/client/ts/engine/spline/CatmullRomSpline";
+import { CurveSweepModel } from "../../hingler-party/client/ts/engine/spline/CurveSweepModel";
+import { DebugCurve } from "../../hingler-party/client/ts/engine/spline/DebugCurve";
+import { SegmentedCurve } from "../../hingler-party/client/ts/engine/spline/SegmentedCurve";
+import { Future } from "../../hingler-party/ts/util/task/Future";
 import { xorshift32_seed, xorshift32_float } from "../../ts/util/Xorshift32";
 import { WaterMaterial } from "./game/material/water/WaterMaterial";
 import { WaterShadowMaterial } from "./game/material/water/WaterShadowMaterial";
@@ -88,12 +96,16 @@ class WaterModelTest extends GameModel {
   }
 
   renderMaterial(rc: RenderContext) {
+    const timer = this.getContext().getGPUTimer();
+    const id = timer.startQuery();
     const info = rc.getActiveCameraInfo();
+    let type: RenderType;
     if (rc.getRenderPass() === RenderPass.SHADOW) {
       this.shadowmat.modelMat = this.getTransformationMatrix();
       this.shadowmat.vpMat = info.vpMatrix;
       this.shadowmat.time = this.delta;
       this.shadowmat.drawMaterial(this.getModel());
+      type = RenderType.SHADOW;
     } else {
       this.mat.modelMat = this.getTransformationMatrix();
       this.mat.vpMat = info.vpMatrix;
@@ -110,7 +122,28 @@ class WaterModelTest extends GameModel {
         this.mat.skyboxIntensity = sky.intensity;
       }
       this.drawModel(rc, this.mat);
+
+      type = RenderType.FINAL;
     }
+    
+    timer.stopQueryAndLog(id, "WaterMaterial", type);
+  }
+}
+
+class CurveScene extends GameModel {
+  mat: FillMaterial;
+  
+  constructor(ctx: GameContext, model: string | Model | Future<Model>) {
+    super(ctx, model);
+    this.mat = new FillMaterial(ctx);
+    this.mat.col = [1, 1, 1, 1];
+  }
+
+  renderMaterial(rc: RenderContext) {
+    const gl = this.getContext().getGLContext();
+    this.mat.modelMat = this.getTransformationMatrix();
+    this.mat.vpMat = rc.getActiveCameraInfo().vpMatrix;
+    this.drawModel(rc, this.mat);
   }
 }
 
@@ -164,6 +197,22 @@ class WaterScene extends Scene {
 
     root.addChild(anchor);
     root.addChild(floor);
+
+    const curve = new CatmullRomSpline();
+    curve.addPoint(0, 0, 0);
+    curve.addPoint(16, 12, 4);
+    curve.addPoint(-24, 15, -3);
+    curve.addPoint(-3, 25, 1);
+
+    const test = new SegmentedCurve([[0, 0, 1], [1, 0, 0], [0, 0, -1], [-1, 0, 0], [0, 0, 1]]);
+
+    const curveModel = new CurveSweepModel(ctx, curve, test);
+
+    const obj = new CurveScene(ctx, curveModel);
+
+    // const curvedisp = new DebugCurve(ctx, curve);
+    
+    root.addChild(obj);
   }
 };
 
@@ -175,7 +224,7 @@ async function main() {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   ctx = new EngineContext(canvas, new WaterScene());
   resizeCanvas();
-  // window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", resizeCanvas);
   configureEngine();
 }
 

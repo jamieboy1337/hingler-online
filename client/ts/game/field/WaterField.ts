@@ -1,5 +1,6 @@
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
+import { RenderType } from "../../../../hingler-party/client/ts/engine/internal/performanceanalytics";
 import { PlaneModel } from "../../../../hingler-party/client/ts/engine/model/PlaneModel";
 import { GameModel } from "../../../../hingler-party/client/ts/engine/object/game/GameModel";
 import { RenderContext, RenderPass } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
@@ -54,7 +55,9 @@ export class WaterField extends GameModel {
   }
 
   renderMaterial(rc: RenderContext) {
+    const timer = this.getContext().getGPUTimer();
     const info = rc.getActiveCameraInfo();
+    const id = timer.startQuery();
     if (rc.getRenderPass() === RenderPass.SHADOW) {
       this.shadowmat.modelMat = this.getTransformationMatrix();
       this.shadowmat.vpMat = info.vpMatrix;
@@ -78,5 +81,7 @@ export class WaterField extends GameModel {
       this.drawModel(rc, this.mat);
       this.drawModel(rc, this.mat);
     }
+
+    timer.stopQueryAndLog(id, "WaterField", (rc.getRenderPass() === RenderPass.SHADOW ? RenderType.SHADOW : RenderType.FINAL));
   }
 }

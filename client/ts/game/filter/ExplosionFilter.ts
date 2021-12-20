@@ -4,6 +4,7 @@ import { Framebuffer } from "../../../../hingler-party/client/ts/engine/gl/Frame
 import { ColorFramebuffer } from "../../../../hingler-party/client/ts/engine/gl/internal/ColorFramebuffer";
 import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
 import { Texture } from "../../../../hingler-party/client/ts/engine/gl/Texture";
+import { RenderType } from "../../../../hingler-party/client/ts/engine/internal/performanceanalytics";
 import { Material } from "../../../../hingler-party/client/ts/engine/material/Material";
 import { PostProcessingFilter } from "../../../../hingler-party/client/ts/engine/material/PostProcessingFilter";
 import { Model, AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
@@ -125,6 +126,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
   }
 
   runFilter(src: Framebuffer, dst: Framebuffer, rc: RenderContext) {
+    const timer = this.getContext().getGPUTimer();
+    const id = timer.startQuery();
     if (this.explosionColorShader !== null && this.glowShader !== null) {
       let gl = this.getContext().getGLContext();
       gl.disable(gl.CULL_FACE);
@@ -156,6 +159,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
       // explosion fb now contains our explosion w depth acc'd for
       this.drawToFramebuffer(src, dst, rc);
     }
+    timer.stopQueryAndLog(id, "ExplosionFilter", RenderType.POST);
   }
 
   drawMaterial(model: Model) {

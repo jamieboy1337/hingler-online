@@ -1,8 +1,11 @@
-#version 100
+#include <version>
 
-attribute vec4 aPosition;
+#include <compatibility>
+#include <env>
 
-varying vec4 v_pos;
+ATTRIB vec4 aPosition;
+
+VARYING vec4 v_pos;
 
 uniform mat4 model_matrix;
 uniform mat4 vp_matrix;

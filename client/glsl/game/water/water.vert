@@ -1,4 +1,4 @@
-#version 100
+#include <version>
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
@@ -8,6 +8,9 @@
   precision mediump int;
 #endif
 
+#include <env>
+#include <compatibility>
+
 #define REMOVE_SKYBOX_PBR
 
 #include <opensimplex>
@@ -16,19 +19,19 @@
 
 #include <./water.inc.glsl>
 
-attribute vec4 position;
+ATTRIB vec4 position;
 
 // apply ocean modifier to position
 // calculate normal via gpugems method
 
-varying vec3 vPosition;
-varying vec3 vNormal;
-varying vec3 vPositionOriginal;
+VARYING vec3 vPosition;
+VARYING vec3 vNormal;
+VARYING vec3 vPositionOriginal;
 
-varying float vHeight;
-varying float foamFactor;
+VARYING float vHeight;
+VARYING float foamFactor;
 
-varying mat3 TBN;
+VARYING mat3 TBN;
 
 uniform mat4 modelMatrix;
 uniform mat4 vpMatrix;
@@ -41,7 +44,7 @@ uniform int wavecount;
 uniform SpotLight spotlight[3];
 uniform int spotlightCount;
 
-varying vec4 spot_coord[3];
+VARYING vec4 spot_coord[3];
 
 void main() {
   vec4 worldPos = (modelMatrix * position);

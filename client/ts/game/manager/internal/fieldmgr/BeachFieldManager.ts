@@ -32,6 +32,7 @@ export class BeachFieldManager implements FieldManager {
   private resources: Array<Task<PBRModel>>;
 
   constructor(ctx: GameContext, width: number) {
+    this.ctx = ctx;
     this.seed = Math.floor(Math.random() * 4294967295);
     this.tilemodels = [];
     this.fieldmodels = [];
