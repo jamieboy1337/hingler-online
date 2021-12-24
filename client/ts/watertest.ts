@@ -3,6 +3,8 @@ import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
 import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
 import { RenderType } from "../../hingler-party/client/ts/engine/internal/performanceanalytics";
 import { FillMaterial } from "../../hingler-party/client/ts/engine/material/FillMaterial";
+import { PBRMaterial } from "../../hingler-party/client/ts/engine/material/PBRMaterial";
+import { PBRMaterialImpl } from "../../hingler-party/client/ts/engine/material/PBRMaterialImpl";
 import { Model } from "../../hingler-party/client/ts/engine/model/Model";
 import { PlaneModel } from "../../hingler-party/client/ts/engine/model/PlaneModel";
 import { GameCamera } from "../../hingler-party/client/ts/engine/object/game/GameCamera";
@@ -14,13 +16,53 @@ import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
 import { RenderContext, RenderPass } from "../../hingler-party/client/ts/engine/render/RenderContext";
 import { CatmullRomSpline } from "../../hingler-party/client/ts/engine/spline/CatmullRomSpline";
 import { CurveSweepModel } from "../../hingler-party/client/ts/engine/spline/CurveSweepModel";
-import { DebugCurve } from "../../hingler-party/client/ts/engine/spline/DebugCurve";
+import { ParametricCurve } from "../../hingler-party/client/ts/engine/spline/ParametricCurve";
 import { SegmentedCurve } from "../../hingler-party/client/ts/engine/spline/SegmentedCurve";
 import { Future } from "../../hingler-party/ts/util/task/Future";
 import { xorshift32_seed, xorshift32_float } from "../../ts/util/Xorshift32";
 import { WaterMaterial } from "./game/material/water/WaterMaterial";
 import { WaterShadowMaterial } from "./game/material/water/WaterShadowMaterial";
 import { WaveStruct } from "./game/struct/WaveStruct";
+
+class CurveModel extends GameModel {
+  mat: PBRMaterial;
+  curve: ParametricCurve;
+  model: CurveSweepModel;
+  constructor(ctx: GameContext, curve: ParametricCurve, sweep: SegmentedCurve) {
+    const model = new CurveSweepModel(ctx, curve, sweep);
+    model.stepCount = 256;
+    super(ctx, model, "CurveModel");
+
+    this.curve = curve;
+    this.model = model;
+
+    this.mat = new PBRMaterialImpl(ctx);
+    this.mat.colorFactor = [1, 1, 1, 1];
+    this.mat.metalFactor = 0.001;
+    this.mat.roughFactor = 0.25;
+    this.mat.emissionFactor = [0, 0, 0, 1];
+  }
+
+  update() {
+    this.curve.setControlPoint(0, [Math.random(), Math.random(), Math.random()]);
+    this.curve.setControlPoint(1, [Math.random() + 16, Math.random() + 16, Math.random() + 16]);
+    this.model.updateModel();
+  }
+
+  renderMaterial(rc: RenderContext): void {
+    const timer = this.getContext().getGPUTimer();
+    const id = timer.startQuery();
+    const info = rc.getActiveCameraInfo();
+    this.mat.modelMat = this.getTransformationMatrix();
+    this.mat.vpMat = info.vpMatrix;
+    this.mat.cameraPos = info.cameraPosition;
+
+    this.mat.setSkybox(rc.getSkybox());
+    this.mat.setSpotLight(rc.getSpotLightInfo());
+    this.mat.drawMaterial(this.getModel());
+    timer.stopQueryAndLog(id, "CurveModel", RenderType.FINAL);
+  }
+}
 
 class SkyboxTwo extends SkyboxObject {
   private delta : number;
@@ -130,23 +172,6 @@ class WaterModelTest extends GameModel {
   }
 }
 
-class CurveScene extends GameModel {
-  mat: FillMaterial;
-  
-  constructor(ctx: GameContext, model: string | Model | Future<Model>) {
-    super(ctx, model);
-    this.mat = new FillMaterial(ctx);
-    this.mat.col = [1, 1, 1, 1];
-  }
-
-  renderMaterial(rc: RenderContext) {
-    const gl = this.getContext().getGLContext();
-    this.mat.modelMat = this.getTransformationMatrix();
-    this.mat.vpMat = rc.getActiveCameraInfo().vpMatrix;
-    this.drawModel(rc, this.mat);
-  }
-}
-
 class WaterScene extends Scene {
   constructor() {
     super();
@@ -204,11 +229,9 @@ class WaterScene extends Scene {
     curve.addPoint(-24, 15, -3);
     curve.addPoint(-3, 25, 1);
 
-    const test = new SegmentedCurve([[0, 0, 1], [1, 0, 0], [0, 0, -1], [-1, 0, 0], [0, 0, 1]]);
-
-    const curveModel = new CurveSweepModel(ctx, curve, test);
-
-    const obj = new CurveScene(ctx, curveModel);
+    const test = new SegmentedCurve([[0, 0, 1], [1, 0, 0], [0, 0, -1], [-1, 0, 0]]);
+    test.loop = true;
+    const obj = new CurveModel(ctx, curve, test);
 
     // const curvedisp = new DebugCurve(ctx, curve);
     
