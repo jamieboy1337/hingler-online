@@ -1,2 +1,4 @@
 # hingler-online
-the last knock off i can muster before i am overtaken by sewage
+a little bomberman clone i made to test my game engine :D
+
+requires webgl, with debugger features pretty much limited to webgl2 instances which implement timer queries.
