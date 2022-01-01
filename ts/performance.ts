@@ -1,1 +1,0 @@
-export const perf = (typeof performance === "undefined" ? require("perf_hooks").performance : performance);
