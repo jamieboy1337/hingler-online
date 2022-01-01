@@ -30,6 +30,10 @@ module.exports = [{
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      "@hingler-party": path.resolve(__dirname, "./hingler-party"),
+      "@nekogirl-valhalla": path.resolve(__dirname, "./hingler-party/nekogirl-valhalla/ts"),
+    }
   },
 
   output: {

@@ -1,3 +1,5 @@
+import { Future } from "@hingler-party/ts/util/task/Future";
+import { Task } from "@hingler-party/ts/util/task/Task";
 import { GameTile } from "../../client/ts/game/tile/GameTile";
 import { BombTile } from "../../client/ts/game/tile/generic/BombTile";
 import { CrateTile } from "../../client/ts/game/tile/generic/CrateTile";
@@ -14,8 +16,6 @@ import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
 import { GLTFScene } from "../../hingler-party/client/ts/engine/loaders/GLTFScene";
 import { PBRInstance } from "../../hingler-party/client/ts/engine/model/PBRInstance";
 import { PBRInstanceFactory } from "../../hingler-party/client/ts/engine/model/PBRInstanceFactory";
-import { Future } from "../../ts/util/task/Future";
-import { Task } from "../../ts/util/task/Task";
 
 export class TileFactoryStub implements TileFactory {
   ctx: GameContext;

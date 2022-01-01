@@ -1,10 +1,10 @@
+import { Task } from "@hingler-party/ts/util/task/Task";
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
 import { Model } from "../../../../../hingler-party/client/ts/engine/model/Model";
 import { GameCamera } from "../../../../../hingler-party/client/ts/engine/object/game/GameCamera";
 import { GameObject } from "../../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { TileFactoryStub } from "../../../../../test/stub/TileFactoryStub";
-import { Task } from "../../../../../ts/util/task/Task";
 import { TerminationShock } from "../../field/TerminationShock";
 import { GameConnectionManager } from "../../GameConnectionManager";
 import { GameMapState } from "../../GameMapState";

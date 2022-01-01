@@ -1,9 +1,9 @@
+import { Task } from "@hingler-party/ts/util/task/Task";
 import { GameContext } from "../../../../../../hingler-party/client/ts/engine/GameContext";
 import { GLTFScene } from "../../../../../../hingler-party/client/ts/engine/loaders/GLTFScene";
 import { PBRModel } from "../../../../../../hingler-party/client/ts/engine/model/PBRModel";
 import { GameObject } from "../../../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { GamePBRModel } from "../../../../../../hingler-party/client/ts/engine/object/game/GamePBRModel";
-import { Task } from "../../../../../../ts/util/task/Task";
 import { FieldManager } from "../../FieldManager";
 
 const beachTileNames = [

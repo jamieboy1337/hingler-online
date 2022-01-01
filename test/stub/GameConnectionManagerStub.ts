@@ -1,9 +1,9 @@
+import { perf } from "@hingler-party/ts/performance";
 import { GameConnectionManager } from "../../client/ts/game/GameConnectionManager";
 import { GameMapState } from "../../client/ts/game/GameMapState";
 import { SinglePlayerMapState } from "../../client/ts/game/manager/internal/SinglePlayerMapState";
 import { PlayerInputState } from "../../client/ts/game/PlayerInputState";
 import { PlayerState } from "../../client/ts/game/PlayerState";
-import { perf } from "../../ts/performance";
 import { GameMapStateStub } from "./GameMapStateStub";
 
 // todo: should connectionmanager be aware of time?

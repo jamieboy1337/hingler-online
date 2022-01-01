@@ -1,3 +1,4 @@
+import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
 import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
@@ -19,7 +20,6 @@ import { CurveSweepModel } from "../../hingler-party/client/ts/engine/spline/Cur
 import { ParametricCurve } from "../../hingler-party/client/ts/engine/spline/ParametricCurve";
 import { SegmentedCurve } from "../../hingler-party/client/ts/engine/spline/SegmentedCurve";
 import { Future } from "../../hingler-party/ts/util/task/Future";
-import { xorshift32_seed, xorshift32_float } from "../../ts/util/Xorshift32";
 import { WaterMaterial } from "./game/material/water/WaterMaterial";
 import { WaterShadowMaterial } from "./game/material/water/WaterShadowMaterial";
 import { WaveStruct } from "./game/struct/WaveStruct";
@@ -30,7 +30,8 @@ class CurveModel extends GameModel {
   model: CurveSweepModel;
   constructor(ctx: GameContext, curve: ParametricCurve, sweep: SegmentedCurve) {
     const model = new CurveSweepModel(ctx, curve, sweep);
-    model.stepCount = 256;
+    model.quality = 24;
+    model.flipNormals = true;
     super(ctx, model, "CurveModel");
 
     this.curve = curve;
@@ -44,8 +45,8 @@ class CurveModel extends GameModel {
   }
 
   update() {
-    this.curve.setControlPoint(0, [Math.random(), Math.random(), Math.random()]);
-    this.curve.setControlPoint(1, [Math.random() + 16, Math.random() + 16, Math.random() + 16]);
+    // this.curve.setControlPoint(0, [Math.random(), Math.random(), Math.random()]);
+    // this.curve.setControlPoint(1, [Math.random() + 16, Math.random() + 16, Math.random() + 16]);
     this.model.updateModel();
   }
 
@@ -224,13 +225,12 @@ class WaterScene extends Scene {
     root.addChild(floor);
 
     const curve = new CatmullRomSpline();
-    curve.addPoint(0, 0, 0);
-    curve.addPoint(16, 12, 4);
-    curve.addPoint(-24, 15, -3);
-    curve.addPoint(-3, 25, 1);
+    curve.addPoint(-24, 12, 0);
+    curve.addPoint(-6, 12, 4);
+    curve.addPoint(8, 11, -1);
+    curve.addPoint(28, 11, 3);
 
-    const test = new SegmentedCurve([[0, 0, 1], [1, 0, 0], [0, 0, -1], [-1, 0, 0]]);
-    test.loop = true;
+    const test = await SegmentedCurve.fromOBJ(ctx, "../res/tunnelsweep.obj");
     const obj = new CurveModel(ctx, curve, test);
 
     // const curvedisp = new DebugCurve(ctx, curve);

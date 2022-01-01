@@ -3,7 +3,12 @@
     "allowJs": true,
     "outDir": "ts-out",
     "module": "CommonJS",
-    "target": "ES2015"
+    "target": "ES2015",
+    "baseUrl": ".",
+    "paths": { 
+      "@hingler-party/*": ["./hingler-party/*"],
+      "@nekogirl-valhalla/*": ["./hingler-party/nekogirl-valhalla/ts/*"]
+    }
   },
 
   "exclude": [

@@ -1,6 +1,6 @@
-import { ReadyState, SocketLike } from "../../../ts/net/SocketLike";
+import { ReadyState, SocketLike } from "@hingler-party/ts/net/SocketLike";
+import { SafeEventEmitter } from "@hingler-party/ts/util/SafeEventEmitter";
 import * as ws from "ws";
-import { SafeEventEmitter } from "../../../ts/util/SafeEventEmitter";
 
 export class ServerSocket extends SafeEventEmitter implements SocketLike {
   socket: ws;

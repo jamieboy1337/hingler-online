@@ -1,8 +1,8 @@
+import { Future } from "@hingler-party/ts/util/task/Future";
 import { vec4 } from "gl-matrix";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
 import { PBRInstance } from "../../../../../hingler-party/client/ts/engine/model/PBRInstance";
 import { RenderContext } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
-import { Future } from "../../../../../ts/util/task/Future";
 import { GameTile } from "../GameTile";
 import { PowerupInstance } from "../instancefactory/instance/PowerupInstance";
 import { TileID } from "../TileID";

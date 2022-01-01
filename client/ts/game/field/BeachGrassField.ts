@@ -1,3 +1,4 @@
+import { Future } from "@hingler-party/ts/util/task/Future";
 import { mat3, mat4, ReadonlyMat4, vec3 } from "gl-matrix";
 import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
 import { InstancedModel } from "../../../../hingler-party/client/ts/engine/model/InstancedModel";
@@ -5,9 +6,7 @@ import { PBRInstanceFactory } from "../../../../hingler-party/client/ts/engine/m
 import { PBRModel } from "../../../../hingler-party/client/ts/engine/model/PBRModel";
 import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
-import { xorshift32, xorshift32_float } from "../../../../hingler-party/ts/util/Xorshift32";
-import { Future } from "../../../../ts/util/task/Future";
-import { xorshift32_seed } from "../../../../ts/util/Xorshift32";
+import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
 import { GrassInstanceFactory } from "../map/GrassInstanceFactory";
 import { InstancedGrassMaterial } from "../material/grass/InstancedGrassMaterial";
 

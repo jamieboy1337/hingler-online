@@ -1,8 +1,8 @@
+import { Future } from "@hingler-party/ts/util/task/Future";
 import { mat4 } from "gl-matrix";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
 import { PBRInstance } from "../../../../../hingler-party/client/ts/engine/model/PBRInstance";
 import { RenderContext, RenderPass } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
-import { Future } from "../../../../../ts/util/task/Future";
 import { GameTile } from "../GameTile";
 
 export class KnightTile extends GameTile {
