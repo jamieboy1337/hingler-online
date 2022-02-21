@@ -1,5 +1,5 @@
 import { Future } from "@hingler-party/ts/util/task/Future";
-import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
+import { xorshift32_float, xorshift32_seed } from "nekogirl-valhalla/random";
 import { mat4 } from "gl-matrix";
 import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
 import { PBRInstanceFactory } from "../../../../hingler-party/client/ts/engine/model/PBRInstanceFactory";

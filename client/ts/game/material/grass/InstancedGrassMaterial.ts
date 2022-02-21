@@ -8,7 +8,7 @@ import { SpotLightStruct } from "../../../../../hingler-party/client/ts/engine/g
 import { InstancedMaterial } from "../../../../../hingler-party/client/ts/engine/material/InstancedMaterial";
 import { TextureDummy } from "../../../../../hingler-party/client/ts/engine/material/TextureDummy";
 import { InstancedModel } from "../../../../../hingler-party/client/ts/engine/model/InstancedModel";
-import { AttributeType } from "../../../../../hingler-party/client/ts/engine/model/Model";
+import { AttributeType } from "nekogirl-valhalla/model";
 import { RenderContext, SkyboxInfo } from "../../../../../hingler-party/client/ts/engine/render/RenderContext";
 
 export class InstancedGrassMaterial implements InstancedMaterial {
@@ -102,7 +102,8 @@ export class InstancedGrassMaterial implements InstancedMaterial {
       const amb = rc.getAmbientLightInfo();
       const spot = rc.getSpotLightInfo();
 
-      gl.useProgram(this.prog);
+      const wrap = this.ctx.getGL();
+      wrap.useProgram(this.prog);
 
       gl.uniformMatrix4fv(this.unifs.modelMatParent, false, this.modelMatParent);
       gl.uniformMatrix4fv(this.unifs.vpMat, false, cam.vpMatrix);
@@ -118,8 +119,8 @@ export class InstancedGrassMaterial implements InstancedMaterial {
         }
       }
 
-      gl.uniform1i(this.unifs.spotlightCount, spotCount);
-      gl.uniform1i(this.unifs.spotlightCount_noShadow, noShadowSpotCount);
+      wrap.uniform1i(this.unifs.spotlightCount, spotCount);
+      wrap.uniform1i(this.unifs.spotlightCount_noShadow, noShadowSpotCount);
 
       gl.uniform3fv(this.unifs.camPos, cam.cameraPosition);
 
@@ -136,8 +137,8 @@ export class InstancedGrassMaterial implements InstancedMaterial {
       diffuseArray[0].bindToUniform(this.unifs.skyboxDiffuse[0], 8);
       diffuseArray[1].bindToUniform(this.unifs.skyboxDiffuse[1], 9);
 
-      gl.uniform1f(this.unifs.skyboxDiffuseIntensity[0], intensityArray[0]);
-      gl.uniform1f(this.unifs.skyboxDiffuseIntensity[1], intensityArray[1]);
+      wrap.uniform1f(this.unifs.skyboxDiffuseIntensity[0], intensityArray[0]);
+      wrap.uniform1f(this.unifs.skyboxDiffuseIntensity[1], intensityArray[1]);
 
       model.bindAttribute(AttributeType.POSITION, this.locs.aPosition);
       model.bindAttribute(AttributeType.NORMAL, this.locs.aNormal);

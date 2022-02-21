@@ -1,4 +1,3 @@
-import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../../../hingler-party/client/ts/engine/GameContext";
 import { RenderType } from "../../../../hingler-party/client/ts/engine/internal/performanceanalytics";
@@ -8,6 +7,7 @@ import { RenderContext, RenderPass } from "../../../../hingler-party/client/ts/e
 import { WaterMaterial } from "../material/water/WaterMaterial";
 import { WaterShadowMaterial } from "../material/water/WaterShadowMaterial";
 import { WaveStruct } from "../struct/WaveStruct";
+import { xorshift32_seed, xorshift32_float } from "nekogirl-valhalla/random";
 
 export class WaterField extends GameModel {
   private mat: WaterMaterial;

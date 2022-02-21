@@ -56,14 +56,15 @@ export class RadialBlur extends PostProcessingFilter {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         
         
-      gl.useProgram(this.prog);
+      const wrap = this.getContext().getGL();
+      wrap.useProgram(this.prog);
       src.getColorTexture().bindToUniform(this.uBlurColor, 1);
       gl.uniform2fv(this.glowCenter, this.center);
-      gl.uniform1i(this.samples, this.sampleCount);
-      gl.uniform1f(this.blurSize, this.size);
+      wrap.uniform1i(this.samples, this.sampleCount);
+      wrap.uniform1f(this.blurSize, this.size);
 
       let buf = this.getScreenBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      wrap.bindBuffer(gl.ARRAY_BUFFER, buf);
 
       gl.vertexAttribPointer(this.aPosition, 2, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(this.aPosition);

@@ -6,9 +6,9 @@ import { PBRInstanceFactory } from "../../../../hingler-party/client/ts/engine/m
 import { PBRModel } from "../../../../hingler-party/client/ts/engine/model/PBRModel";
 import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
-import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
 import { GrassInstanceFactory } from "../map/GrassInstanceFactory";
 import { InstancedGrassMaterial } from "../material/grass/InstancedGrassMaterial";
+import { xorshift32_float, xorshift32_seed } from "nekogirl-valhalla/random";
 
 const GRASS_RADIUS_MIN = 0.8;
 const GRASS_RADIUS_MAX = 1.1;

@@ -8,7 +8,7 @@ import { ShaderProgramBuilder } from "../../../../hingler-party/client/ts/engine
 import { InstancedModelImpl } from "../../../../hingler-party/client/ts/engine/loaders/internal/InstancedModelImpl";
 import { CalculateNormalMatrixFromBuffer } from "../../../../hingler-party/client/ts/engine/material/CalculateNormalMatrixFromBuffer";
 import { InstancedMaterial } from "../../../../hingler-party/client/ts/engine/material/InstancedMaterial";
-import { AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { AttributeType } from "nekogirl-valhalla/model";
 import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 
 export class InstancedPowerupMaterial implements InstancedMaterial {
@@ -68,7 +68,8 @@ export class InstancedPowerupMaterial implements InstancedMaterial {
   prepareAttributes(model: InstancedModelImpl, instances: number, rc: RenderContext) {
     let gl = this.ctx.getGLContext();
     if (this.prog !== null) {
-      gl.useProgram(this.prog);
+      const ctx = this.ctx.getGL();
+      ctx.useProgram(this.prog);
 
       let info = rc.getActiveCameraInfo();
 

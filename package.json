@@ -50,7 +50,6 @@
     "webpack": "^5.37.1",
     "webpack-cli": "^4.7.0"
   },
-
   "_moduleAliases": {
     "@hingler-party": "./ts-out/hingler-party",
     "@nekogirl-valhalla": "./ts-out/hingler-party/nekogirl-valhalla/ts"

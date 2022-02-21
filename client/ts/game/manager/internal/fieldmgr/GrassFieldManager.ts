@@ -1,5 +1,5 @@
 import { Task } from "@hingler-party/ts/util/task/Task";
-import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
+import { xorshift32_float, xorshift32_seed } from "nekogirl-valhalla/random";
 import { GameContext } from "../../../../../../hingler-party/client/ts/engine/GameContext";
 import { PBRModel } from "../../../../../../hingler-party/client/ts/engine/model/PBRModel";
 import { GameObject } from "../../../../../../hingler-party/client/ts/engine/object/game/GameObject";

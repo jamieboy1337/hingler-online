@@ -1,4 +1,4 @@
-import { xorshift32_float, xorshift32_seed } from "@hingler-party/ts/util/Xorshift32";
+import { xorshift32_float, xorshift32_seed } from "nekogirl-valhalla/random";
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../hingler-party/client/ts/engine/GameContext";
 import { EngineContext } from "../../hingler-party/client/ts/engine/internal/EngineContext";
@@ -15,9 +15,9 @@ import { SpotLightObject } from "../../hingler-party/client/ts/engine/object/gam
 import { SkyboxObject } from "../../hingler-party/client/ts/engine/object/game/SkyboxObject";
 import { Scene } from "../../hingler-party/client/ts/engine/object/scene/Scene";
 import { RenderContext, RenderPass } from "../../hingler-party/client/ts/engine/render/RenderContext";
-import { CatmullRomSpline } from "../../hingler-party/client/ts/engine/spline/CatmullRomSpline";
+import { CatmullRomSpline } from "nekogirl-valhalla/spline/CatmullRomSpline";
 import { CurveSweepModel } from "../../hingler-party/client/ts/engine/spline/CurveSweepModel";
-import { ParametricCurve } from "../../hingler-party/client/ts/engine/spline/ParametricCurve";
+import { ParametricCurve } from "nekogirl-valhalla/spline/ParametricCurve";
 import { SegmentedCurve } from "../../hingler-party/client/ts/engine/spline/SegmentedCurve";
 import { Future } from "../../hingler-party/ts/util/task/Future";
 import { WaterMaterial } from "./game/material/water/WaterMaterial";

@@ -1,4 +1,5 @@
-import { mat4, quat, vec3, vec4 } from "gl-matrix";
+import { PBRModel } from "@hingler-party/client/ts/engine/model/PBRModel";
+import { mat4, quat, vec3, vec4, ReadonlyQuat, ReadonlyVec3 } from "gl-matrix";
 import { FXAAFilter } from "../../../hingler-party/client/ts/engine/filter/FXAAFilter";
 import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
 import { GameCamera } from "../../../hingler-party/client/ts/engine/object/game/GameCamera";
@@ -91,7 +92,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
   private addBombTime: number;
   private addSpeedTime: number;
 
-  constructor(ctx: GameContext) {
+  constructor(ctx: GameContext, player: PBRModel) {
     super(ctx);
 
     this.deathDelta = 0;
@@ -137,10 +138,12 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     this.lastRadius = this.conn.getRadius();
     this.lastBomb = this.conn.getBombMax();
     this.lastSpeed = this.conn.getSpeed();
+
+
     
     this.input = new InputManagerImpl(ctx);
     this.field = new FieldManagerSinglePlayer(ctx, 11);
-    this.tile = new TileManagerSinglePlayer(ctx, cam, this.field);
+    this.tile = new TileManagerSinglePlayer(ctx, cam, player, this.field);
 
     this.field.setGrassLength(GRASS_LEN);
     this.field.setBeachLength(BEACH_LEN);
@@ -435,7 +438,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     // add counter to top of screen
   }
 
-  private vecLerp(a: vec3, b: vec3, t: number) : [number, number, number] {
+  private vecLerp(a: ReadonlyVec3, b: ReadonlyVec3, t: number) : [number, number, number] {
     let res = [0, 0, 0] as [number, number, number];
     res[0] = (a[0] * (1 - t)) + (b[0] * t);
     res[1] = (a[1] * (1 - t)) + (b[1] * t);
@@ -444,7 +447,7 @@ export class GameWorldManagerSinglePlayer extends GameObject {
     return res;
   }
 
-  private slerp(a: quat, b: quat, t: number) {
+  private slerp(a: ReadonlyQuat, b: ReadonlyQuat, t: number) {
     let dot = quat.dot(a, b);
     
     let res = quat.create();

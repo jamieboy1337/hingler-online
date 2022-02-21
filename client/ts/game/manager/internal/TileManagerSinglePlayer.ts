@@ -1,3 +1,4 @@
+import { PBRModel } from "@hingler-party/client/ts/engine/model/PBRModel";
 import { Task } from "@hingler-party/ts/util/task/Task";
 import { vec2 } from "gl-matrix";
 import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameContext";
@@ -54,8 +55,11 @@ export class TileManagerSinglePlayer implements TileManager {
 
   private termShock: TerminationShock;
 
-  constructor(ctx: GameContext, cam: GameCamera, field?: FieldManager) {
+  private eep: PBRModel;
+
+  constructor(ctx: GameContext, cam: GameCamera, player: PBRModel, field?: FieldManager) {
     this.ctx = ctx;
+    this.eep = player;
 
     this.shockLoc = -100;
 
@@ -144,7 +148,7 @@ export class TileManagerSinglePlayer implements TileManager {
     }
     
     if (!this.players.has(1)) {
-      let guy = new PlayerGameObject(this.ctx);
+      let guy = new PlayerGameObject(this.ctx, this.eep);
       this.players.set(1, guy);
       this.root.addChild(guy);
     }

@@ -8,7 +8,8 @@ import { SpotLightStruct } from "../../../../../hingler-party/client/ts/engine/g
 import { Texture } from "../../../../../hingler-party/client/ts/engine/gl/Texture";
 import { Material } from "../../../../../hingler-party/client/ts/engine/material/Material";
 import { TextureDummy } from "../../../../../hingler-party/client/ts/engine/material/TextureDummy";
-import { Model, AttributeType } from "../../../../../hingler-party/client/ts/engine/model/Model";
+import { Model } from "../../../../../hingler-party/client/ts/engine/model/Model";
+import { AttributeType } from "nekogirl-valhalla/model";
 import { WaveStruct } from "../../struct/WaveStruct";
 
 const GRADIENT_COLORS = [
@@ -134,15 +135,16 @@ export class WaterMaterial implements Material {
   drawMaterial(model: Model) {
     if (this.prog !== null) {
       let gl = this.ctx.getGLContext();
-      gl.useProgram(this.prog);
+      const wrap = this.ctx.getGL();
+      wrap.useProgram(this.prog);
 
       gl.uniformMatrix4fv(this.locs.modelMatrix, false, this.modelMat);
       gl.uniformMatrix4fv(this.locs.vpMatrix, false, this.vpMat);
-      gl.uniform1f(this.locs.time, this.time);
+      wrap.uniform1f(this.locs.time, this.time);
 
       for (let i = 0; i < 4; i++) {
         gl.uniform4fv(this.locs.gradientCols[i], GRADIENT_COLORS[i]);
-        gl.uniform1f(this.locs.gradientStops[i], GRADIENT_STOPS[i]);
+        wrap.uniform1f(this.locs.gradientStops[i], GRADIENT_STOPS[i]);
       }
 
       for (let i = 0; i < this.waves.length; i++) {
@@ -150,7 +152,7 @@ export class WaterMaterial implements Material {
         wave.bindToUniformByName(this.progWrap, `wavelist[${i}]`);
       }
 
-      gl.uniform1i(this.locs.wavecount, Math.min(this.waves.length, 4));
+      wrap.uniform1i(this.locs.wavecount, Math.min(this.waves.length, 4));
 
       let shadowCount = 0;
       let noShadowCount = 0;
@@ -167,25 +169,25 @@ export class WaterMaterial implements Material {
         }
       }
 
-      gl.uniform1i(this.locs.spotCount, shadowCount);
-      gl.uniform1i(this.locs.noSpotCount, noShadowCount);
-      gl.uniform1i(this.locs.ambientCount, 0);
+      wrap.uniform1i(this.locs.spotCount, shadowCount);
+      wrap.uniform1i(this.locs.noSpotCount, noShadowCount);
+      wrap.uniform1i(this.locs.ambientCount, 0);
       gl.uniform3fv(this.locs.camera_pos, this.camerapos);
 
       if (this.cubemapDiffuse !== null && this.cubemapSpec !== null && this.texBRDF !== null) {
         this.cubemapDiffuse.bindToUniform(this.locs.cubemapDiffuse, 8);
         this.cubemapSpec.bindToUniform(this.locs.cubemapSpec, 9);
         this.texBRDF.bindToUniform(this.locs.texBRDF, 10);
-        gl.uniform1f(this.locs.specRes, this.cubemapSpec.dims);
-        gl.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
-        gl.uniform1i(this.locs.useSkybox, 1);
+        wrap.uniform1f(this.locs.specRes, this.cubemapSpec.dims);
+        wrap.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
+        wrap.uniform1i(this.locs.useSkybox, 1);
       } else {
         this.placeholderDiffuse.bindToUniform(this.locs.cubemapDiffuse, 8);
         this.placeholderSpec.bindToUniform(this.locs.cubemapSpec, 9);
         this.placeholderTex.bindToUniform(this.locs.texBRDF, 10);
-        gl.uniform1f(this.locs.specRes, 1.0);
-        gl.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
-        gl.uniform1i(this.locs.useSkybox, 0);
+        wrap.uniform1f(this.locs.specRes, 1.0);
+        wrap.uniform1f(this.locs.skyboxIntensity, this.skyboxIntensity);
+        wrap.uniform1i(this.locs.useSkybox, 0);
       }
 
       // tba: lights!

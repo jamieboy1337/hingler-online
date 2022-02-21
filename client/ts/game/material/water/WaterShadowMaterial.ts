@@ -3,8 +3,9 @@ import { GameContext } from "../../../../../hingler-party/client/ts/engine/GameC
 import { GLProgramWrap } from "../../../../../hingler-party/client/ts/engine/gl/internal/GLProgramWrap";
 import { ShaderProgramBuilder } from "../../../../../hingler-party/client/ts/engine/gl/ShaderProgramBuilder";
 import { Material } from "../../../../../hingler-party/client/ts/engine/material/Material";
-import { Model, AttributeType } from "../../../../../hingler-party/client/ts/engine/model/Model";
+import { Model } from "../../../../../hingler-party/client/ts/engine/model/Model";
 import { WaveStruct } from "../../struct/WaveStruct";
+import { AttributeType } from "nekogirl-valhalla/model";
 
 export class WaterShadowMaterial implements Material {
   private progWrap: GLProgramWrap;
@@ -63,7 +64,8 @@ export class WaterShadowMaterial implements Material {
   drawMaterial(model: Model) {
     if (this.prog !== null) {
       const gl = this.ctx.getGLContext();
-      gl.useProgram(this.prog);
+      const ctx = this.ctx.getGL();
+      ctx.useProgram(this.prog);
 
       gl.uniformMatrix4fv(this.locs.modelMatrix, false, this.modelMat);
       gl.uniformMatrix4fv(this.locs.vpMatrix, false, this.vpMat);

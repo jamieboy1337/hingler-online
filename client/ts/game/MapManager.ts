@@ -1,4 +1,3 @@
-import { ids } from "webpack";
 import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
 import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { TileFactoryStub } from "../../../test/stub/TileFactoryStub";
@@ -36,7 +35,7 @@ export class MapManager extends GameObject {
     this.time = 0;
 
     if (!tile) {
-      this.tilemgr = new TileManagerSinglePlayer(ctx, null);
+      this.tilemgr = new TileManagerSinglePlayer(ctx, null, null);
     } else {
       this.tilemgr = tile;
     }

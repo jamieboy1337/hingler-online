@@ -1,3 +1,4 @@
+import { PBRModel } from "@hingler-party/client/ts/engine/model/PBRModel";
 import { GameContext } from "../../../hingler-party/client/ts/engine/GameContext";
 import { GameObject } from "../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { GamePBRModel } from "../../../hingler-party/client/ts/engine/object/game/GamePBRModel";
@@ -9,9 +10,9 @@ export class PlayerGameObject extends GameObject {
   private spot: SpotLightObject;
   private player: GameObject;
 
-  constructor(ctx: GameContext) {
+  constructor(ctx: GameContext, char: PBRModel) {
     super(ctx);
-    let player =        new GamePBRModel(ctx, "../res/chewingcharacter.glb");
+    let player =        new GamePBRModel(ctx, char);
     let deathRotate =   new GameObject(ctx);
     let spot =          new SpotLightObject(ctx);
 

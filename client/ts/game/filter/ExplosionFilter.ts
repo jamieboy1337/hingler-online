@@ -7,11 +7,13 @@ import { Texture } from "../../../../hingler-party/client/ts/engine/gl/Texture";
 import { RenderType } from "../../../../hingler-party/client/ts/engine/internal/performanceanalytics";
 import { Material } from "../../../../hingler-party/client/ts/engine/material/Material";
 import { PostProcessingFilter } from "../../../../hingler-party/client/ts/engine/material/PostProcessingFilter";
-import { Model, AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { Model } from "../../../../hingler-party/client/ts/engine/model/Model";
 import { GameModel } from "../../../../hingler-party/client/ts/engine/object/game/GameModel";
 import { GameObject } from "../../../../hingler-party/client/ts/engine/object/game/GameObject";
 import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 import { RadialBlur } from "./RadialBlur";
+
+import { AttributeType } from "nekogirl-valhalla/model";
 
 const gradientCols : Array<vec4> = [
   [0.004985, 0.001524, 0.0, 1.0],
@@ -109,7 +111,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
 
     let gl = this.getContext().getGLContext();
 
-    gl.useProgram(prog);
+    const ctx = this.getContext().getGL();
+    ctx.useProgram(prog);
 
     for (let i = 0; i < 4; i++) {
       gl.uniform4fv(gl.getUniformLocation(this.explosionColorShader, "gradientCols[" + i + "]"), gradientCols[i]);
@@ -164,7 +167,8 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
 
   drawMaterial(model: Model) {
     let gl = this.getContext().getGLContext();
-    gl.useProgram(this.explosionColorShader);
+    const ctx = this.getContext().getGL();
+    ctx.useProgram(this.explosionColorShader);
 
     gl.uniformMatrix4fv(this.modelMatUnif, false, this.explosion.getTransformationMatrix());
     gl.uniformMatrix4fv(this.vpMatUnif, false, this.vpMat);
@@ -183,6 +187,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     
     const EXPLOSION_SIZE = 0.55;
     let gl = this.getContext().getGLContext();
+    const wrap = this.getContext().getGL();
     
     let explosionCenterCoord = vec4.create();
 
@@ -199,13 +204,13 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     
     this.blur.size = this.blurMag / 8;
     this.blur.runFilter(this.explosionSwap, this.explosionFramebuffer, rc);
-    
-    gl.useProgram(this.glowShader);
+
+    wrap.useProgram(this.glowShader);
     dst.bindFramebuffer(gl.FRAMEBUFFER);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let buf = this.getScreenBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    wrap.bindBuffer(gl.ARRAY_BUFFER, buf);
 
     gl.vertexAttribPointer(this.posLoc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this.posLoc);
@@ -219,7 +224,7 @@ export class ExplosionFilter extends PostProcessingFilter implements Material {
     // src to swap, swap to src, then run the rest
     
     gl.uniform2fv(this.glowCenter, explosionCenterCoord.slice(0, 2));
-    gl.uniform1f(this.blurDist, this.blurMag / 64);
+    wrap.uniform1f(this.blurDist, this.blurMag / 64);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 

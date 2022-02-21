@@ -5,7 +5,7 @@ import { Texture } from "../../../../hingler-party/client/ts/engine/gl/Texture";
 import { InstancedModelImpl } from "../../../../hingler-party/client/ts/engine/loaders/internal/InstancedModelImpl";
 import { InstancedMaterial } from "../../../../hingler-party/client/ts/engine/material/InstancedMaterial";
 import { TextureDummy } from "../../../../hingler-party/client/ts/engine/material/TextureDummy";
-import { AttributeType } from "../../../../hingler-party/client/ts/engine/model/Model";
+import { AttributeType } from "nekogirl-valhalla/model";
 import { RenderContext } from "../../../../hingler-party/client/ts/engine/render/RenderContext";
 
 
@@ -93,7 +93,8 @@ export class InstancedExplosionMaterial implements InstancedMaterial {
     let gl = this.ctx.getGLContext();
 
     if (this.prog !== null) {
-      gl.useProgram(this.prog);
+      const ctx = this.ctx.getGL();
+      ctx.useProgram(this.prog);
 
       gl.uniformMatrix4fv(this.locs.camera_matrix, false, rc.getActiveCameraInfo().vpMatrix);
       model.bindAttribute(AttributeType.POSITION, this.attribs.position);
