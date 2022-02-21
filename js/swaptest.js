@@ -1156,7 +1156,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
   \******************************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getEnginePath = void 0;\nfunction getEnginePath(relPath) {\n    // accepts paths specified from root dir\n    // puts together a path which starts from window\n    let prefix = window.location.origin;\n    // trailing slash is sometimes missing\n    if (prefix.charAt(prefix.length - 1) !== '/') {\n        prefix = prefix + '/';\n    }\n    return `${prefix}${relPath}`;\n}\nexports.getEnginePath = getEnginePath;\n\n\n//# sourceURL=webpack://hingler-online/./hingler-party/client/ts/engine/internal/getEnginePath.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getEnginePath = void 0;\nfunction getEnginePath(relPath) {\n    // accepts paths specified from root dir\n    // puts together a path which starts from window\n    let prefix = window.location.href;\n    // trailing slash is sometimes missing\n    if (prefix.charAt(prefix.length - 1) !== '/') {\n        prefix = prefix + '/';\n    }\n    return `${prefix}../`;\n}\nexports.getEnginePath = getEnginePath;\n\n\n//# sourceURL=webpack://hingler-online/./hingler-party/client/ts/engine/internal/getEnginePath.ts?");
 
 /***/ }),
 
