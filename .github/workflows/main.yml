@@ -2,9 +2,9 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: [ dingo ]
+    branches: [ master ]
   pull_request:
-    branches: [ dingo ]
+    branches: [ master ]
 
 jobs:
   build:
