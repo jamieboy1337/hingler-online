@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../js/swaptest.js"></script>
+    <link href="../css/maptest.css" rel="stylesheet" type="text/css" />
+    <link href="../chewingchar.png" sizes="128x128" rel="apple-touch-icon" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Simple map test</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="640" height="640">WebGL not available on your browser :(</canvas>
+    <div id="loading">
+      <img src="../res/loading.png" />
+    </div>
+
+    <div id="stats-view">
+      <div class="stat-contents" id="stat-contents-radius">
+        <p>POW:&nbsp;&nbsp;&nbsp;&nbsp;<span id="stat-radius"></span></p>
+        <div class="stats-add"></div>
+      </div>
+
+      <div class="stat-contents" id="stat-contents-maxbomb">
+        <p>BOMBS:&nbsp;&nbsp;<span id="stat-maxbomb"></span></p>
+        <div class="stats-add"></div>
+      </div>
+
+      <div class="stat-contents" id="stat-contents-speed">
+        <p>SPEED:&nbsp;&nbsp;<span id="stat-speed"></span> m/s</p>
+        <div class="stats-add"></div>
+      </div>
+    </div>
+
+    <div id="score-counter-screen">
+      <div class="img-container">
+        <img src="../res/img/fieldminis/field_fg.png" id="field-fg" width="24" height="36" />
+        <img src="../res/img/charactermini_still.png" id="walk-image" width="24" height="32" />
+        <img src="../res/img/fieldminis/field_bg.png" id="field-bg" width="24" height="36" />
+      </div>
+    </div>
+
+    <div id="touch-controls" class="hidden">
+      <img id="touch-direction" src="../res/touch/dir.png" />
+      <img id="touch-detonate" src="../res/touch/detonate.png" />
+      <img id="touch-bomb" src="../res/touch/bomb.png" />
+    </div>
+
+    <div id="score-panel" class="hidden">
+      <div id="score-display">
+
+        <div id="background-bar"></div>
+        <p id="score-meters">METERS</p>
+      </div>
+
+      <div id="enemy-info">
+        
+      </div>
+
+      <div class="score-button" id="retry">RETRY</div>
+    </div>
+  </body>
+</html>
