@@ -26,7 +26,7 @@ eval("\n/// <reference lib=\"WebWorker\" />\nvar __awaiter = (this && this.__awa
   \**************************/
 /***/ ((__unused_webpack_module, exports) => {
 
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.CACHE_NAME = exports.VER_BUILD = exports.VER_MINOR = exports.VER_MAJOR = void 0;\nexports.VER_MAJOR = 0;\nexports.VER_MINOR = 3;\nexports.VER_BUILD = 1575;\nexports.CACHE_NAME = 'hingler-cache';\n\n\n//# sourceURL=webpack://hingler-online/./versionNumber.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.CACHE_NAME = exports.VER_BUILD = exports.VER_MINOR = exports.VER_MAJOR = void 0;\nexports.VER_MAJOR = 0;\nexports.VER_MINOR = 3;\nexports.VER_BUILD = 1576;\nexports.CACHE_NAME = 'hingler-cache';\n\n\n//# sourceURL=webpack://hingler-online/./versionNumber.ts?");
 
 /***/ })
 
