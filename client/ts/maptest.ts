@@ -27,6 +27,6 @@ function resizeCanvas() {
 }
 
 function configureEngine() {
-  engine = new EngineContext(canvas, new SplashScreenScene());
+  engine = new EngineContext(canvas, new SplashScreenScene(), { useServiceWorker: false });
   engine.deployContext();
 }
